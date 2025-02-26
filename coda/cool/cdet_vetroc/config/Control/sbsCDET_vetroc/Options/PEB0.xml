@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<component name="PEB0">
+
+   <transports>
+
+     <server name="FILE1_transport" class="File" />
+
+     <server name="PEB0_transport" class="Et" etName="/tmp/et_cdet_vetroc_PEB0" create="true" uPort="23912" port="23911" mAddr="239.200.0.0" eventNum="16" eventSize="4200000" groups="1" />
+
+   </transports>
+
+   <modules>
+
+     <EbModule class="EventBuilding" id="2" threads="1" timeStats="off" runData="false" tsCheck="true" tsSlop="2" sparsify="false"> 
+
+         <inchannel id="2" name="vetROC0" transp="PEB0_transport" chunk="2" idFilter="on" />
+
+         <outchannel id="2" name="FILE1" transp="FILE1_transport" fileName="/home/adaq/data_vetroc/cdet_%d.evio.%d" split="20000000000" internalBuf="100" />
+
+     </EbModule>
+
+   </modules>
+
+</component>
+

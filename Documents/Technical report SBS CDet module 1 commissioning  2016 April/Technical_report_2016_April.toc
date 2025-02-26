@@ -1,0 +1,11 @@
+\contentsline {section}{\numberline {1}Introduction}{1}
+\contentsline {section}{\numberline {2}Geometry of apparatus}{2}
+\contentsline {subsection}{\numberline {2.1}Trigger subsystem}{2}
+\contentsline {section}{\numberline {3}Measures for commissioning *EDITED*}{3}
+\contentsline {subsection}{\numberline {3.1}Numbering of ADC and TDC units}{4}
+\contentsline {subsection}{\numberline {3.2}Horizontal and vertical tracks}{4}
+\contentsline {subsection}{\numberline {3.3}Efficiency}{4}
+\contentsline {subsection}{\numberline {3.4}Amplitude vs Voltage}{4}
+\contentsline {subsection}{\numberline {3.5}Leading - Trailing edge times}{10}
+\contentsline {subsection}{\numberline {3.6}Frequency of noise}{10}
+\contentsline {section}{\numberline {4}Analysis code}{10}

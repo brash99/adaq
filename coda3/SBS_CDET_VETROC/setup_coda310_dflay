@@ -1,0 +1,55 @@
+#!/bin/csh
+
+# Example setup script for CODA3. You must set specific
+# variables including EXPID, SESSION, and COOL_HOME
+# Notes
+# - Adapted from the ~/site/coda/3.10 directory for the CDET VECTROC 
+# - Implementation by D. Flay (July 2020) 
+
+setenv CODA  /site/coda/3.10
+echo Setting up coda 3.10 from ${CODA}
+source $CODA/.setup
+
+# Set Experiment and Session IDs
+setenv EXPID cdet_vetroc 
+setenv SESSION dflay_test 
+setenv KILL_CODA_SCRIPT 
+setenv REMEX_CMSG_PASSWORD ${EXPID}
+
+# Optional Env variables
+#setenv CODA_DIRECTORY /daqfs/home/abbottd/coda
+setenv CODA_DATA /scratch/data
+
+# CODA 3 Run Control and Database
+setenv COOL_HOME /home/adaq/coda/cool 
+
+# Make sure JAVA_HOME is set in your .cshrc (requires at least jvm 1.8)
+# Use the i586 kernel, since sbs2 is a 32-bit machine  
+setenv JAVA_HOME /u/group/da/Java/jdk/Linux-i586/jdk1.8.0_172
+
+# Optional LINUX VME Support
+if( $?CODA_VME_LIB) then
+  setenv LINUXVME_HOME ${CODA_VME}
+else
+  setenv LINUXVME_HOME ${CODA}/linuxvme
+endif
+setenv LINUXVME_INC ${LINUXVME_HOME}/include
+setenv LINUXVME_LIB ${LINUXVME_HOME}/${MACHINE}/lib
+setenv LINUXVME_BIN ${LINUXVME_HOME}/${MACHINE}/bin
+#setenv LD_LIBRARY_PATH ${LD_LIBRARY_PATH}:${LINUXVME_LIB}
+
+# If you want to run a CODA ROC you need to set Tcl Environment
+if( $?RUN_CODA_ROC) then
+  setenv TCL_LIBRARY $CODA/common/lib/tcl7.4
+  setenv ITCL_LIBRARY $CODA/common/lib/itcl2.0
+  setenv TK_LIBRARY $CODA/common/lib/tk
+  setenv ITK_LIBRARY $CODA/common/lib/itk2.0
+  setenv DP_LIBRARY $CODA/common/lib/dp
+  setenv TIX_LIBRARY $CODA/common/lib/tix
+  setenv TCLINCLUDE_DIR $CODA/common/include
+  setenv TKINCLUDE_DIR $CODA/common/include
+endif
+
+setenv PATH ${JAVA_HOME}/bin:$PATH
+
+echo done.

@@ -1,0 +1,648 @@
+#  Source for VME readout of BPM, Raster, and Timestamp Data
+#  first version July, 1997  R.Michaels
+# 
+#  Under TS control if change where comments are "TS CONTROL"
+#  
+#  Modifications
+#      March 9, 1998   RWM    Add VME scaler for time-stamp
+#      April 21, 1998  RWM    Modify addressing for new Motorola 2300 cpu.
+#      Aug 31, 1998    RWM    Add a 2nd LeCroy ADC (ADC2)
+#      Oct 13, 1999    RWM    Add the Struck 7510 ADCs.
+#      Oct 21, 2001    RWM    Increase the STR7510 frequency (factor 40/16)
+#                             Reduce num readings by increasing NW7510
+#                             from 6 to 8 but skipping odd readings.
+#                             This samples ~1/4 of the period.
+#      Apr 9, 2002     RWM    Changed CSR1_7510 from 7 to 9 (-> 500 kHz)
+#                             and changed NW7510 from 8 to 6.
+
+readout list VME
+# nominally 512,1024, but must 512->5000 if 64/ch on 7510
+maximum 512,1024
+vme readout
+# uncomment this line to get TS CONTROL
+ts control
+
+# a 1 or 0 turns them on/off
+const LECROYS = 1
+const VMICS   = 0
+const STRUCKS = 1
+const SCALERS = 0
+
+const TRIG_ADDR  = hex efff0ad0
+
+# LeCroy 1182
+const ADC1 = hex e0ff0000   
+const ADC2 = hex e0990000
+
+# Memory offsets for A16 control (CTRL) and A32 data (DATA) of STR7510.
+const STR7510_CTRL_1 = hex efffb100
+const STR7510_CTRL_2 = hex efffb200
+const STR7510_CTRL_3 = hex efffb300
+# 08000000 = 8 on L-bits of switch, 09=9, 0a=a. (U bits 0)
+const STR7510_DATA_1 = hex 08000000
+const STR7510_DATA_2 = hex 09000000
+const STR7510_DATA_3 = hex 0a000000
+# CSR0 setup for 7510:  input_mode1, autostop, auto_reset, enable_one, clock divided 
+const CSR0_7510 = hex 9282
+# Clock divide for 7510. Example 0x13 -> 40 -> 4 microsec
+const CSR1_7510 = hex 9
+# To do DMA transfers (1) or not (0)
+const DMA = 0
+# Timeout to wait for data (recommend 150 for 8 words)
+const WAIT7510 = 1000
+# Registers to check DMA status
+const UNIV_DGCS_REG   = hex c1050220
+const UNIV_DGCS_MASK  = hex 000f0000
+const UNIV_DGCS_DONE  = hex 00080000
+const UNIV_DGCS_LERR  = hex 00040000
+const UNIV_DGCS_VERR  = hex 00020000
+const UNIV_DGCS_PERR  = hex 00010000
+
+const NUM_SCALERS = 1
+const BASE_SCAL_ADDR = hex e0ceb000
+
+# Offsets for VMIC3123 ADC card
+const VMICCSRADDR = hex efffad00
+# The following two must be consistent with each other
+const VMICREADADDR = hex e0000000
+const DBAR = 0
+
+include "adc3123.h"
+include "adc7510.h"
+include "scaler.c"
+
+volatile unsigned long *dgcs = UNIV_DGCS_REG;
+
+extern int bigendian_out;
+extern int vxTicks;   /* vxWorks time ticks */
+
+begin download
+
+  variable i,scal_addr
+
+%%
+/* send data from big endian VME cpu to little endian host (linux)*/
+bigendian_out = 0;
+
+  tir[1] = (struct vme_tir *)TRIG_ADDR;
+
+  printf("The Trig_addr is %x \n",TRIG_ADDR);
+
+  pVMIC3123Reg = (struct VMIC3123REG *) VMICCSRADDR;
+
+/* define arrays of pointers to CTRL space and location in DATA space */
+  for (i=0; i<NUM7510; i++) {
+     if(i==0) {
+        pSTR7510Reg[0]=(struct STR7510REG *) STR7510_CTRL_1;
+        STR7510DatLoc[0] = STR7510_DATA_1;
+     }
+     if(i==1) {
+        pSTR7510Reg[1]=(struct STR7510REG *) STR7510_CTRL_2;
+        STR7510DatLoc[1] = STR7510_DATA_2;
+     }
+     if(i==2) {
+        pSTR7510Reg[2]=(struct STR7510REG *) STR7510_CTRL_3;
+        STR7510DatLoc[2] = STR7510_DATA_3;
+     }
+  }
+  if(DMA) {
+        sysVmeDmaInit();
+        sysVmeDmaSet(4,1);    /* 64 Bit PCI transfers */
+        sysVmeDmaSet(11,2);   /* A32 addressing */
+        sysVmeDmaSet(12,4);   /* BLK32 transfers */
+  }
+
+  for (i=0; i<NUM_SCALERS; i++) {
+      scal_addr = BASE_SCAL_ADDR + (i<<8);
+      scalertype[i]=560;
+      scaen560[i] = (struct caen_v560_scaler *)scal_addr;
+  }
+
+%%
+
+
+  log inform "BPM -- Download Executed\n"
+
+end download
+    
+begin prestart
+ 
+  variable i,itimeout
+
+  log inform "BPM -- Entering Prestart\n"
+
+  init trig source VME
+  link async trig source VME 1 to bobtrig and bobtrig_done
+  event type 1 then read VME 1
+  event type 2 then read VME 1
+  event type 3 then read VME 1
+  event type 4 then read VME 1
+  event type 5 then read VME 1
+
+
+%%
+
+
+if (STRUCKS) {
+
+  for (i=0; i<NUM7510; i++) {
+
+/* Reset memory pointer */
+       pSTR7510Reg[i]->csr0 = 0x0008;  
+
+/* Control of measurement */
+       pSTR7510Reg[i]->csr0 = CSR0_7510;  
+
+/* Block lo,hi */
+       pSTR7510Reg[i]->blklo = NW7510;    /*  NW7510 = num words on each channel */
+       pSTR7510Reg[i]->blkhi = 0;
+
+/* First unit is master, others slaves.  Clock divide by 40 -> 4 microsec */
+
+       if(i==0) {
+            pSTR7510Reg[i]->csr1 = CSR1_7510;  
+       } else {
+            pSTR7510Reg[i]->csr1 = 0x20 + CSR1_7510;
+       }
+
+      printf("initialized STR7510 unit %d with csr0 = %x\n",i,pSTR7510Reg[i]->csr0);
+
+  }
+
+}
+
+
+if(VMICS) {  /* setup of VMIC3123 ADC */
+
+/* Halt and put into idle mode */
+
+  pVMIC3123Reg->csr0 = 0x40;
+  taskDelay(120);
+
+  /* Calibration */
+
+  /*  (Dont do it for now....)
+  pVMIC3123Reg->csr0 = 0x10;
+  pVMIC3123Reg->csr0 = 4;
+  itimeout=0;
+  while ((itimeout<10)&&(pVMIC3123Reg->csr1&0x18!=0x18)) {
+     itimeout++;
+     taskDelay(30);  
+  }
+  if(itimeout>=10) {
+     daLogMsg("Warning: VMIC3123 Calib failure due to timeout\n");
+  } 
+  else { 
+     daLogMsg("VMIC3123 Calibration completed\n");
+  }
+  */
+
+  /* Complete the VMIC3123 setup, but don't enable sampling yet */
+
+  pVMIC3123Reg->csr0 = 0;
+  pVMIC3123Reg->ivr = 0;
+  pVMIC3123Reg->trig = 4;
+  pVMIC3123Reg->dtobc = 6;
+  pVMIC3123Reg->chen = 0xffff;
+
+}  /* end of VMICS */
+
+if (LECROYS) {
+  /* LeCroy 1182 ADC */
+ 
+  vme_adc1182[0] = (long *)ADC1;
+  vme_adc1182[1] = (long *)ADC2;
+}
+
+%%
+
+  log inform "BPM -- Prestart Executed\n"
+
+end prestart
+
+begin end
+
+  CDODISABLE(VME,1,0);
+
+
+
+%%
+if (VMICS) {
+   /* Halt the VMIC3123 ADC, put into idle mode */
+   pVMIC3123Reg->csr0 = 0x40;
+}
+taskDelay(120);
+
+if (LECROYS) {
+   /* Disable ADC1182 front panel */
+   *vme_adc1182[0] = 0x100;
+   *vme_adc1182[1] = 0x100;
+}
+%%
+
+  log inform "BPM -- End Executed\n"
+
+end end
+
+begin pause
+
+  CDODISABLE(VME,1,0);
+
+
+%%
+if (VMICS) {
+   /* Halt the VMIC3123 ADC, put into idle mode */
+   pVMIC3123Reg->csr0 = 0x40;
+}
+taskDelay(120);
+
+if (LECROYS) {
+   /* Disable ADC1182 front panel */
+   *vme_adc1182[0] = 0x100;
+   *vme_adc1182[1] = 0x100;
+}
+%%
+
+
+  log inform "BPM -- Pause Executed\n"
+
+end pause
+
+begin go
+
+  variable isca
+  unsigned short temp;
+
+  log inform "BPM -- Entering Go\n"
+
+%%
+if (SCALERS) {
+     /* Reset scalers  */
+
+      for (isca=0;isca<NUM_SCALERS; isca++) {
+         if(scalertype[isca]==1151) { 
+            slecroy1151[isca]->reset = 0;
+         }
+        if(scalertype[isca]==7200) { 
+            sstr7200[isca]->clrR = 0;
+            sstr7200[isca]->gEnCntR = 0;
+        }
+        if(scalertype[isca]==560) {
+            scaen560[isca]->ClrR = 0;
+            temp=scaen560[isca]->clrVETOR;
+        }
+    }
+}
+
+if (VMICS) {
+   /* Enable continuous sample mode */
+    pVMIC3123Reg->csr0 = 0x12;  
+}
+
+if (LECROYS) {
+    /* Clear module, set front panel gate */
+
+    *vme_adc1182[0] = 0x104;
+    *vme_adc1182[1] = 0x104;
+}
+
+/* Interrupts enabled */
+
+%%
+
+  CDOENABLE(VME,1,0);
+
+
+end go
+
+begin trigger bobtrig
+
+
+ variable itimeout,i,j,k,iev,stat,time1
+ int a,b,c,bad,localcsr1;
+ int bit7_new,bit7_save;
+ int tst1,tst2,tst3;
+ unsigned long *adrvme;
+ unsigned short *adrlec;
+ unsigned short num;
+ long temp1,temp2;
+ int csrhist[10];
+ int ndat;
+ unsigned long tempdata[N7510CHAN*NW7510];
+ int isca;
+
+time1 = vxTicks;
+tir[1]->tir_oport=0x7;
+
+rol->dabufp = (long *)0;
+open event type EVTYPE of BT_UI4
+
+%%
+union adc_data {
+     unsigned long adc_long;
+     unsigned short adc_short;
+} adcd;
+
+
+*rol->dabufp++ = 0xfadcb0b4;  /* header for this ROC */
+
+/* Time stamp */
+*rol->dabufp++ = time1;
+
+if (VMICS) {
+   /* Two conditions may lead to successful readout:
+      1)  Bit a = 1  (buffer half full)
+            - Or -
+      2)  Transition observed from Filling lower buffer to .NOT.
+    [Condition 2) needed since a,b bits dont always appear] */
+
+   itimeout=0;
+   localcsr1=pVMIC3123Reg->csr1;
+   a=0;
+   b=0;
+   c=0;
+   bad=0;
+   bit7_save = 2;
+   for (i=0; i<10; i++) csrhist[i]=0;
+   if((localcsr1&0x8)==0x8) a=1;
+   if((localcsr1&0x10)==0x10) b=1;
+   while ((itimeout<20)&&(c==0)) {  /* wait for the a bit */
+     localcsr1=pVMIC3123Reg->csr1;
+     if(itimeout<10) csrhist[itimeout++] = localcsr1;
+     if((localcsr1&0x8)==0x8) a=1;
+     if((localcsr1&0x10)==0x10) b=1;
+     if((localcsr1&0xff)==0xff) bad=1;  /* pathological */
+     if((bad==0)&&(a==1)) c=1;  
+     bit7_new = 0;
+     if((localcsr1&0x80)==0x80) bit7_new=1;
+     if((bit7_new==1)&&(bit7_save==0)) c=1;  /* csr1 goes from 0 -> 0x80 */
+     bit7_save = bit7_new;
+     itimeout++;
+  }
+
+  if(itimeout>=20) {
+      *rol->dabufp++ = 0xfadc0bad;
+   /*    for (i=0; i<10; i++) {
+           *rol->dabufp++ = csrhist[i];
+         }  */
+
+   }
+   else {
+      *rol->dabufp++ = itimeout;
+   /*    for (i=0; i<10; i++) {
+           *rol->dabufp++ = csrhist[i];
+         }  */
+   }
+
+   /* Read out ADC in any case */
+      *rol->dabufp++ = 0xfadc3123;  /* header for VMIC 3123 */
+      for (i=0; i<16; i++) {
+         adrvme = (long *)(VMICREADADDR + 2*i);
+         temp1 = *adrvme;
+         temp2 = ((0xffff0000&temp1)>>16);
+         *rol->dabufp++ = temp2;
+      }
+
+}  /* end of VMICS */
+
+
+if (LECROYS) {
+    /* LeCroy 1182 ADC */
+    itimeout=0;
+    b=0;
+    /* conversion complete ? */
+    while ((itimeout<20)&&(b==0)) {
+       num = *vme_adc1182[0];
+       if (num==0x1d) b=1;
+       itimeout++;
+    }
+
+    if(itimeout>=20) {
+       *rol->dabufp++ = 0xf1ec0bad;
+    }
+    else {
+       *rol->dabufp++ = 0xfadc1182;   /* header for LeCroy 1182 */
+       for (iev=0; iev<1; iev++) { 
+         for (i=0; i<8; i++) {
+            adrlec = (short *)(ADC1 + 0x100 + 0x10*iev + 2*i);
+            adcd.adc_short = *adrlec;
+            *rol->dabufp++ = ((0xffff0000&adcd.adc_long)>>16);
+         }
+       }
+ 
+     *rol->dabufp++ = itimeout;
+
+    }
+
+   /* LeCroy 1182 ADC */
+   itimeout=0;
+   b=0;
+   /* conversion complete ? */
+   while ((itimeout<20)&&(b==0)) {
+      num = *vme_adc1182[1];
+      if (num==0x1d) b=1;
+      itimeout++;
+   }
+
+   if(itimeout>=20) {
+       *rol->dabufp++ = 0xf1ec0bad;
+   }
+   else {
+       *rol->dabufp++ = 0xfadd1182;   /* header for 2nd LeCroy 1182 */
+       for (iev=0; iev<1; iev++) { 
+           for (i=0; i<8; i++) {
+             adrlec = (short *)(ADC2 + 0x100 + 0x10*iev + 2*i);
+             adcd.adc_short = *adrlec;
+             *rol->dabufp++ = ((0xffff0000&adcd.adc_long)>>16);
+           }
+       }
+ 
+       *rol->dabufp++ = itimeout;
+
+   }
+
+   /* Reset */
+    *vme_adc1182[0] = 0x104;  
+    *vme_adc1182[1] = 0x104;  
+
+}  /* end of LECROYS */
+
+if (SCALERS) {
+   /* Read the scaler(s) */
+       for (isca=0; isca<NUM_SCALERS; isca++) {
+          if(scalertype[isca]==1151) {
+            *rol->dabufp++ = 0xfca11510 + isca;  /* header for Scaler */
+            for (i=0;i<16;i++) {
+              *rol->dabufp++ = slecroy1151[isca]->scaler[i];
+            }                 
+         }
+         if(scalertype[isca]==7200) { 
+            *rol->dabufp++ = 0xfca72000 + isca;  /* header for Scaler */
+            for (i=0;i<32;i++) {
+              *rol->dabufp++ = sstr7200[isca]->readCntR[i];
+            }                
+	 }
+         if(scalertype[isca]==560) {
+            *rol->dabufp++ = 0xfca56000 + isca;  /* header for Scaler */
+            *rol->dabufp++ = 2;   /* number of channels */
+/* Ok, two channels at present... */
+            for (i=0;i<2;i++) {
+              *rol->dabufp++ = scaen560[isca]->CntR[i];
+            }                 
+         }
+      }
+} /* end of SCALERS */
+
+
+if (STRUCKS) {
+
+   itimeout=0;
+   b=0;
+   /* conversion complete ? */
+   while ((itimeout<WAIT7510)&&(b==0)) {
+      a=0;
+      for (i=0; i<NUM7510; i++) {
+         if ((pSTR7510Reg[i]->stat&0x5)==4) {  /* block_done and not busy */
+            a+=1;
+         }
+      }
+      if(a==NUM7510) b=1;
+      itimeout++;
+   }
+   if(itimeout>=WAIT7510) {
+       *rol->dabufp++ = 0xf7510bad;
+
+/*       for (i=0; i<NUM7510; i++)  {
+
+           *rol->dabufp++ = pSTR7510Reg[i]->stat;
+           *rol->dabufp++ = pSTR7510Reg[i]->csr0;
+           *rol->dabufp++ = pSTR7510Reg[i]->csr1;
+           *rol->dabufp++ = pSTR7510Reg[i]->idr;
+           *rol->dabufp++ = pSTR7510Reg[i]->vers;  
+       }
+*/
+   }
+   else {
+      for (i=0; i<NUM7510; i++) {
+
+           pSTR7510Reg[i]->csr0 = 0;   /* clear divided bit in csr0 */
+                                          /* necessary because of EPLD bug */ 
+           pSTR7510Reg[i]->csr1=0x100;      /*   vme_en   */
+
+/*
+           *rol->dabufp++ = pSTR7510Reg[i]->stat;
+           *rol->dabufp++ = pSTR7510Reg[i]->csr0;
+           *rol->dabufp++ = pSTR7510Reg[i]->csr1;
+           *rol->dabufp++ = pSTR7510Reg[i]->idr;
+           *rol->dabufp++ = pSTR7510Reg[i]->vers;  
+           *rol->dabufp++ = itimeout;  
+*/
+
+           if (DMA) {
+
+               for (j=0; j<N7510CHAN; j++) {      /*   Loop over channels  */
+
+                   adrvme = (long *) ( STR7510DatLoc[i] + j*0x40000 );
+
+/* If pointer is not 64-bit aligned to VME address (lower 3 bits = 0)  */
+/* we must bump it to achieve alignment.  Put a placeholder for decoder */
+                   a = rol->dabufp;
+                   if((a&0x7)!=0) *rol->dabufp++ = 0xffffb0b0; 
+/* 3rd arg is num bytes.  NW7510 is num 16-bit words, so 2*NW7510 is num bytes */
+/* Note: NW7510 must be either 4,8,12,16... to achieve byte alignment */
+                   stat=sysVmeDmaCopy(rol->dabufp,adrvme,2*NW7510,0);
+                   itimeout=0;
+                   while ((((*dgcs)&UNIV_DGCS_MASK) == 0)&&(itimeout<0xa044))
+                   {
+                      itimeout++ ;
+                   }
+/* DMA is done - check status */
+                   if ((*dgcs)&UNIV_DGCS_DONE) {
+/* ok */
+                   } else {
+                          *rol->dabufp++ = 0xf751abad;       /* Error */
+                   }
+                   rol->dabufp += NW7510/2;    
+                   *rol->dabufp++ = 0xb0b04444;  
+                   *rol->dabufp++ = itimeout;  
+                   *rol->dabufp++ = 0xfb0b0000 + WAIT7510;
+                   *rol->dabufp++ = *dgcs;
+                   *rol->dabufp++ = 0xfb000000 + ((*dgcs)&UNIV_DGCS_DONE);
+
+               }
+
+           } else {
+
+               ndat = 0;
+               for (j=0; j<N7510CHAN; j++) {      /*   Loop over channels  */
+/* Mod Oct 2001.  Skip every 2nd one.  See top for reasons */
+                  for (k=0; k<NW7510/2; k++) {  /*  (NW7510 must be even !) words per channel   */
+                    if ((k%2)==0) {
+                      adrvme = (long *) ( 0xd0000000 + STR7510DatLoc[i] + j*0x40000) + k;
+                      tempdata[ndat++] = *adrvme;
+                     }
+                  }
+              }
+
+/* Modified 2-May-02.  Figure out first how many words would be in data. */
+              *rol->dabufp++ = 0xf7510000 + 0x1000*i + ndat;  /* channels xwords/chan */
+              for (j = 0; j < ndat; j++) *rol->dabufp++ = tempdata[j];
+
+           }
+
+           if(i==0) {   /* reset vme_en, etc */
+               pSTR7510Reg[i]->csr1 = 0x000 + CSR1_7510;  
+           } else {
+               pSTR7510Reg[i]->csr1 = 0x020 + CSR1_7510;
+           }
+
+/* Reset memory pointer */
+
+           pSTR7510Reg[i]->csr0 = 0x0008;  
+
+/* Control of measurement */
+           pSTR7510Reg[i]->csr0 = CSR0_7510;  
+
+
+      }
+
+   }
+
+}   /* end of STRUCKS */
+
+
+%%
+
+tir[1]->tir_oport=0x0;
+
+close event
+
+end trigger
+
+begin done bobtrig
+
+end done
+
+begin done
+
+# Acknowledge tir register
+  poolEmpty = 0;
+  tirtack(0);
+
+end done
+
+begin status
+
+end status
+
+
+
+
+
+
+
+
+
+
+
+

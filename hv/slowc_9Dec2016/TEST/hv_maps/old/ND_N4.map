@@ -1,0 +1,20 @@
+# Date April 22, 2009
+# Map file for the HV of the Neutron Detector
+#  ND: N4 Layer
+#  Left PMTs are on the left, right PMTs are on the right as viewed from target
+#
+#hv's host:port list (2 hvframe)
+bbps1:2001 bbps1:2002
+
+10900 20304
+10901 20305
+10902 20306
+10903 20307
+10904 20308
+10905 20309
+10906 20310
+10907 20311
+10908 20400
+10909 20401
+10910 20402
+10911 20403

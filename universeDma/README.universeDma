@@ -1,0 +1,90 @@
+In general there are the following commands that make up the Universe DMA
+library.
+
+a.  sysVmeDmaInit     - initialize the interface
+
+b.  sysVmeDmaSet      - set parameters of the DMA channel
+
+c.  sysVmeDmaGet      - get the values of the DMA channel registers
+
+d.  sysVmeDmaCopy     - copy to/from the local bus to the vmebus blocking
+                        if the dma channel is busy.
+e.  sysVmeDmaSend     - same as sysVmeDmaCopy, but the call will not
+                        block if the DMA channel is busy.
+f.  sysVmeDmaLLCreate - create a linked-list of DMA to be run
+
+g.  sysVmeDmaLLGo     - start the linked-list DMA 
+
+h.  sysVmeDmaDone     - in the case where interrupts are disabled this routine
+                        can be called to poll the DMA interface and
+                        return when it is done or and error occurs.
+                        (called after sysVmeDmaSend() or sysVmeDmaLLGo())
+
+
+Included in the distribution is an example boot script that loads the
+universeDma library and initializes it. It should be customized for the
+user's environment.
+
+
+To compile the distribution the user must have access to vxWorks header
+files (under $WIND_BASE/target/h). Optional Defines in the Makefile include
+whether the user is compiling for EXTENDED_VME or for a MVME 5100 series board.
+
+Precompiled objects in this distribution should be used as follows
+This library is for use with the following series boards only
+(MV2300, MV2400, MV5100, MV5500) 
+
+for MV5100 boards always use universeDma.o.mv5100
+for MV2300 boards use 
+    universeDma.o.5.3.1  (for 5.3 kernels)
+    universeDma.o.vw54   (for 5.4 and 5.5 kernels)
+for MV2400 Boards use
+    universeDma.o.5.3.1  (for 5.3 kernels)
+    universeDma.o.vw54   (for 5.4 kernels)
+    universeDma.o        (for 5.5 kernels)
+for MV5500 Boards use
+    universeDma.o        (only 5.5 is supported)
+
+
+  EXAMPLE
+  -------
+
+   I have a Lecroy 1190 Dual-ported memory setup with VMEbus memory starting 
+at a local VME A24 address of 0x400000. This address as seen from a MVME2306
+CPU is 0xe0400000. I have malloced an array of 128 bytes (32 longwords) in 
+local ram (mydata). I use sysVmeDmaCopy() to initiate a transfer of 128 bytes
+from the 1190 board to the local memory.
+
+-> ld < universeDma.o
+
+#initialize (Interrupt on error/completion (0) no interrupts (1))
+sysVmeDmaInit(1) 
+# Set for 32bit (0) or 64bit (1) PCI transfers
+sysVmeDmaSet(4,1)
+# A24 (1) or A32 (2) VME Slave
+sysVmeDmaSet(11,1)
+# BLK32 (4) or MBLK(64) (5) VME transfers
+sysVmeDmaSet(12,4)
+
+->mydata = malloc(128)
+new symbol "mydata" added to symbol table.
+mydata = 0x1ffe6b0: value = 33547968 = 0x1ffe6c0 = mydata + 0x10
+-> sysVmeDmaCopy(mydata,0xe0400000,128,0)
+value = 0 = 0x0
+
+    A return of 0 means the DMA was successful. had an error occured then an
+interrupt generated error would occur. The same sysVmeDmaCopy() command can
+be issued to transfer data from the CPU to the VME module if the last argument
+is set to 1 instead of 0.
+    All of the above commands can of course be imbedded in your own c code provided
+that the universeDma.o library has been loaded on the target board prior to loading
+the code that uses the routines.
+
+
+
+
+                               David Abbott
+                               Jefferson Lab DAQ group
+                               x7190
+                               abbottd@jlab.org
+

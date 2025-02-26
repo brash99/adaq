@@ -1,0 +1,20 @@
+file /w/halla-scshelf2102/sbs/ralphmm/adaq/analyzer/SConstruct,line 77:
+	Configure(confdir = .sconf_temp)
+scons: Configure: Checking whether the C++ compiler works... 
+scons: Configure: ".sconf_temp/conftest_737c003a897167642b70f8cdde8a0eaf_0.cpp" is up to date.
+scons: Configure: The original builder output was:
+  |.sconf_temp/conftest_737c003a897167642b70f8cdde8a0eaf_0.cpp <-
+  |  |
+  |  |int main(void)
+  |  |{
+  |  |    return 0;
+  |  |}
+  |  |
+  |
+scons: Configure: ".sconf_temp/conftest_737c003a897167642b70f8cdde8a0eaf_0_814168c3c1a76fa5cd342403e7111b0f.o" is up to date.
+scons: Configure: The original builder output was:
+  |c++ -o .sconf_temp/conftest_737c003a897167642b70f8cdde8a0eaf_0_814168c3c1a76fa5cd342403e7111b0f.o -c -std=c++17 -O -Wall -fPIC -Wextra -Wno-missing-field-initializers -Wno-unused-parameter -m64 -mtune=znver1 -pthread -rdynamic -DNDEBUG -DWITH_DEBUG -DLINUXVERS -Isrc -Ihana_decode -I/u/group/halla/apps/ROOT/6.30-04/el9/RelWithDebInfo/include -Ievio/evio-4.4.6/src/libsrc .sconf_temp/conftest_737c003a897167642b70f8cdde8a0eaf_0.cpp
+  |
+scons: Configure: (cached) yes
+
+

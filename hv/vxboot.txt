@@ -1,0 +1,31 @@
+-> version
+VxWorks (for Motorola MVME2300 - MPC 604r) version 5.3.1.
+Kernel: WIND version 2.5.
+Made on Jan 15 2002, 10:36:16.
+Boot line:
+dc(0,0)sbs1:/site/coda/kern/5.3.1/vx2306_IVG3 e=129.57.36.152 h=129.57.36.67 g=129.57.36.1 u=adaq pw=cebaF111 f=0x20 tn=sbscdet s=~/vxworks/sbscdet.boot
+value = 164 = 0xa4
+->
+
+***********************************************************
+
+boot device          : dc
+processor number     : 0 
+host name            : hvsrv3
+file name            : /site/coda/kern/5.3.1/vx2306_IVG3
+inet on ethernet (e) : 129.57.36.152
+host inet (h)        : 129.57.88.47
+gateway inet (g)     : 129.57.36.1
+user (u)             : highv
+ftp password (pw)    : cebaF222
+flags (f)            : 0x20 
+target name (tn)     : sbscdet
+startup script (s)   : ~/vxworks/sbscdet.boot
+
+Attaching network interface dc0... done.
+Attaching network interface lo0... done.
+Loading... 
+Error loading file: errno = 0xd0003.
+Can't load boot file!!
+
+**********************************************

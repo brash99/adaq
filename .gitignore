@@ -1,0 +1,10 @@
+*.root
+scint*.dat
+./analyzer/*.root
+./analyzer/scint*.dat
+./analyzer/replay/*.root
+./analyzer/replay/scint*.dat
+./analyzer/replay/rootfiles/*.root
+./analyzer/replay/rootfiles/scint*.dat
+./analyzer/replay/rootfiles-cdet/*.root
+./analyzer/replay/rootfiles-cdet/scint*.dat

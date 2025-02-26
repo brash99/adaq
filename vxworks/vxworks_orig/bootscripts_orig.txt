@@ -1,0 +1,20 @@
+
+Top crate, right most rack RR-2
+
+Was used for Jessica's test
+
+boot device          : dc0 
+processor number     : 0 
+host name            : yer122 
+file name            : /site/coda/kern/5.5/vx2306_v4 
+inet on ethernet (e) : 129.57.37.6:fffffe00 
+inet on backplane (b): 
+host inet (h)        : 129.57.36.45 
+gateway inet (g)     : 129.57.36.1 
+user (u)             : vx 
+ftp password (pw) (blank = use rsh): vxworks111 
+flags (f)            : 0x20 
+target name (tn)     : sbsfbdaq1b 
+startup script (s)   : /home/vx/sbsfbdaq1b.boot 
+other (o)            : 
+

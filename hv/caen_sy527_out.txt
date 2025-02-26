@@ -1,0 +1,317 @@
+***Power ON
+Testing Memory ......................... PASS
+ Testing EEPROM ......................... PASS
+ Testing CAENET ......................... PASS ( MOD. A464 UPGRADE )
+ Testing PortA .......................... PASS
+ Testing PortC .......................... PASS
+ Testing Timer .......................... PASS
+ Testing LCD Display .................... PASS
+ Loading ADC FPGA ....................... PASS
+ Loading First DAC FPGA ................. PASS
+ Loading Second DAC FPGA ................ PASS
+ Testing DAC ............................ PASS
+ Testing ADC ............................ PASS
+
+ Startup Tests Passed; Wait Bootstrap Completion ... 
+
+***Delay 5s 
+ 
+     ############         ######         ############     #####      ##
+     #####               ##### ##        #####            ########   ##
+     #####              #####   ##       #####            ########## ##
+     #####             #####     ##      ############     ## ##########
+     #####            ##############     #####            ##   ########
+     ############ ## #####         ## ## ############# ## ##      ##### ##
+ 
+ 
+ 
+ 
+                  ####    #   #    ####     ###     #### 
+                 #        #   #    #       #   #       # 
+                  ###      # #     ###        #       #  
+                     #      #         #      #       #   
+                 ####       #      ###     #####    #    
+
+
+***Any Key
+
+         C.A.E.N.       SY527        V4.05                   Crate 09
+
+
+
+
+      M A I N   M E N U
+
+      Display             Display/Modify channels
+      Protections         Set/Reset password
+      Crate               Connect a new crate
+      Map                 Crate map
+      Kill                Kill all channels
+      Alarms              Reset alarms
+      Status              Select type of alarm
+      Format              Reformat EEPROM
+      Upgrade             Firmware Upgrade via RS232
+      Quit                Abandon program
+
+
+      Select item
+
+***D
+                C.A.E.N.       SY527        V4.05                    A932A 
+ GROUP00      Ch_En is: On     V0-SEL     I0-SEL      Crate 09       Page 0 
+
+ Channel     HVmax    Vmon     Imon       V0set    I0set       Pw   Status   Ch#
+ CHANNEL00    ----  0000.80  ----.--     1250.00  ----.--     Off           0.00
+ CHANNEL01    ----  0000.40  ----.--     1350.00  ----.--     Off           0.01
+ CHANNEL02    ----  0000.40  ----.--     1154.00  ----.--     Off           0.02
+ CHANNEL03    ----  0000.40  ----.--     1295.00  ----.--     Off           0.03
+ CHANNEL04    ----  0000.80  ----.--     1184.00  ----.--     Off           0.04
+ CHANNEL05    ----  0000.40  ----.--     1258.00  ----.--     Off           0.05
+ CHANNEL06    ----  0001.00  ----.--     1136.00  ----.--     Off           0.06
+ CHANNEL07    ----  0001.00  ----.--     1284.00  ----.--     Off           0.07
+ CHANNEL08    ----  0000.40  ----.--     1157.00  ----.--     Off           0.08
+ CHANNEL09    ----  0000.40  ----.--     1358.00  ----.--     Off           0.09
+ CHANNEL10    ----  0001.00  ----.--     1400.00  ----.--     Off           0.10
+ CHANNEL11    ----  0001.00  ----.--     1201.00  ----.--     Off           0.11
+ CHANNEL12    ----  0001.00  ----.--     1192.00  ----.--     Off           0.12
+ CHANNEL13    ----  0000.60  ----.--     1392.00  ----.--     Off           0.13
+ CHANNEL14    ----  0000.80  ----.--     1277.00  ----.--     Off           0.14
+ CHANNEL15    ----  0001.00  ----.--     1351.00  ----.--     Off           0.15
+
+
+
+ Quit Edit Change Update Next Prev More Switch V/Isel
+
+***Select V0set by arrows keys and press C-hange
+
+                C.A.E.N.       SY527        V4.05                    A932A 
+ GROUP00      Ch_En is: On     V0-SEL     I0-SEL      Crate 09       Page 0 
+
+ Channel     HVmax    Vmon     Imon       V0set    I0set       Pw   Status   Ch#
+ CHANNEL00    ----  0000.80  ----.--              ----.--     Off           0.00
+ CHANNEL01    ----  0000.40  ----.--     1350.00  ----.--     Off           0.01
+ CHANNEL02    ----  0000.40  ----.--     1154.00  ----.--     Off           0.02
+ CHANNEL03    ----  0000.20  ----.--     1295.00  ----.--     Off           0.03
+ CHANNEL04    ----  0000.80  ----.--     1184.00  ----.--     Off           0.04
+ CHANNEL05    ----  0000.40  ----.--     1258.00  ----.--     Off           0.05
+ CHANNEL06    ----  0001.00  ----.--     1136.00  ----.--     Off           0.06
+ CHANNEL07    ----  0001.00  ----.--     1284.00  ----.--     Off           0.07
+ CHANNEL08    ----  0000.40  ----.--     1157.00  ----.--     Off           0.08
+ CHANNEL09    ----  0000.40  ----.--     1358.00  ----.--     Off           0.09
+ CHANNEL10    ----  0001.00  ----.--     1400.00  ----.--     Off           0.10
+ CHANNEL11    ----  0001.00  ----.--     1201.00  ----.--     Off           0.11
+ CHANNEL12    ----  0001.00  ----.--     1192.00  ----.--     Off           0.12
+ CHANNEL13    ----  0000.60  ----.--     1392.00  ----.--     Off           0.13
+ CHANNEL14    ----  0000.80  ----.--     1277.00  ----.--     Off           0.14
+ CHANNEL15    ----  0001.00  ----.--     1351.00  ----.--     Off           0.15
+
+*** press Enter - restore old value
+*** N-ext
+                C.A.E.N.       SY527        V4.05                    A932A
+ GROUP00      Ch_En is: On     V0-SEL     I0-SEL      Crate 09       Page 1 
+
+ Channel     HVmax    Vmon     Imon       V0set    I0set       Pw   Status   Ch#
+ CHANNEL16    ----  0001.00  ----.--     1251.00  ----.--     Off           0.16
+ CHANNEL17    ----  0000.80  ----.--     1076.00  ----.--     Off           0.17
+ CHANNEL18    ----  0001.00  ----.--     1018.00  ----.--     Off           0.18
+ CHANNEL19    ----  0000.00  ----.--     1006.00  ----.--     Off           0.19
+ CHANNEL20    ----  0000.80  ----.--     1350.00  ----.--     Off           0.20
+ CHANNEL21    ----  0002.40  ----.--     1350.00  ----.--     Off           0.21
+ CHANNEL22    ----  0001.20  ----.--     1350.00  ----.--     Off           0.22
+ CHANNEL23    ----  0001.20  ----.--     1350.00  ----.--     Off           0.23
+ CHANNEL24    ----  0002.00  000.000 mA  1450.00  013.000 mA  Off           0.24
+ CHANNEL00    ----  0001.60  ----.--     0863.00  ----.--     Off           1.00
+ CHANNEL01    ----  0001.00  ----.--     0917.00  ----.--     Off           1.01
+ CHANNEL02    ----  0001.20  ----.--     0955.00  ----.--     Off           1.02
+ CHANNEL03    ----  0001.40  ----.--     0931.00  ----.--     Off           1.03
+ CHANNEL04    ----  0001.40  ----.--     0896.00  ----.--     Off           1.04
+ CHANNEL05    ----  0001.20  ----.--     0983.00  ----.--     Off           1.05
+ CHANNEL06    ----  0001.20  ----.--     0975.00  ----.--     Off           1.06
+
+*** Press N-ext many times to last page
+
+                C.A.E.N.       SY527        V4.05                    A932A
+ GROUP00      Ch_En is: On     V0-SEL     I0-SEL      Crate 09       Page 15 
+
+ Channel     HVmax    Vmon     Imon       V0set    I0set       Pw   Status   Ch#
+ CHANNEL15    ----  0001.00  ----.--     1256.00  ----.--     Off           9.15
+ CHANNEL16    ----  0000.40  ----.--     1181.00  ----.--     Off           9.16
+ CHANNEL17    ----  0000.40  ----.--     1152.00  ----.--     Off           9.17
+ CHANNEL18    ----  0000.80  ----.--     0974.00  ----.--     Off           9.18
+ CHANNEL19    ----  0000.00  ----.--     1033.00  ----.--     Off           9.19
+ CHANNEL20    ----  0000.60  ----.--     1385.00  ----.--     Off           9.20
+ CHANNEL21    ----  0002.80  ----.--     1385.00  ----.--     Off           9.21
+ CHANNEL22    ----  0000.60  ----.--     1385.00  ----.--     Off           9.22
+ CHANNEL23    ----  0001.20  ----.--     1385.00  ----.--     Off           9.23
+ CHANNEL24    ----  0001.40  000.000 mA  1485.00  013.000 mA  Off           9.24
+
+*** one more N-ext returns to Page 0
+*** press M-ore
+
+                C.A.E.N.       SY527        V4.05                    A932A
+ GROUP00      Ch_En is: On     V0-SEL     I0-SEL      Crate 09       Page 0 
+
+ Channel     SVmax  Rup  Rdwn  Trip TripEx PrOn PrOff Pon  Pdwn Pswd On/Off  Ch#
+ CHANNEL00    1350  100  100   Inf.   --    01   01   Off  Kill             0.00
+ CHANNEL01    1350  100  100   Inf.   --    01   01   Off  Kill             0.01
+ CHANNEL02    1154  100  100   Inf.   --    01   01   Off  Kill             0.02
+ CHANNEL03    1295  100  100   Inf.   --    01   01   Off  Kill             0.03
+ CHANNEL04    1184  100  100   Inf.   --    01   01   Off  Kill             0.04
+ CHANNEL05    1258  100  100   Inf.   --    01   01   Off  Kill             0.05
+ CHANNEL06    1136  100  100   Inf.   --    01   01   Off  Kill             0.06
+ CHANNEL07    1284  100  100   Inf.   --    01   01   Off  Kill             0.07
+ CHANNEL08    1157  100  100   Inf.   --    01   01   Off  Kill             0.08
+ CHANNEL09    1358  100  100   Inf.   --    01   01   Off  Kill             0.09
+ CHANNEL10    1400  100  100   Inf.   --    01   01   Off  Kill             0.10
+ CHANNEL11    1201  100  100   Inf.   --    01   01   Off  Kill             0.11
+ CHANNEL12    1192  100  100   Inf.   --    01   01   Off  Kill             0.12
+ CHANNEL13    1392  100  100   Inf.   --    01   01   Off  Kill             0.13
+ CHANNEL14    1277  100  100   Inf.   --    01   01   Off  Kill             0.14
+ CHANNEL15    1351  100  100   Inf.   --    01   01   Off  Kill             0.15
+
+
+
+ Quit Edit Change Update Next Prev More Switch
+
+*** press M-ore one more time returns to begin of parameters
+
+                C.A.E.N.       SY527        V4.05                    A932A
+ GROUP00      Ch_En is: On     V0-SEL     I0-SEL      Crate 09       Page 0 
+
+ Channel     HVmax    Vmon     Imon       V0set    I0set       Pw   Status   Ch#
+ CHANNEL00    ----  0000.80  ----.--     1350.00  ----.--     Off           0.00
+ CHANNEL01    ----  0000.40  ----.--     1350.00  ----.--     Off           0.01
+ CHANNEL02    ----  0000.40  ----.--     1154.00  ----.--     Off           0.02
+ CHANNEL03    ----  0000.20  ----.--     1295.00  ----.--     Off           0.03
+ CHANNEL04    ----  0000.80  ----.--     1184.00  ----.--     Off           0.04
+ CHANNEL05    ----  0000.40  ----.--     1258.00  ----.--     Off           0.05
+ CHANNEL06    ----  0001.00  ----.--     1136.00  ----.--     Off           0.06
+ CHANNEL07    ----  0001.00  ----.--     1284.00  ----.--     Off           0.07
+ CHANNEL08    ----  0000.40  ----.--     1157.00  ----.--     Off           0.08
+ CHANNEL09    ----  0000.40  ----.--     1358.00  ----.--     Off           0.09
+ CHANNEL10    ----  0001.00  ----.--     1400.00  ----.--     Off           0.10
+ CHANNEL11    ----  0001.00  ----.--     1201.00  ----.--     Off           0.11
+ CHANNEL12    ----  0001.00  ----.--     1192.00  ----.--     Off           0.12
+ CHANNEL13    ----  0000.60  ----.--     1392.00  ----.--     Off           0.13
+ CHANNEL14    ----  0000.80  ----.--     1277.00  ----.--     Off           0.14
+ CHANNEL15    ----  0001.00  ----.--     1351.00  ----.--     Off           0.15
+
+
+
+ Quit Edit Change Update Next Prev More Switch V/Isel
+
+*** Cursor on "off" Pw column Ch#0.00 - menu at bottom is modified
+
+               C.A.E.N.       SY527        V4.05                    A932A
+ GROUP00      Ch_En is: On     V0-SEL     I0-SEL      Crate 09       Page 0 
+
+ Channel     HVmax    Vmon     Imon       V0set    I0set       Pw   Status   Ch#
+ CHANNEL00    ----  0000.80  ----.--     1350.00  ----.--     Off           0.00
+ CHANNEL01    ----  0000.40  ----.--     1350.00  ----.--     Off           0.01
+ CHANNEL02    ----  0000.40  ----.--     1154.00  ----.--     Off           0.02
+ CHANNEL03    ----  0000.20  ----.--     1295.00  ----.--     Off           0.03
+ CHANNEL04    ----  0000.80  ----.--     1184.00  ----.--     Off           0.04
+ CHANNEL05    ----  0000.40  ----.--     1258.00  ----.--     Off           0.05
+ CHANNEL06    ----  0001.00  ----.--     1136.00  ----.--     Off           0.06
+ CHANNEL07    ----  0001.00  ----.--     1284.00  ----.--     Off           0.07
+ CHANNEL08    ----  0000.40  ----.--     1157.00  ----.--     Off           0.08
+ CHANNEL09    ----  0000.40  ----.--     1358.00  ----.--     Off           0.09
+ CHANNEL10    ----  0001.00  ----.--     1400.00  ----.--     Off           0.10
+ CHANNEL11    ----  0001.00  ----.--     1201.00  ----.--     Off           0.11
+ CHANNEL12    ----  0001.00  ----.--     1192.00  ----.--     Off           0.12
+ CHANNEL13    ----  0000.60  ----.--     1392.00  ----.--     Off           0.13
+ CHANNEL14    ----  0000.80  ----.--     1277.00  ----.--     Off           0.14
+ CHANNEL15    ----  0001.00  ----.--     1351.00  ----.--     Off           0.15
+
+
+
+ Quit Change Update Next Prev More Switch V/Isel
+
+***Q
+
+
+         C.A.E.N.       SY527        V4.05                   Crate 09
+
+
+
+
+      M A I N   M E N U
+
+      Display             Display/Modify channels
+      Protections         Set/Reset password
+      Crate               Connect a new crate
+      Map                 Crate map
+      Kill                Kill all channels
+      Alarms              Reset alarms
+      Status              Select type of alarm
+      Format              Reformat EEPROM
+      Upgrade             Firmware Upgrade via RS232
+      Quit                Abandon program
+
+
+      Select item
+
+***Q
+     ############         ######         ############     #####      ##
+     #####               ##### ##        #####            ########   ##
+     #####              #####   ##       #####            ########## ##
+     #####             #####     ##      ############     ## ##########
+     #####            ##############     #####            ##   ########
+     ############ ## #####         ## ## ############# ## ##      ##### ##
+ 
+ 
+ 
+ 
+                  ####    #   #    ####     ###     #### 
+                 #        #   #    #       #   #       # 
+                  ###      # #     ###        #       #  
+                     #      #         #      #       #   
+                 ####       #      ###     #####    #    
+
+***Any Key
+
+         C.A.E.N.       SY527        V4.05                   Crate 09
+
+
+
+
+      M A I N   M E N U
+
+      Display             Display/Modify channels
+      Protections         Set/Reset password
+      Crate               Connect a new crate
+      Map                 Crate map
+      Kill                Kill all channels
+      Alarms              Reset alarms
+      Status              Select type of alarm
+      Format              Reformat EEPROM
+      Upgrade             Firmware Upgrade via RS232
+      Quit                Abandon program
+
+
+      Select item
+***M
+
+         C.A.E.N.       SY527        V4.05                   Crate 09
+
+
+              Crate map
+
+
+ Slot 0:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser.  35, Rel. 1.02
+ Slot 1:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser. 108, Rel. 1.02
+ Slot 2:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser.  56, Rel. 1.02
+ Slot 3:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser.  98, Rel. 1.02
+ Slot 4:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser.  15, Rel. 1.02
+ Slot 5:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser.  52, Rel. 1.02
+ Slot 6:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser. 103, Rel. 1.02
+ Slot 7:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser.  97, Rel. 1.02
+ Slot 8:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser.  39, Rel. 1.02
+ Slot 9:  Mod. A932A  25 CH NEGATIVE  2500V      0.50mA --- Ser.  66, Rel. 1.02
+
+
+
+Press any key to continue
+
+*** Any Key - returns to main menu
+

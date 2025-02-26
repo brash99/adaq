@@ -1,0 +1,4 @@
+export WIND_HOST_TYPE=x86-linux
+export WIND_BASE=/site/vxworks/5.5/ppc
+GCC_EXEC_PREFIX=$WIND_BASE/host/$WIND_HOST_TYPE/lib/gcc-lib/
+export PATH=$PATH:$WIND_BASE/host/$WIND_HOST_TYPE/bin

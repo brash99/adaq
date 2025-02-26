@@ -1,0 +1,9 @@
+# Date 18-Nov-2013
+# Map file for LHRS S0 HV system
+#
+# hv's host:port list (1 hvframe)
+intelha3:2001
+
+11308
+11309
+

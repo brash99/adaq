@@ -1,0 +1,1 @@
+ccppc -I$WIND_BASE/target/h -DVXWORKS -DVXWORKSPPC -mcpu=604 -DCPU=PPC604 -D_GNU_TOOL -O2 -fno-builtin -mstrict-align -ansi -mlongcall -fvolatile -DVXWORKS_ppc -D_LANGUAGE_C -Wall -c sy527.c -o sy527.o

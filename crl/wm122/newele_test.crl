@@ -1,0 +1,367 @@
+#  Source for VME readout of v775 and v792 modules using a
+#  TJNAF trigger supervisor interface register (TIR)
+#  as a source for external interrupts
+#
+#    Bryan Moffit, Nov 2010
+
+readout list VME1
+maximum 1024,500
+vme readout
+#ts control
+
+const TIR_ADDR = 0x0ed0
+
+const MAX_WORDS    =  1024
+const MAX_EVTSIZE  =  5120
+######################################################################
+# v775 TDC configuration
+######################################################################
+const use775=1
+const TDC_ID1=0
+const C775_NMOD=1
+const C775_ADR1=0x110000
+const C775_OFF =0x010000
+
+
+
+######################################################################
+# v792 ADC configuration
+######################################################################
+const use792=1
+const C792_NMOD=1
+const C792_ADR1=0x220000
+const C792_OFF=0x010000
+
+#####################################################################
+# v560 Scaler configuration
+#####################################################################
+#const use560=0
+#const CAEN560_NMOD=1
+#const CAEN560_ADR1=0x300000
+
+include "c775Lib.h"
+include "c792Lib.h"
+include "scaler1.h"
+include "v767_def.h"
+
+static int icnt=0;
+unsigned long laddr;
+extern int bigendian_out;
+static int debug=0; /* 0=off, 1=debug on, 2=more verbose */
+static int icntbad7 = 0;
+extern int vxTicks;   /* vxWorks time ticks */
+
+############################################################
+# DOWNLOAD
+############################################################
+begin download
+
+  variable res,iadc,itdc, ich
+  unsigned short channelmask[8];
+
+  log inform "Entering User Download"
+
+# Setup TIR pointers
+  printf("Setup TIR\n");
+  tirInit(TIR_ADDR);
+
+%%
+  bigendian_out=0;
+
+  printf("Setup ADCs\n");
+  
+  if (use792>0) {
+    c792Init(C792_ADR1,C792_OFF,C792_NMOD,0);
+    for (iadc=0; iadc<C792_NMOD ; iadc++) { 
+      c792Reset(iadc); 
+      c792Clear(iadc);
+
+      c792ClearThresh(iadc);
+
+      c792p[iadc]->bitSet2=0x00000800;  /* set bit 11 (auto-increment), should be default */
+
+      c792p[iadc]->iped=180;
+      printf("v792 ADC[%d] pedestal register: %hd\n", iadc, c792p[iadc]->iped);
+
+      c792Sparse(iadc, 0, 0); /* (iadc, 0, 0) to disable zero or overflow suppression */
+
+      for(ich=0; ich<32; ich++)
+      {	
+	c792SetThresh(iadc, ich, 1);
+//	printf("v792 ADC[%d] threshold for channel %d : %d \n", iadc, ich, c792p[iadc]->threshold[ich]); 
+      /* c792SetThresh(iadc, ich, 1); */  /* val=10 means threshold = 16*10 counts with bit8=0 */
+      }	
+
+
+      c792Disable(iadc);
+      c792Status(iadc);
+    }
+  }
+
+  printf("Setup TDCs\n");
+  
+  if(use775>0) {
+	  printf("Setup T0 T1 CAEN 775 TDCs\n");
+    c775Init(C775_ADR1,C775_OFF,C775_NMOD,0);
+    for (itdc=TDC_ID1;itdc<TDC_ID1+C775_NMOD;itdc++) 
+      {
+/*	c775Reset(itdc);          */
+/* just for fun c775 Reset*/
+	c775Clear(itdc);
+	c775Disable(itdc);
+	c775BitSet2(itdc,(0x0880) | (1<<12));  // turn on sliding scale
+/*	c775BitSet2(itdc,0x0800); */
+	c775ClearThresh(itdc);
+        c775CommonStop(itdc); 	
+/*        c775CommonStart(itdc);     */
+	c775SetFSR(itdc,1000); // 222.5 ps/bin  ps/bin = 8900/(290-1000/4)=222.5
+/*	c775SetFSR(itdc,800);  // 98.9 ps/bin  */
+	c775Sparse(itdc,0,0);
+	c775Status(itdc);
+        
+      }
+  }
+
+/*
+  printf("Setup Scalers\n");
+  if (use560) {
+    initSCALER(560,CAEN560_ADR1);
+  }
+*/
+
+%%
+
+  log inform "User Download Executed"
+
+end download
+    
+############################################################
+# PRESTART
+############################################################
+begin prestart
+
+  variable itdc
+  log inform "Entering User Prestart"
+
+  init trig source VME
+  link async trig source VME 1 to usrtrig and usrtrig_done
+  event type 1 then read VME 1
+
+
+  icntbad7=0;
+  log inform "User Prestart Executed"
+
+end prestart
+
+############################################################
+# END
+############################################################
+begin end
+
+  variable iadc,itdc,iwait,nevt,nwords
+
+  CDODISABLE(VME,1,0);
+%%
+  if (use792>0) {
+    for (iadc=0; iadc<C792_NMOD ; iadc++) { 
+      c792Disable(iadc);
+      c792Clear(iadc);
+    }
+  }
+  if(use775>0) {
+    for (itdc=TDC_ID1;itdc<TDC_ID1+C775_NMOD;itdc++) 
+      {
+	c775Disable(itdc);
+	c775Clear(itdc);
+      }
+  }
+%%
+  log inform "User End Executed"
+
+end end
+
+############################################################
+# PAUSE
+############################################################
+begin pause
+
+  CDODISABLE(VME,1,0);
+
+  log inform "User Pause Executed"
+
+end pause
+
+############################################################
+# GO
+############################################################
+begin go
+  
+  variable iadc,itdc,iwait,nevt,nwords
+
+  log inform "Entering User Go"
+  CDOENABLE(VME,1,0);
+%%
+  if (use792>0) {
+    for (iadc=0; iadc<C792_NMOD ; iadc++) { 
+      c792Clear(iadc);
+      c792Enable(iadc);
+    }
+  }
+  if(use775>0) {
+    for (itdc=TDC_ID1;itdc<TDC_ID1+C775_NMOD;itdc++) 
+      {
+	c775Clear(itdc);
+	c775Enable(itdc);
+      }
+  }
+//  if(use560>0) clearSCALER(1);
+
+%%
+
+end go
+
+############################################################
+# TRIGGER
+############################################################
+begin trigger usrtrig
+ 
+  variable event_no, event_len, event_cnt,event_ty,time1,time2
+
+  int iii,clear_tdc,status2,chip_err[4];
+
+  static int icnt=0;
+  int i,iadc,itdc,isca,iwait,nevt,nwords;
+  int adc_wait[3],tdc_wait[3];
+
+  clear_tdc=0;
+  event_len = 0;
+  event_cnt = -1;
+  event_ty = EVTYPE;
+  event_no = *rol->nevents;
+  time1 = vxTicks;
+#  tir[1]->tir_oport=0x7;
+
+ rol->dabufp = (long *)0;
+ open event type EVTYPE of BT_UI4
+
+ //tir[1]->tir_oport=0x1;
+
+ output hex da000abc
+
+%%
+// Scaler Readout
+/*
+ if(use560>0) {
+   *rol->dabufp++=0xda00cca0;
+   for(isca=0; isca<16; isca++) {
+      *rol->dabufp++ = getCHCLOCK(isca);
+   }
+   //clearSCALER();
+ }
+*/
+// ADC Readout
+ if(use792>0) {
+   for (iadc=0; iadc<C792_NMOD ; iadc++) 
+     { 
+       //tir[1]->tir_oport=0x1 | (1<<(iadc+1));
+
+       adc_wait[iadc]=0;
+       do 
+	 {
+  nevt = c792Dready(iadc);
+	   iwait++;
+	 } while ((nevt<=0) && (iwait<=1000));
+	adc_wait[iadc]=iwait;
+       if (nevt>0) 
+	 {
+	   *rol->dabufp++=0xda00adc0+iadc;
+	   nwords = c792ReadEvent(iadc,rol->dabufp+1);
+	   *rol->dabufp=nwords;
+	   rol->dabufp+=nwords+1;
+	 }
+       else 
+	 {
+//	   logMsg("trigger: ERROR: No data for adc %d\n",iadc);
+	   *rol->dabufp++=0xbad0adc0+iadc;
+	 }
+     }
+ }
+  //tir[1]->tir_oport=0x1; //
+
+// TDC Readout
+if(use775>0) {
+  for (itdc=TDC_ID1; itdc<TDC_ID1+C775_NMOD; itdc++) 
+    {
+      iwait=0;
+      do
+	{
+	  nevt = c775Dready(itdc);
+	  iwait++;
+	} while ((nevt<=0) && (iwait<=1000));
+	tdc_wait[itdc]=iwait;
+      if (nevt>0)
+	{
+	  *rol->dabufp++=0xda00ddc0+itdc;
+	  nwords = c775ReadEvent(itdc,rol->dabufp+1);
+	  *rol->dabufp=nwords;
+	  rol->dabufp+=nwords+1;
+	}
+      else
+	{
+	  logMsg("trigger: ERROR: Data Not Ready for tdc %d\n",itdc);
+	  *rol->dabufp++=0xbad0ddc0+itdc;
+	}
+    }
+}
+
+//tir[1]->tir_oport=0x1 | 0x10;
+
+ time2 = vxTicks;
+ *(rol->dabufp)++ =  0xfabc0006;
+ icnt = icnt + 1;
+ if(icnt > 20000) icnt = 0;
+ *rol->dabufp++ = icnt;
+ *rol->dabufp++=event_no;
+ *rol->dabufp++=event_cnt;
+ *rol->dabufp++=time1;
+ *rol->dabufp++=event_ty;
+ *rol->dabufp++=time2;
+ *(rol->dabufp)++ =  0xfabcffff;
+
+ if(use792>0) {
+   for (iadc=0; iadc<C792_NMOD ; iadc++) 
+	   *rol->dabufp++=adc_wait[iadc];
+}
+if(use775>0) {
+  for (itdc=TDC_ID1; itdc<TDC_ID1+C775_NMOD; itdc++) 
+	   *rol->dabufp++=tdc_wait[itdc];
+}
+%%
+  output hex da0000ff
+
+# tir[1]->tir_oport=0x0; 
+
+  close event
+
+end trigger
+
+begin done usrtrig
+
+end done
+
+
+############################################################
+# DONE
+############################################################
+begin done
+
+# Acknowledge tir register
+  CDOACK(VME,1,0);
+
+end done
+
+begin status
+
+end status
+
+

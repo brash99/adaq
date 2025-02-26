@@ -1,0 +1,11 @@
+#HV Maps List
+#Wed Nov 18 00:23:50 EDT 2013
+size.x=\ 2 2 2 2 2 1
+dir.y=\ 0 0 0 0 0 0
+dir.x=\ 1 1 1 1 1 1
+start.y=\ 1 1 1 1 1 1
+start.x=\ 1 1 1 1 1 1
+name.maps=LHRS_prl2 LHRS_gc LHRS_s1 LHRS_prl1 LHRS_s2m LHRS_s0 
+num.maps=6
+file.name=LHRS_prl2.map LHRS_gc.map LHRS_s1.map LHRS_prl1.map LHRS_s2m.map LHRS_s0.map 
+size.y=\ 17 5 6 17 16 2

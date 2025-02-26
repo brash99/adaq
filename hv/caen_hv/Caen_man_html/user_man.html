@@ -1,0 +1,467 @@
+<HTML>
+<HEAD>
+<TITLE>HV CONTROL</TITLE>
+</HEAD>
+
+<BODY  bgcolor="#ffffff" link="blue" vlink=red text="#45205B">
+<UL>
+<H2><b> High Voltage Control System for CAEN SY527 crates</H2></b><P>
+<HR>
+
+<UL><H3> Contents </H3>
+<LI><A HREF="#one"> CAEN Model SY527 High Voltage System </A><P>
+<LI><A HREF="#two"> Notes for CAEN A932A board</A><P>
+<LI><A HREF="#three"> HV Control System</A><P>
+<LI><A HREF="#four"> Start HV GUI</A><P>
+<LI><A HREF="#five">  Parameters of CAEN HV channels supported by GUI</A><P>
+<LI><A HREF="#six"> VME Boot parameters </A><P>
+<LI><A HREF="#seven">  Serial connections with Port Server </A><P>
+</UL>
+<p>
+
+<A NAME="one"><H3>CAEN Model SY527 High Voltage System</H3>
+(More information is here: <A HREF ="SY527.pdf">SY527 Manual </A>)<BR>
+The System is organized into "crates"; each crate is a 19" wide, 8U high euro-mechanics rack.
+The modules bearing the output channels (Channel Boards) consist of 6U plug-in modules
+Up to 10 Channel Boards may be plugged into a single crate. Different plug-in modules are
+available (Positive, Negative, Floating and Distributor Boards) and can be freely mixed in a
+single System in order to obtain the necessary configuration.
+<p>
+Each crate may be controlled locally or remotely. Local control is performed manually through a
+key-pad and an LCD display located on the Front Panel. Remote control is actuated by means
+of a video terminal (ANSI VT100 or compatible) plugged into an RS232C connector, which is
+also located on the Front Panel. In this case, a sophisticated Software User Interface is
+available, featuring symbolic names for channels, custom status displays and other features
+designed to help the management of a large number of channels. 
+<p>
+Each crate houses a HIGH SPEED (H. S.) CAENET node for the remote control; it allows the
+possibility of linking one or more crates to a H. S. CAENET controller that acts as a System
+Control Unit. Available controllers are
+<ul>
+<li> A303 H. S. CAENET IBMTM/PC Controller;
+<li> C117B H. S. CAENET CAMAC Controller;
+<li> V288 H. S. CAENET VME Controller.
+</ul>
+<p>
+Alarms: On TRIP, OVERVOLTAGE, UNDERVOLTAGE, OVERTEMP.,
+FAN FAILURE, and POWER FAILURE.
+<p>
+Restart at Power-On: Automatic after Power-On or Reset
+Password protection: On each channel or group of channels
+
+<h4>CHANNEL PARAMETERS</h4>
+Several parameters are associated with each channel. They depend upon the Board type and
+can be programmed and monitored in different ways:<br>
+<ul>
+<li> via Local control by using the LCD display and the Keypad;
+<li> via Remote control through the H. S. CAENET link or through the RS232C Port;
+<li> via the Front Panel input signals.
+</ul>
+<p>
+The following is a brief description of the meaning of all parameters.
+<p>
+<ul>
+<h5>CHANNEL NUMBER (Ch#)</h5>
+It is the physical name of the channel (0.00, 0.01 and so on) and is determined by the channel
+position;<br> this parameter is read out by the software and is always
+associated to the channels monitored both in Local and Remote control.
+
+<h5>CHANNEL NAME (Channel)</h5>
+It is the symbolic name of the channel, it can be modified via Remote
+Control; <br>
+it may be up to 11 characters long and may contain any of the following characters:<br>
+"0..9", "A..Z", "a..z", "#", "&", "%", "$", "*", "_" and "-".<br>
+Via Local Control it is displayed but it is not possible to modify it.
+
+<h5>VMAX HARDWARE (HVmax)</h5>
+It is a hardware Voltage limit; usually it is fixed through a potentiometer.
+
+<h5>VMAX SOFTWARE (SVmax)</h5>
+It is the maximum Voltage value (in absolute value) programmable for the channel.<br>
+It can be programmed either via Local or Remote Control.
+
+<h5>V0SET (V0set)</h5>
+It is the first of the two allowed Voltage programmable values (in absolute value).<br>
+It is active when VSEL is FALSE. It can be programmed either via Local or Remote Control.
+
+<h5>I0SET (I0set)</h5>
+It is the first of the two allowed Current Limit programmable values (in absolute value)<br>.
+It is active when ISEL is FALSE. It can be programmed either via Local or Remote Control.
+
+<h5>V1SET (V1set)</h5>
+It is the second of the two allowed Voltage programmable values (in absolute value).<br>
+It is active when VSEL is TRUE. It can be programmed either via Local or Remote Control.
+
+<h5>I1SET (I1set)</h5>
+It is the second of the two allowed Current Limit programmable values (in absolute value).<br>
+It is active when ISEL is TRUE. It can be programmed either via Local or Remote Control.
+
+<h5>RAMP-UP (Rup)</h5>
+Maximum Voltage programmable increase rate expressed in Volt/second (in absolute value).<br>
+When a channel is switched On, or when it is switched from a lower Voltage value to a higher
+one, the Voltage output drifts from one value to the other at the rate expressed by the Ramp-
+Up parameter.
+It can be programmed either via Local or Remote Control.
+
+<h5>RAMP-DOWN (Rdwn)</h5>
+Maximum Voltage programmable decrease rate expressed in Volt/second (in absolute value).<br>
+When a channel is switched Off, or when is switched from a higher Voltage value to a lower
+one, the Voltage output drifts from one value to the other at the rate expressed by the Ramp-
+down parameter.<br>
+The output voltage of a channel drops to zero following the Ramp-down parameter in these
+cases:<br>
+<ul>
+<il> When the channel is switched Off (Power Parameter = Off);
+<il> When the channel has tripped with 0< Trip parameter < 1000;
+<il> When the channels' outputs are disabled via the "CH OUT EN" switch.
+</ul>
+It can be programmed either via Local or Remote Control.
+
+<h5>VMON (Vmon)</h5>
+Voltage Monitored value. It can be monitored either via Local or Remote Control.
+
+<h5>IMON (Imon)</h5>
+Current Monitored value.
+It can be monitored either via Local or Remote Control.
+
+<h5>TRIP (Trip)</h5>
+It is the maximum time an "overcurrent" is allowed to last (expressed in tenths of second). If an
+"overcurrent" lasts for more than the programmed value, the System will react in the following
+ways:<br>
+<ul>
+<li>Trip =0..999: Ramp-down.<br>
+	It will cause the channel to "Trip": after an interval of time equal to the Trip value
+	in tenths of second, the output voltage will drop to zero at the rate specified by
+	the Ramp-down parameter and the channel will be put in the Off state.
+<li>
+Trip = 1000: Constant Current.<br>
+     The overcurrent may last indefinitely. If the Board has programmable current
+     hardware protections, the channel behaves like a current generator.
+     It can be programmed either via Local or Remote Control.
+</ul>
+
+<h5>POWER (Pw)</h5>
+It is the On/Off Status of the channel; by setting this parameter On the channel is On and the
+output drifts from 0 to the programmed value at the programmed rate (if the interlock is not
+active and the CH OUT ENABLE switch is in the Enable position). Via Terminal it is controlled
+by the Password Protection (see 'Password protection' ' and 'On/Off protection''').
+It can be programmed either via Local or Remote Control.
+
+<h5>PRIORITY ON/OFF (PrOn/PrOff)</h5>
+These parameters are active only via Terminal control in the Group operation. The
+Priority On/Off of the channels in a Group allows to switch On or Off the channels with a
+determined sequence in order to obtain the safest ON/OFF procedure.<br>
+<ul>
+<li>Priority On/Off = 0: The channel status is not affected by the Group ON/OFF command.
+
+<li>Priority On/Off = 1..16: The channel status is affected by the Group ON/OFF command 
+                    in such a way that channels  with higher priority are switched ON/OFF before
+                    channels with lower priority.
+</ul>
+
+<h5>POWER-ON ENABLE (Pon)</h5>
+This parameter controls the behavior of the channel at Power-On (On/Off).<br> 
+If this parameter is On, the channel reacts at Power-On, or after a
+Restart, restoring the same value of the Power parameter at the time
+of the Power-Off or the Reset occurrence.<br>
+All the channels with this parameter On are switched On following the sequence of priorities
+defined in GROUP00.
+If the Power-On Status is Off, at Power-On or after a Reset the channel is Off regardless of its
+status before the Power-Off or the Reset occurrence.<br>
+It can be programmed either via Local or Remote Control.
+
+<h5>CHANNEL STATUS (Status)</h5>
+It is the status of the channel that can be:<br>
+<ul>
+<li>Up:<br> Voltage Output Up.<br>
+   The voltage is regularly increasing towards the programmed value at the
+   programmed rate (Ramp-Up).<p>
+
+<li>Down:<br> Voltage Output Down.<br>
+    The voltage is regularly decreasing towards the programmed value at the
+    programmed rate (Ramp-Down).<p>
+
+<li>Ovv:<br> Overvoltage.<br>
+    This condition is signalled:
+    When the actual value of the voltage output is higher than the programmed
+    value;<br>
+    When the actual value of the voltage increase/decrease rate is higher then
+    the programmed value (Ramp-Up /Ramp-Down parameter).
+    If the Ovv mask is ON (see § 3.4.9) the output signal CH STATUS becomes true.<p>
+
+<li>Unv:<br> Undervoltage.<br>
+     This condition is signalled:
+     When the actual value of the voltage output is lower than the programmed
+     value;<br>
+     When the actual value of the voltage increase/decrease rate is lower than
+     the programmed value (Ramp-up/Ramp-down parameter).
+     If the Unv mask is ON (see § 3.4.9) the output signal CH STATUS becomes true.<p>
+
+<li>Ovc:<br> Overcurrent.<br>
+    The current limit has been reached, and if the Board has a programmable
+    current hardware protection the channel is behaving like a constant current
+    source. If the Ovc mask is ON (see § 3.4.9) the output signal CH STATUS becomes true.<p>
+
+<li>Trip-down:<br> The channel has tripped.<br>
+          An overcurrent has lasted for an interval longer than the allowed time and the
+         voltage is decreasing towards 0 at the programmed rate (Ramp-Down).<p>
+
+<li>Tripped:<br> The channel has tripped and has been switched off.<br>
+      	 If the CH STATUS is true, it remains in this state until a "Clear Alarm" command
+       	 is performed (see § 5.1). To recover from this state it is sufficient to turn that
+       	 channel On again. This operation also clears the CH STATUS signal (if asserted).<p>
+
+<li>Vmax.<br> The channel has reached the Vmax Hardware value.<br>
+      This means that the hardware protection circuit is active.
+      The Channel Status can be monitored either via Local or Remote Control.<p>
+</ul>
+
+<h5>PASSWORD PROTECTION STATUS (Pswd)</h5>
+This protection is active only via Terminal control if the Password is Enabled.<br> 
+It is the status of the protection: if this status is "Required" it is
+necessary to know the password to
+modify the parameters of the channel (see the following paragraph for a complete description
+of the protections).
+It can be programmed via Remote Control; <br>
+
+<h5>ON/OFF PROTECTION STATUS (On/Off)</h5>
+This protection is active only via Terminal control.<br> In conjunction with the Password
+Protection Status, it determines the possible channel operations.
+If the Password is disabled it is possible to modify every value of the Channel Parameters
+regardless of its Password Parameter.
+</ul>
+
+
+<A NAME="two"><h3>Notes for CAEN A932A board</h3>
+CAEN A932A board is currently used in CAEN crates.<br>
+(More informtion is here: <A HREF="a9xx_rev0.pdf">MODELS SY527
+	DISTRIBUTOR BOARDS </A> )<br>
+<p>
+The Board houses a Primary High Voltage Channel and 24 Active Distributor Output
+Channels, directly supplied by the Primary Channel.
+<p>
+The Voltage on each Distributed Output Channel (V_SET) can be independently programmed
+in a range of 900 V drop from the Primary Channel V_PRIM setting with a Current of 0.5 mA
+on each Distributed Channel.
+<p>
+All these 25 channels appear both on the GUI display and on the RS232 Terminal. 
+The 24 distributed channels are numbered from 0 to 23, 
+while the primary H.V. channel appears as number 24.
+<p>
+In order to obtain the desired specifications, 
+the difference between the primary channel voltage setting and the
+distributors output voltage setting is between 50 V and 900 V 
+with a load drawing more than 200 uA
+<p>
+<b>A suggested operation procedure for a Power-On of all channels could be the following:</b><br>
+<ol>
+<li> Program the 24 distributed channels at the desired voltage set, taking care that the
+maximum difference between the 24 settings does not exceed 900 V.
+<li> Program the primary channel at a setting = [max. setting of distributed channels + 50V].
+<li> Set all channels ON simultaneously (in common operation).
+</ol>
+<p>
+ Even if all distributed channels are set to OFF via terminal, H. S. CAENET or
+ via front panel keyboard, this does NOT imply that there is no output voltage on
+ the Multipin connectors.
+<p>
+<b>For the A932A board, "Channel OFF" means that the A932A distributed channel
+supplies as output a voltage that is equal to the primary channel voltage minus the
+maximum drop (approx. 900 V).<br> 
+As an example, if the primary channel is set to 2200 V and the
+distributed channel is set to 1900 V, if the distributor channel is ON
+the output on the multipin connectors will be 1900 V with ≤5 mV ripple, while if the
+distributor channel is OFF the output on the multipin connectors will be approx.
+1300 V with a higher ripple.</b>
+<p>
+
+<A NAME="three"><h3>HV Control System</h3>
+HV control system consists of two High Voltage CAEN crates, CaeNet VME
+  board V288, 
+VME crate with a single
+board computer (VxWorks, CPU-MVME2306).
+HV crates are connected to V288 board using CAENET network with daisy-chain schema. 
+The server, which runs on VME computer, translates commands from HV GUI
+  to control CAEN crates and sends back responses from CAEN modules
+  using HV GUI protocol. 
+The communication protocol between HV GUI and server is TCP/IP (it is the same
+  as used for LeCroy-1458 HV System).
+
+<h4>More Details</h4>
+HV GUI monitors changes of channel parameters(properties) by polling summary
+numbers from server using commands: <b>"GS", "LS", "PS".</b><br>
+There are 3 types of summary numbers:
+<ul> 
+<li>  global:   GS - five four-digits words(hex),
+<li>  logical:  LS - two four-digit word(hex) for every module(slot),
+<li>  property: PS - one four-digit word(hex) for every hv channel
+  property(parameter).
+</ul><br>
+If channel property is changed, PS number for that property is incremented,
+then LS number for corresponded module(board) is incremented and then
+GS number is also incremented.
+GUI gets these changed summary numbers and it founds what property in what module(board)
+have to be updated, then it sends recall command to server with corresponded
+parameter name.<br>
+<p>
+Task called 'monitor' runs on VME computer and it scans all hv
+channels in loop  by crates, boards  to readout
+parameters values.
+Values from all hv channels are stored in monitor's memory
+(arrays). Stored values are updated in regular time interval (about
+10-15 sec for one crate with 10 boards).
+Property value after readout from HV channel is compared with corresponded value stored in array.
+If there is some(predefined) difference between these two values, 
+summary number for that property is incremented.<br>
+Server receives recall command from GUI for corresponded property and
+sends back property value stored in 'monitor' array.
+
+<A NAME="four"><h3>Start HV GUI</h3>
+HV GUI is located on <b>'hvsrv3'</b> computer under <b>'highv'</b> account in directory <b>/home/highv/slowc.</b><br>
+There is test configuration in directory /home/highv/slowc/TEST.<br> 
+Host names for CAEN crates in HV GUI:<br>  
+<ul>
+<li>       Crate #12:<b> sbscdet:2012 </b>
+<li>       Crate #9 :<b> sbscdet:2009 </b>
+</ul>
+<p>
+To start HV GUI:
+<ul>
+<li>  Login to 'hvsrv3' as user 'highv' (password is the same as for 'adaq').<br>
+<li>  Go to directory slowc: 
+<i>cd slowc</i><br>
+<li> Start GUI: 
+<i>./hvs TEST</i>
+</ul>
+<p>
+Initialization time of two HV crates in GUI is about 2 min. Update
+time for changed parameter in one crate is about 10-15 sec. Be patient, it takes time.
+
+<h4>HV GUI Power ON/OFF button</h4>
+CAEN SY527 crate does not support direct remote command to switch power ON or OFF for entire crate.
+There is only On/OFF option for every channel.<br> 
+HV GUI Power ON button will not provide any power action. It is used only to clear alarm state ("CH STATUS" output on the front panel of the crate).<br>
+HV GUI Power OFF button is used to immediate switch OFF  all channels in crate(s).<br>
+Power ON/OFF for one channel is provided by enabling/disabling channel property "CE_Ch".<br>
+There is group GUI command in "Menu->Edit" to Enable/Disable all channels in module, crate or all crates.
+
+<h4>HV GUI Voltage Polarity </h4>
+CAEN SY527 boards does not support polariy property.<br> 
+HV GUI will accept only positive values for settable parameters regardless of board polarity.
+
+<A NAME="five"><h3> Parameters of CAEN HV channels supported by GUI</h3>
+Parameters of CAEN HV channels SUPPORTED by HV GUI:<br>
+<ul><pre>
+Property  CAEN parameter   GUI Label    Description           Units 
+Ch_number  Ch#             CH#          channel number              (read)
+CE         Pw      	   CE_En        channel enable/disable      (read/write)  0/1
+MC         Imon    	   Imon_mA      measured current            (read)   	  mA
+MV         Vmon    	   Vmon_V       measured voltage            (read)         V
+DV         V0set   	   V0set_V      set #0 of voltage           (write/read)   V 
+DC         I0set   	   I0set_V      set #0 of current limit     (write/read)  mA 
+SVL        SVmax   	   SVmax_V      software max voltage limit  (write/read)   V
+RUP        Rup     	   RUP_V/s      ramp up speed               (write/read)  V/s   
+RDN        Rdwn    	   RDN_V/s      ramp down speed             (write/read)  V/s
+TC         Trip    	   Trip_s       maximum time an "overcurrent" 
+	   	   	   	        is allowed to last          (write/read)  in tenths of second
+STAT       Status          Status       channel status              (read)        4 hex digits
+FLAG       FLAG    	   FLAG_N       channel flag and mask       (read)        4 hex digits
+ST         Status  	   CH_Stat      converted channel status for support GUI alarms
+</ul></pre>
+<p>
+
+Currently NOT supported parameters of CAEN hv channels from HV GUI:<br>
+<ul><pre>
+CAEN Parameter  		          
+V1SET			     V1set	  
+I1SET			     I1set     	  
+HVMAX			     HVmax       
+CHANNEL NAME                 Channel      
+PASSWORD PROTECTION STATUS   Pswd          
+ON/OFF PROTECTION STATUS     On/Off
+PRIORITY ON/OFF              Pron/Proff
+POWER-ON ENABLE              Pon
+</ul></pre>
+<p>
+
+Alarms supported by HV GUI:<br>
+<ul>
+<li>Power OFF not from GUI
+<li>Channel overvoltage
+<li>Channel overcurrent
+<li>Channel trip
+<li>Channel hardware voltage limit
+</ul>
+
+<A NAME="six"><h3>VME Boot parameters</h3> 
+Boot parameters for VME CPU <b>'sbscdet'</b> in Test Lab:
+<ul>
+<pre>
+#boot device          : dc
+#processor number     : 0 
+#host name            : hvsrv3
+#file name            : /site/coda/kern/5.3.1/vx2306_IVG3
+#inet on ethernet (e) : 129.57.36.152
+#host inet (h)        : 129.57.88.47
+#gateway inet (g)     : 129.57.36.1
+#user (u)             : highv
+#flags (f)            : 0x20 
+#target name (tn)     : sbscdet
+#startup script (s)   : ~/caen_hv/sbscdet.boot
+</pre>
+</ul>
+
+<h4>Program components</h4>
+
+Programs tasks started on VME CPU at boot time from file <b>/home/highv/caen_hv/sbscdet.boot</b>:
+<ul>
+<pre>
+# load library for v288 and sy527
+ld < sy527/sy527.o
+
+# Set V288 board address on VME bus:
+v288addr=0xe0600000;
+
+# start monitors for Caen crate #12 and crate #9 
+taskSpawn "caenmon12",150,spTaskOptions,10000, monitor1, 12
+taskSpawn "caenmon9",150,spTaskOptions,10000, monitor1, 9
+
+Parameters:
+            9  - Caen crate one number (1-99)
+            12 - Caen crate two number (1-99) 
+
+# load and start two servers
+ld < server/server.o
+taskSpawn "c_srv1",120,spTaskOptions,10000, start, 2012, 12
+taskSpawn "c_srv2",120,spTaskOptions,10000, start, 2009, 9
+
+Server parameters: 2012 (2009) - port number(s)
+                     12  (9)   - crate number(s)
+
+</pre>
+</ul>
+
+<A NAME="seven"><h3> Serial connections with Port Server</h3>
+CAEN crates can be controled by terminal connected to serial line.<br>
+There is port server <b>'cdetts2'</b> that allows to make connection to CAEN
+crates and also to VME CPU by serial line.
+<ul>
+<li>Connect to CAEN crate <b>#12:</b><br>
+<i>telnet cdetts2 2002</i>
+<p>
+<li>Connect to CAEN crate <b>#9:</b><br>
+<i>telnet cdetts2 2003</i>
+<p>
+<li>Connect to VME CPU <b>'sbscdet':</b><br>
+<i>telnet cdetts2 2008</i>
+</ul>
+
+<HR>
+Last  modification: 28 Apr 2015<BR>
+<A href="mailto:romanip@jlab.org"> Comments and suggestions. </A>
+<BR>
+
+</UL>
+</BODY>
+</BODY>
+</HTML>

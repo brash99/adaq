@@ -1,0 +1,152 @@
+: Esc 7
+& DECSC: SAVE CURSOR
+: Esc 8
+& DECRC: RESTORE CURSOR
+: Esc =
+& DECKPAM: KEYPAD APPLICATION MODE
+: Esc >
+& DECKPNM: KEYPAD NORMAL MODE
+. LF/^J
+: Esc [ ? 1 ; 1049 h
+& SM: SET MODE (private params)
+" (DEC) Cursor key mode.
+" (Xterm) Save the cursor position and use the alternate screen buffer,
+"  clearing it first.
+: Esc [ ? 1 ; 1049 l
+& RM: RESET MODE (private params)
+" (DEC) Cursor key mode off.
+" (Xterm) Leave the alternate screen buffer and restore the cursor.
+: Esc [ > 1049 h
+& SM: SET MODE (private params)
+. LF/^J
+: Esc [ ? 4 i
+& MC: MEDIA COPY (private params)
+" (DEC) Turn off autoprint mode.
+: Esc [ > 4 i
+& MC: MEDIA COPY (private params)
+. LF/^J
+: Esc [ > 1 m
+& SGR: SELECT GRAPHIC RENDITION (private params)
+" (Xterm) Set modifyCursorKeys to 0.
+: Esc [ > 2 m
+& SGR: SELECT GRAPHIC RENDITION (private params)
+" (Xterm) Set modifyFunctionKeys to 0.
+: Esc [ > 4 m
+& SGR: SELECT GRAPHIC RENDITION (private params)
+" (Xterm) Set modifyOtherKeys to 0.
+: Esc [ > 1 ; 1 m
+& SGR: SELECT GRAPHIC RENDITION (private params)
+" (Xterm) Set modifyCursorKeys to 1.
+: Esc [ > 2 ; 1 m
+& SGR: SELECT GRAPHIC RENDITION (private params)
+" (Xterm) Set modifyFunctionKeys to 1.
+: Esc [ > 4 ; 1 m
+& SGR: SELECT GRAPHIC RENDITION (private params)
+" (Xterm) Set modifyOtherKeys to 1.
+: Esc [ ? 1 m
+& SGR: SELECT GRAPHIC RENDITION (private params)
+: Esc [ > 1 n
+& DSR: DEVICE STATUS REPORT (private params)
+" (Xterm) Disable modifyCursorKeys.
+: Esc [ > 2 n
+& DSR: DEVICE STATUS REPORT (private params)
+" (Xterm) Disable modifyFunctionKeys.
+: Esc [ > 4 n
+& DSR: DEVICE STATUS REPORT (private params)
+" (Xterm) Disable modifyOtherKeys.
+. LF/^J
+: Esc [ r
+" (DEC) Set the scrolling region to full size.
+: Esc [ 1 ; 10 r
+" (DEC) Set the scrolling region to from line 1 to line 10.
+: Esc [ 10 r
+. LF/^J
+: Esc [ ? 1000 ; 1049 r
+" *** (Xterm) Restore saved settings for specified modes:
+" (Xterm) Send mouse X & Y on button press and release.
+" (Xterm) Save the cursor position and use the alternate screen buffer,
+"  clearing it first.
+: Esc [ ? 5 ; 1 s
+" *** (Xterm) Save current state of specified modes:
+" (DEC) Reverse video (dark on light).
+" (DEC) Cursor key mode.
+. LF/^J
+: Esc [ 1 t
+" (dtterm) De-iconify window.
+: Esc [ 2 t
+" (dtterm) Iconify window.
+: Esc [ 3 ; 32 ; 63 t
+" (dtterm) Move window to [32, 63].
+: Esc [ 4 ; 512 ; 342 t
+" (dtterm) Resize the window to height 512 and width 342 in pixels.
+: Esc [ 5 t
+" (dtterm) Raise the window to the front of the stacking order.
+: Esc [ 6 t
+" (dtterm) Lower the xterm window to the bottom of the stacking order.
+: Esc [ 7 t
+" (dtterm) Refresh the window.
+: Esc [ 8 ; 24 ; 80 t
+" (dtterm) Resize the text area to height 24 and width 80 in characters.
+: Esc [ 9 ; 0 t
+" (Xterm) Restore maximized window.
+: Esc [ 9 ; 1 t
+" (Xterm) Maximize window.
+: Esc [ 11 t
+" (dtterm) Request report on the window state (iconified/not iconified).
+: Esc [ 13 t
+" (dtterm) Request report on the window position.
+: Esc [ 14 t
+" (dtterm) Request report on window size in pixels.
+: Esc [ 18 t
+" (dtterm) Request report on text area size in characters.
+: Esc [ 19 t
+" (Xterm) Request report on the whole screen size in characters.
+: Esc [ 20 t
+" (dtterm) Request report of the window's icon label.
+: Esc [ 21 t
+" (dtterm) Request report of the window's title.
+: Esc [ 53 t
+" (Xterm) Resize the window to 53 lines.
+. LF/^J
+: Esc [ ' z
+& DECELR: ENABLE LOCATOR REPORTING
+" Disable locator reports.
+: Esc [ 0 ' z
+& DECELR: ENABLE LOCATOR REPORTING
+" Disable locator reports.
+: Esc [ 1 ; 1 ' z
+& DECELR: ENABLE LOCATOR REPORTING
+" Enable locator reports.
+"  Report position in pixels.
+: Esc [ 1 ; 0 ' z
+& DECELR: ENABLE LOCATOR REPORTING
+" Enable locator reports.
+"  Report position in character cells.
+: Esc [ 2 ; 2 ' z
+& DECELR: ENABLE LOCATOR REPORTING
+" Enable a single locator report.
+"  Report position in character cells.
+: Esc [ 1 ; 2 ; 3 ' z
+& DECELR: ENABLE LOCATOR REPORTING
+. LF/^J
+: Esc [ ' {
+& DECSLE: SELECT LOCATOR EVENTS
+" Only respond to explicit locator report requests.
+: Esc [ 2 ; 3 ' {
+& DECSLE: SELECT LOCATOR EVENTS
+" Do not report button-down transitions.
+" Report button-up transitions.
+: Esc [ 1 ; 4 ' {
+& DECSLE: SELECT LOCATOR EVENTS
+" Report button-down transitions.
+" Do not report button-up transitions.
+: Esc [ 0 ; 5 ' {
+& DECSLE: SELECT LOCATOR EVENTS
+" Only respond to explicit locator report requests.
+: Esc [ ' |
+& DECRQLP: REQUEST LOCATOR POSITION
+" Request a single DECLRP locator report.
+. LF/^J
+: Esc [ 2 ; 28 ; 52 ; 19 ; 1 & w
+" (DEC) Mouse [down:left/M4] at [52,52].
+. LF/^J

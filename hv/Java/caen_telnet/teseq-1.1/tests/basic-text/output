@@ -1,0 +1,12 @@
+|A wrapped line follows:|.
+|123456789012345678901234567890123456789012345678901234567890123456789012345|-
+-|678|.
+|Pipe: ||.
+|Trailing spaces:   |.
+|CRLF pair|
+. CR/^M LF/^J
+|CR only|
+. CR/^M
+|Blank line follows:|.
+||.
+|Missing newline|

@@ -1,0 +1,15 @@
+[adaq@sbs2 ~]$ telnet cdetts2 2006
+
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : sbs2
+file name            : /site/coda/kern/5.5/vx2306_v4
+inet on ethernet (e) : 129.57.37.39:fffffe00
+host inet (h)        : 129.57.37.50
+gateway inet (g)     : 129.57.36.1
+user (u)             : adaq
+ftp password (pw)    : Gep!2019
+flags (f)            : 0x20 
+target name (tn)     : sbsvme7
+startup script (s)   : /home/adaq/vxworks/sbsvme7_sbs2.boot

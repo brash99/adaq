@@ -1,0 +1,18 @@
+Comparison of mean adc values for PMT 12 before and after resistors
+            (1335)                    (1356)
+Pixel       Mean        Sigma         Mean       Sigma
+1           707           0
+2           370           0
+3           386           0
+4           380           0
+5           952           0
+6           580           0
+7           646           0
+8           481           0
+9           793           0
+10          455           0
+11          473           0
+12          452           0
+14          535           0
+15          651           0
+

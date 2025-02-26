@@ -1,0 +1,9 @@
+#
+# Access control for mSQL
+#
+database=a
+read=root
+write=root
+host=*
+access=local,remote
+option=rfc93

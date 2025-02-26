@@ -1,0 +1,259 @@
+<html>
+<head>
+<title>WebTerm: Implementation Details</title>
+</head>
+<body>
+
+      <h3 align=center>WebTerm Terminal Emulator and Telnet Client</h3>
+      <h2 align=center>Implementation Details</h2>
+      <hr>
+
+      <p>Java classes that implement a low-level terminal screen handler, a
+      VT200/XTerm/VT100/VT52 terminal emulator, and a Telnet session
+      client.  These can be used together to form a complete TELNET
+      applet.</p>
+
+      <h3>Parameters</h3>
+
+      <p>The "WebTerm.class" applet recognizes the following
+	parameters:</p>
+      <dl>
+	<dt> HOST
+	<dd> <p>Name of initial host machine.  If not supplied, it is the
+	    machine the applet was retrieved from.</p>
+	<dt> PORT
+	<dd> <p>Number of port for connection.  If not suppled, it is 23,
+	    the standard Telnet port.</p>
+	<dt> FONTSIZE
+	<dd> <p>Point size of font to use as terminal's screen text.  If
+	    not supplied, it is the size if the default Component font.</p>
+	<dt> REGISTER
+	<dd> <p>Name to under which to register the terminal, in a
+	    <a href="http://www.cs.orst.edu/~hackbod/java/ClassRegistry/">
+	      class registry</a>.  By sending a 
+	    "<code>send</code>" command to a WebTerm applet through this
+	    registry, other applets can insert data into the terminal's
+	    input stream as if the user had directly typed it.</p>
+	<dt> PROMPT#, REPLY#, ENDPROMPTS#
+	<dd> <p>A set of parameters for specifying automatic replies to
+	    incoming text.  The '#' represents the prompt number -- prompts
+	    should start at 1, and be consecutively numbered.  'PROMPT' is
+	    the trigger text, 'REPLY' is the text to send when the trigger
+	    is encountered, and if 'ENDPROMPTS' is true then this will turn
+	    off <em>all</em> prompts for the rest of the telnet
+	    session.</p> <p>The supplied strings may contain standard Java
+	    escape sequences, including \n, \r, \t, \b, \f, \###, \u####,
+	    and \x##.</p>
+	<dt> FOREGROUND and BACKGROUND
+	<dd> <p>Set the foreground and background colors, respectively, of
+	    the terminal.  May be a standard Java color string or the word
+	    "default" for the system default colors; if not supplied, uses
+	    a black on light grey combination.</p>
+	<dt> HISTORY
+	<dd> <p>Set the number of lines in the history buffer.  A value of
+	    zero means no history buffer, though this doesn't yet keep the
+	    scrollbar from being displayed.  Note that each line in the
+	    buffer takes (6*cols) bytes, so be careful with how large you
+	    make it!</p>
+      </dl>
+
+      <h3>Features not yet implemented</h3>
+
+      <ul>
+	<li> There is no cut-and-paste mechanism.
+	<li> Resizing of the terminal is not well supported.
+	<li> Ability to turn the applet into a just button that, when
+	  pressed, starts the terminal in its own window.
+      </ul>
+
+      <h3>Java classes</h3>
+
+      <dl>
+	<dt> <code>WebTerm</code>
+	<dd> <p>A full applet, which combines the below classes to provide
+	    an actual VT100 terminal emulator.  It includes controls to
+	    select a host and port, opening and closing the network
+	    connection, bringing up an options window, and the actual
+	    terminal screen and scrollbar.</p>
+
+	<dt> <code>Telnet</code>
+	<dd> <p>Implements a complete Telnet session client.  As far as we
+	    know, this client implements the
+	    <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?number=854">
+	      Telnet protocol</a>
+	    correctly, though fairly minimally; it supports the
+	    <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?number=855">
+	      standard Telnet options</a>
+	    <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?number=1091">
+	      <code>TERMINAL TYPE</code></a>
+	    and
+	    <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?number=1073">
+	      <code>NAWS</code></a>
+	    (the latter is used to communicate the terminal dimensions to
+	    the server), and partially supports
+	    <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?856">
+	      <code>BINARY</code></a>,
+	    <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?1079">
+	      <code>TERMINAL-SPEED</code></a>,
+	      and
+	    <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?654">
+	      <code>NAOHTD</code></a>.
+	    When connecting to a server, it always tries to turn
+	    on the server's
+	    <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?number=857">
+	      <code>ECHO</code></a>
+	    option; if the server refuses, it echos characters back
+	    locally.  This implementation was based on the
+	    <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?number=1780">
+	      March 1995 protocol standards</a>.</p>
+
+	  <p>The Telnet client communicates with the user through an
+	    instance of an <code>Emulator</code> class, from which it also
+	    receives information about the emulation name and terminal
+	    dimensions.</p> <p>It also defines a private class, named
+	    <code>PromptInfo</code>.  An instance of this class is made for
+	    each prompt argument, and is used to the state information
+	    needed to watch for that prompt.</p>
+       
+	<dt> <code>Emulator</code>
+	<dd> <p>A generic base class for terminal emulations; this
+	    implements a set of methods that the terminal uses to send data
+	    to the Telnet session, and that the Telnet session uses to send
+	    data to the terminal.</p>
+
+	<dt> <code>EmulatorOptions</code>
+	<dd> <p>The emulation options control window, created by the
+	    "Options..." button.  Allows the user to dynamically load
+	    emulators and set their emulation type.</p>
+
+	<dt> <code>VT200</code>
+	<dd> <p>A subclass of the Emulator that implements VT200, VT100,
+	    VT52, and XTerm control
+	    sequences.  The following sequences are currently
+	    implemented:</p>
+       <pre>
+ESC A      (VT52) Cursor up.
+ESC B      (VT52) Cursor down.
+ESC C      (VT52) Cursor right.
+ESC D      Index (Cursor left in VT52 mode).
+ESC E      Next line.
+ESC H      Set tab stop (Cursor home in VT52 mode).
+ESC I      Not a VT220 sequence (Reverse line feed in VT52 mode).
+ESC J      (VT52) Erase to end of screen.
+ESC K      Not a VT220 sequence (Erase to end of line VT52 mode).
+ESC L      Not a VT220 sequence.
+ESC M      Reverse index.
+ESC N      SS2: Not yet implemented.
+ESC O      SS3: Not yet implemented.
+ESC P      Begin DCS.
+ESC V      (VT52) Print cursor line.  Not implemented.
+ESC W      (VT52) Print control.  Not implemented.
+ESC X      (VT52) Print control.  Not implemented.
+ESC Y      (VT52) Direct cursor address.
+ESC Z      (VT52) Identify.
+ESC c      Reset to initial state
+ESC Spc    Enter ASCII mode.
+ESC >      Normal keypad mode.
+ESC =      Application keypad mode.
+ESC 8      Restore cursor position.  (Doesn't yet restore modes.)
+ESC 7      Save cursor position.  (Doesn't yet save modes.)
+ESC [      Begin CSI.
+ESC ]      Begin OSC (Print screen, unimplemented, in VT52 mode).
+ESC ^      Begin PM.
+ESC _      Begin APC (Exit autoprint, unimplemented, in VT52 mode).
+ESC \      Terminate command data string.
+ESC # 3    Double-height line (top).  Not implemented.
+ESC # 4    Double-height line (bottom).  Not implemented.
+ESC # 5    Single-width line.  Not implemented.
+ESC # 6    Double-width line.  Not implemented.
+ESC [ @    ICH: Insert blanks.
+ESC [ A    CUU: Move cursor up.
+ESC [ B    CUD: Move cursor down.
+ESC [ C    CUF: Move cursor right.
+ESC [ D    CUB: Move cursor left.
+ESC [ E    CNL: Move to next line.
+ESC [ F    CPL: Move to previous line.
+ESC [ H    CUP: Set cursor position.
+ESC [ I    CHT: Move to tabstop N.
+ESC [ J    ED: Erase in display.
+ESC [ K    EL: Erase in line.
+ESC [ L    IL: Insert lines at cursor.
+ESC [ M    DL: Delete lines at cursor.
+ESC [ P    DCH: Delete character.
+ESC [ X    ECH: Erase character.
+ESC [ c    DA: Device attribute report.
+ESC [ f    HVP: Set cursor position.
+ESC [ g    TBC: Tabulation clear.
+ESC [ h    Set mode.
+           3    = line feed / new line
+           ? 5  = ANSI / VT52
+           ? 7  = smooth scroll on / off
+           ? 8  = screen reverse / normal
+           ? 9  = origin mode
+           ? 10 = autowrap mode
+           ? 15 = text cursor on / off
+           (many other modes are recognized but not currently implemented.)
+ESC [ l    Reset mode.
+ESC [ m    SGR: Set graphics rendition.
+           0  = plain
+           1  = bold
+           4  = underscore
+           5  = italic (replaces the VT terminal's blinking mode)
+           7  = inverse
+           22 = bold off
+           24 = underscore off
+           25 = italic off
+           27 = inverse off
+           30-39 = set foreground color
+           40-49 = set background color
+ESC [ n    DSR: Device status report.
+           5 = terminal status report
+           6 = cursor position report
+           ? 15 = printer status report
+           ? 21 = report user defined keys locked / unlocked
+ESC [ ! p  DECSTR: Soft reset.
+ESC [ r    Set scroll region.
+ESC [ ? r  (XTerm) Restore mode.
+ESC [ ? s  (XTerm) Save mode.
+ESC [ q    DECLL: Load LEDs
+ESC [ x    DECREQTPARM: Request terminal parameters.
+ESC [ y    DECTST: Invoke confidence tests.  (ESC [ 2 0 y is a reset.)
+</pre>
+	  <p>This implements the basic VT220 control sequences.  The major
+	    missing functionality is: character set control, selective
+	    erase, user defined keys, and down-line loaded characters.  It
+	    also does not yet report all of the important key and mouse
+	    events.</p>
+
+	<dt> <code>RubberTextField</code>
+	<dd> <p>A variation on the standard TextField that allows more
+	    control over its size and layout.</p>
+
+	<dt> <code>Terminal</code>
+	<dd> <p>The basic functionality of an ASCII terminal.  Implements
+	    functions for writing text to the terminal, moving the cursor,
+	    scrolling regions of the screen, insert and deleting lines, and
+	    history.
+	    The class has a small amount of smarts for optimizing
+	    redrawing, but could use quite a bit more.</p>
+
+      </dl>
+
+      <h3>Implementation interfaces</h3>
+
+      <dl>
+	<dt> <code>Parameters</code>
+	<dd> <p>An interface used to hand the applet parameters to the
+	    Telnet and Terminal classes.</p>
+      </dl>
+
+<hr>
+<a href="./">Back to WebTerm home page</a>.<br>
+<a href="/">Back to NACSE home page</a>.
+<address>
+Comments and questions to
+<a href="http://www.nacse.org/cgi-bin/www_mailx?nacse-questions@nacse.org">
+nacse-questions@nacse.org</a>.
+</address>
+</body>
+</html>

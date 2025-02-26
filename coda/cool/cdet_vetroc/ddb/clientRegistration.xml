@@ -1,0 +1,14 @@
+<registration>
+   <client>
+      <name>PEB0</name>
+      <hostname>sbs2.jlab.org</hostname>
+      <containerhost>sbs2.jlab.org</containerhost>
+      <portnumber>45701</portnumber>
+   </client>
+   <client>
+      <name>vetROC0</name>
+      <hostname>sbs2.jlab.org</hostname>
+      <containerhost>sbs2.jlab.org</containerhost>
+      <portnumber>45700</portnumber>
+   </client>
+</registration>

@@ -1,0 +1,644 @@
+#
+# mSQL Dump  (requires mSQL-1.0.6 or better)
+#
+# Host: localhost    Database: sbsfb
+#--------------------------------------------------------
+
+
+#
+# Table structure for table 'sessions'
+#
+CREATE TABLE sessions (
+  name CHAR(64) NOT NULL PRIMARY KEY,
+  id INT NOT NULL,
+  owner CHAR(32) NOT NULL,
+  inuse CHAR(32) NOT NULL,
+  log_name CHAR(32) NOT NULL,
+  rc_name CHAR(32) NOT NULL,
+  runNumber INT NOT NULL,
+  config CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'sessions'
+#
+
+INSERT INTO sessions VALUES ('sbsfb1',0,'sbs1 adaq 500 500','yes','sbsfb1_msg','RunControl',1812,'')\g
+
+#
+# Table structure for table 'test_sfi_option'
+#
+CREATE TABLE test_sfi_option (
+  name CHAR(32) NOT NULL,
+  value CHAR(80) NOT NULL) \g
+
+
+#
+# Dumping data for table 'test_sfi_option'
+#
+
+INSERT INTO test_sfi_option VALUES ('dataLimit','0')\g
+INSERT INTO test_sfi_option VALUES ('eventLimit','0')\g
+INSERT INTO test_sfi_option VALUES ('tokenInterval','64')\g
+INSERT INTO test_sfi_option VALUES ('dataFile','/home/adaq/data/sbs_%d.dat')\g
+INSERT INTO test_sfi_option VALUES ('rocMask','32')\g
+
+#
+# Table structure for table 'mftest1'
+#
+CREATE TABLE mftest1 (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  code CHAR(512) NOT NULL,
+  inputs CHAR(400) NOT NULL,
+  outputs CHAR(400) NOT NULL,
+  first CHAR(32) NOT NULL,
+  next CHAR(32) NOT NULL,
+  inuse CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'mftest1'
+#
+
+INSERT INTO mftest1 VALUES ('ROC2','{/home/adaq/crl/sfi2.o mystring} {/home/adaq/crl/event_list.o mystring} ','','EB1:sbs1.jlab.org','yes','ROC3','no')\g
+INSERT INTO mftest1 VALUES ('ROC3','{/home/adaq/crl/sfi3.o mystring} {/home/adaq/crl/event_list.o mystring} ','','EB1:sbs1.jlab.org','no','','no')\g
+INSERT INTO mftest1 VALUES ('ER1','{CODA}  ','','coda_0','yes','','no')\g
+INSERT INTO mftest1 VALUES ('EB1','{CODA} {CODA} ','ROC2:sbsfbdaq1a ROC3:sbsfbdaq2a','','yes','','no')\g
+INSERT INTO mftest1 VALUES ('coda_0','{/home/adaq/data/mftest1_%d.dat} {CODA} ','ER1:sbs1.jlab.org','','yes','','no')\g
+
+#
+# Table structure for table 'mftest2'
+#
+CREATE TABLE mftest2 (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  code CHAR(512) NOT NULL,
+  inputs CHAR(400) NOT NULL,
+  outputs CHAR(400) NOT NULL,
+  first CHAR(32) NOT NULL,
+  next CHAR(32) NOT NULL,
+  inuse CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'mftest2'
+#
+
+INSERT INTO mftest2 VALUES ('ROC2','{/home/adaq/crl/sfi2.o mystring} {/home/adaq/crl/event_list.o mystring} ','','EB1:sbs1.jlab.org','yes','ROC3','no')\g
+INSERT INTO mftest2 VALUES ('ROC3','{/home/adaq/crl/sfi3.o mystring} {/home/adaq/crl/event_list.o mystring} ','','EB2:sbs1.jlab.org','no','','no')\g
+INSERT INTO mftest2 VALUES ('ER1','{CODA}  ','EB2:sbs1.jlab.org EB1:sbs1.jlab.org','coda_0','yes','','no')\g
+INSERT INTO mftest2 VALUES ('EB1','{CODA} {CODA} ','ROC2:sbsfbdaq1a','ER1:sbs1.jlab.org','yes','EB2','no')\g
+INSERT INTO mftest2 VALUES ('EB2','  ','ROC3:sbsfbdaq2a','ER1:sbs1.jlab.org','no','','no')\g
+INSERT INTO mftest2 VALUES ('coda_0','{/home/adaq/data/mftest1_%d.dat} {CODA} ','ER1:sbs1.jlab.org','','yes','','no')\g
+
+#
+# Table structure for table 'unixroc_option'
+#
+CREATE TABLE unixroc_option (
+  name CHAR(32) NOT NULL,
+  value CHAR(80) NOT NULL) \g
+
+
+#
+# Dumping data for table 'unixroc_option'
+#
+
+INSERT INTO unixroc_option VALUES ('dataLimit','0')\g
+INSERT INTO unixroc_option VALUES ('eventLimit','0')\g
+INSERT INTO unixroc_option VALUES ('tokenInterval','64')\g
+INSERT INTO unixroc_option VALUES ('dataFile','/home/adaq/data/sbs_%.dat')\g
+INSERT INTO unixroc_option VALUES ('rocMask','256')\g
+
+#
+# Table structure for table 'fbmid_script'
+#
+CREATE TABLE fbmid_script (
+  name CHAR(32) NOT NULL,
+  state CHAR(32) NOT NULL,
+  script CHAR(128) NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbmid_script'
+#
+
+
+#
+# Table structure for table 'test_sfi'
+#
+CREATE TABLE test_sfi (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  code CHAR(512) NOT NULL,
+  inputs CHAR(400) NOT NULL,
+  outputs CHAR(400) NOT NULL,
+  first CHAR(32) NOT NULL,
+  next CHAR(32) NOT NULL,
+  inuse CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'test_sfi'
+#
+
+INSERT INTO test_sfi VALUES ('ROC5','{/home/adaq/crl/sfi4.o mystring} {/home/adaq/crl/event_list.o mystring} ','','EB1:sbs1.jlab.org','yes','','no')\g
+INSERT INTO test_sfi VALUES ('ER1','{CODA}  ','','coda_0','yes','','no')\g
+INSERT INTO test_sfi VALUES ('EB1','{CODA} {CODA} ','ROC5:sbsfbdaq2a','','yes','','no')\g
+INSERT INTO test_sfi VALUES ('coda_0','{/home/adaq/data/sbs_%d.dat} {CODA} ','ER1:sbs1','','yes','','no')\g
+
+#
+# Table structure for table 'fbtop_script'
+#
+CREATE TABLE fbtop_script (
+  name CHAR(32) NOT NULL,
+  state CHAR(32) NOT NULL,
+  script CHAR(128) NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbtop_script'
+#
+
+
+#
+# Table structure for table 'unixroc'
+#
+CREATE TABLE unixroc (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  code CHAR(512) NOT NULL,
+  inputs CHAR(400) NOT NULL,
+  outputs CHAR(400) NOT NULL,
+  first CHAR(32) NOT NULL,
+  next CHAR(32) NOT NULL,
+  inuse CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'unixroc'
+#
+
+INSERT INTO unixroc VALUES ('ROCU','{/home/adaq/crl/unix_list.so mystring}  ','','EB1:sbs1','yes','','no')\g
+INSERT INTO unixroc VALUES ('ER1','{CODA}  ','','coda_0','yes','','no')\g
+INSERT INTO unixroc VALUES ('EB1','{CODA} {CODA} ','ROCU:sbs1','','yes','','no')\g
+INSERT INTO unixroc VALUES ('coda_0','{/home/adaq/data/sbs_%.dat} {CODA} ','ER1:sbs1','','yes','','no')\g
+
+#
+# Table structure for table 'process'
+#
+CREATE TABLE process (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  id INT NOT NULL,
+  cmd CHAR(128) NOT NULL,
+  type CHAR(32) NOT NULL,
+  host CHAR(32) NOT NULL,
+  port INT NOT NULL,
+  state CHAR(32) NOT NULL,
+  pid INT NOT NULL,
+  inuse CHAR(32) NOT NULL,
+  clone CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'process'
+#
+
+INSERT INTO process VALUES ('ER1',12,'$CODA_BIN/coda_er','ER','sbs1.jlab.org',54430,'downloaded',3241,'no','no')\g
+INSERT INTO process VALUES ('ROCU',8,'$CODA_BIN/coda_roc','ROC','sbs1.jlab.org',0,'down',-1,'no','no')\g
+INSERT INTO process VALUES ('EB1',10,'$CODA_BIN/coda_eb','EB','sbs1.jlab.org',37250,'downloaded',3218,'no','no')\g
+INSERT INTO process VALUES ('ROC1',1,'$CODA_BIN/coda_roc','ROC','sbsfbdaq1b',1069,'downloaded',-1,'no','no')\g
+INSERT INTO process VALUES ('ROC2',2,'$CODA_BIN/coda_roc','ROC','sbsfbdaq1a',1071,'booted',-1,'no','no')\g
+INSERT INTO process VALUES ('ROC6',-1,' ','USER','sbsfbdaq1b',1071,'booted',0,'yes','no')\g
+INSERT INTO process VALUES ('ROC3',3,'$CODA_BIN/coda_roc','ROC','sbsfbdaq2a',1069,'configured',0,'no','no')\g
+INSERT INTO process VALUES ('ROC4',4,'$CODA_BIN/coda_roc','ROC','sbsfbdaq2a',1069,'configured',-1,'no','no')\g
+INSERT INTO process VALUES ('ROC5',5,'$CODA_BIN/coda_roc','ROC','sbsfbdaq2a',1069,'booted',0,'no','no')\g
+INSERT INTO process VALUES ('EB2',11,'$CODA_BIN/coda_eb','EB','sbs1.jlab.org',0,'down',-1,'no','no')\g
+
+#
+# Table structure for table 'mftest1_option'
+#
+CREATE TABLE mftest1_option (
+  name CHAR(32) NOT NULL,
+  value CHAR(80) NOT NULL) \g
+
+
+#
+# Dumping data for table 'mftest1_option'
+#
+
+INSERT INTO mftest1_option VALUES ('dataLimit','0')\g
+INSERT INTO mftest1_option VALUES ('eventLimit','0')\g
+INSERT INTO mftest1_option VALUES ('tokenInterval','64')\g
+INSERT INTO mftest1_option VALUES ('dataFile','/home/adaq/data/mftest1_%d.dat')\g
+INSERT INTO mftest1_option VALUES ('rocMask','12')\g
+
+#
+# Table structure for table 'fbtop'
+#
+CREATE TABLE fbtop (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  code CHAR(512) NOT NULL,
+  inputs CHAR(400) NOT NULL,
+  outputs CHAR(400) NOT NULL,
+  first CHAR(32) NOT NULL,
+  next CHAR(32) NOT NULL,
+  inuse CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbtop'
+#
+
+INSERT INTO fbtop VALUES ('ROC1','{/home/adaq/crl/sfi1.o mystring} {/home/adaq/crl/event_list.o mystring} ','','EB1:sbs1.jlab.org','yes','','no')\g
+INSERT INTO fbtop VALUES ('ER1','{CODA}  ','','coda_0','yes','','no')\g
+INSERT INTO fbtop VALUES ('EB1','{CODA} {CODA} ','ROC1:sbsfbdaq1b','','yes','','no')\g
+INSERT INTO fbtop VALUES ('coda_0','{/home/adaq/data/sbs_%d.dat} {CODA} ','ER1:sbs1','','yes','','no')\g
+
+#
+# Table structure for table 'fbbottom'
+#
+CREATE TABLE fbbottom (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  code CHAR(512) NOT NULL,
+  inputs CHAR(400) NOT NULL,
+  outputs CHAR(400) NOT NULL,
+  first CHAR(32) NOT NULL,
+  next CHAR(32) NOT NULL,
+  inuse CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbbottom'
+#
+
+INSERT INTO fbbottom VALUES ('ROC3','{/home/adaq/crl/sfi3.o mystring} {/home/adaq/crl/event_list.o mystring} ','','EB1:sbs1.jlab.org','yes','','no')\g
+INSERT INTO fbbottom VALUES ('ER1','{CODA}  ','','coda_0','yes','','no')\g
+INSERT INTO fbbottom VALUES ('EB1','{CODA} {CODA} ','ROC3:sbsfbdaq2a','','yes','','no')\g
+INSERT INTO fbbottom VALUES ('coda_0','{/home/adaq/data/sbs_%d.dat} {CODA} ','ER1:sbs1','','yes','','no')\g
+
+#
+# Table structure for table 'priority'
+#
+CREATE TABLE priority (
+  class CHAR(32) NOT NULL,
+  priority INT NOT NULL) \g
+
+
+#
+# Dumping data for table 'priority'
+#
+
+INSERT INTO priority VALUES ('ROC',11)\g
+INSERT INTO priority VALUES ('EB',15)\g
+INSERT INTO priority VALUES ('ANA',19)\g
+INSERT INTO priority VALUES ('ER',23)\g
+INSERT INTO priority VALUES ('LOG',27)\g
+INSERT INTO priority VALUES ('TS',-27)\g
+
+#
+# Table structure for table 'fbtop_option'
+#
+CREATE TABLE fbtop_option (
+  name CHAR(32) NOT NULL,
+  value CHAR(80) NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbtop_option'
+#
+
+INSERT INTO fbtop_option VALUES ('dataLimit','0')\g
+INSERT INTO fbtop_option VALUES ('eventLimit','0')\g
+INSERT INTO fbtop_option VALUES ('tokenInterval','64')\g
+INSERT INTO fbtop_option VALUES ('dataFile','/home/adaq/data/sbs_%d.dat')\g
+INSERT INTO fbtop_option VALUES ('rocMask','2')\g
+
+#
+# Table structure for table 'unixroc_pos'
+#
+CREATE TABLE unixroc_pos (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  row INT NOT NULL,
+  col INT NOT NULL) \g
+
+
+#
+# Dumping data for table 'unixroc_pos'
+#
+
+INSERT INTO unixroc_pos VALUES ('ROCU',3,2)\g
+INSERT INTO unixroc_pos VALUES ('ER1',5,2)\g
+INSERT INTO unixroc_pos VALUES ('EB1',3,4)\g
+INSERT INTO unixroc_pos VALUES ('coda_0',5,4)\g
+
+#
+# Table structure for table 'test_sfi_pos'
+#
+CREATE TABLE test_sfi_pos (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  row INT NOT NULL,
+  col INT NOT NULL) \g
+
+
+#
+# Dumping data for table 'test_sfi_pos'
+#
+
+INSERT INTO test_sfi_pos VALUES ('ROC5',3,2)\g
+INSERT INTO test_sfi_pos VALUES ('ER1',5,2)\g
+INSERT INTO test_sfi_pos VALUES ('EB1',3,4)\g
+INSERT INTO test_sfi_pos VALUES ('coda_0',6,4)\g
+
+#
+# Table structure for table 'fbmid_option'
+#
+CREATE TABLE fbmid_option (
+  name CHAR(32) NOT NULL,
+  value CHAR(80) NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbmid_option'
+#
+
+INSERT INTO fbmid_option VALUES ('dataLimit','0')\g
+INSERT INTO fbmid_option VALUES ('eventLimit','0')\g
+INSERT INTO fbmid_option VALUES ('tokenInterval','64')\g
+INSERT INTO fbmid_option VALUES ('dataFile','/home/adaq/data/sbs_%d.dat')\g
+INSERT INTO fbmid_option VALUES ('rocMask','4')\g
+
+#
+# Table structure for table 'links'
+#
+CREATE TABLE links (
+  name CHAR(100) NOT NULL,
+  type CHAR(4) NOT NULL,
+  host CHAR(30),
+  state CHAR(10),
+  port INT) \g
+
+
+#
+# Dumping data for table 'links'
+#
+
+INSERT INTO links VALUES ('ROCU->EB1','TCP','sbs1','down',54151)\g
+INSERT INTO links VALUES ('ROC2->EB2','TCP','sbs1.jlab.org','up',41234)\g
+INSERT INTO links VALUES ('ROC3->EB1','TCP','sbs1.jlab.org','up',51014)\g
+
+#
+# Table structure for table 'mptest1_option'
+#
+CREATE TABLE mptest1_option (
+  name CHAR(32) NOT NULL,
+  value CHAR(80) NOT NULL) \g
+
+
+#
+# Dumping data for table 'mptest1_option'
+#
+
+INSERT INTO mptest1_option VALUES ('dataLimit','0')\g
+INSERT INTO mptest1_option VALUES ('eventLimit','0')\g
+INSERT INTO mptest1_option VALUES ('tokenInterval','64')\g
+INSERT INTO mptest1_option VALUES ('dataFile','/home/adaq/data/sbs_%d.dat')\g
+
+#
+# Table structure for table 'runTypes'
+#
+CREATE TABLE runTypes (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  id INT NOT NULL,
+  inuse CHAR(32) NOT NULL,
+  category CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'runTypes'
+#
+
+INSERT INTO runTypes VALUES ('unixroc',0,'no','')\g
+INSERT INTO runTypes VALUES ('fbtop',1,'no','')\g
+INSERT INTO runTypes VALUES ('fbmid',2,'no','')\g
+INSERT INTO runTypes VALUES ('fbbottom',3,'no','')\g
+INSERT INTO runTypes VALUES ('test_sfi',4,'no','')\g
+INSERT INTO runTypes VALUES ('mftest1',5,'no','')\g
+INSERT INTO runTypes VALUES ('mftest2',6,'no','')\g
+
+#
+# Table structure for table 'mftest2_pos'
+#
+CREATE TABLE mftest2_pos (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  row INT NOT NULL,
+  col INT NOT NULL) \g
+
+
+#
+# Dumping data for table 'mftest2_pos'
+#
+
+INSERT INTO mftest2_pos VALUES ('ROC2',2,2)\g
+INSERT INTO mftest2_pos VALUES ('ROC3',4,2)\g
+INSERT INTO mftest2_pos VALUES ('ER1',8,3)\g
+INSERT INTO mftest2_pos VALUES ('EB1',2,4)\g
+INSERT INTO mftest2_pos VALUES ('EB2',4,4)\g
+INSERT INTO mftest2_pos VALUES ('coda_0',10,5)\g
+
+#
+# Table structure for table 'fbmid_pos'
+#
+CREATE TABLE fbmid_pos (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  row INT NOT NULL,
+  col INT NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbmid_pos'
+#
+
+INSERT INTO fbmid_pos VALUES ('ROC2',3,2)\g
+INSERT INTO fbmid_pos VALUES ('ER1',5,2)\g
+INSERT INTO fbmid_pos VALUES ('EB1',3,4)\g
+INSERT INTO fbmid_pos VALUES ('coda_0',6,4)\g
+
+#
+# Table structure for table 'test_sfi_script'
+#
+CREATE TABLE test_sfi_script (
+  name CHAR(32) NOT NULL,
+  state CHAR(32) NOT NULL,
+  script CHAR(128) NOT NULL) \g
+
+
+#
+# Dumping data for table 'test_sfi_script'
+#
+
+
+#
+# Table structure for table 'fbbottom_script'
+#
+CREATE TABLE fbbottom_script (
+  name CHAR(32) NOT NULL,
+  state CHAR(32) NOT NULL,
+  script CHAR(128) NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbbottom_script'
+#
+
+
+#
+# Table structure for table 'mftest2_option'
+#
+CREATE TABLE mftest2_option (
+  name CHAR(32) NOT NULL,
+  value CHAR(80) NOT NULL) \g
+
+
+#
+# Dumping data for table 'mftest2_option'
+#
+
+INSERT INTO mftest2_option VALUES ('dataLimit','0')\g
+INSERT INTO mftest2_option VALUES ('eventLimit','0')\g
+INSERT INTO mftest2_option VALUES ('tokenInterval','64')\g
+INSERT INTO mftest2_option VALUES ('dataFile','/home/adaq/data/mftest1_%d.dat')\g
+
+#
+# Table structure for table 'fbbottom_pos'
+#
+CREATE TABLE fbbottom_pos (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  row INT NOT NULL,
+  col INT NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbbottom_pos'
+#
+
+INSERT INTO fbbottom_pos VALUES ('ROC3',3,2)\g
+INSERT INTO fbbottom_pos VALUES ('ER1',5,2)\g
+INSERT INTO fbbottom_pos VALUES ('EB1',3,4)\g
+INSERT INTO fbbottom_pos VALUES ('coda_0',6,4)\g
+
+#
+# Table structure for table 'mftest1_script'
+#
+CREATE TABLE mftest1_script (
+  name CHAR(32) NOT NULL,
+  state CHAR(32) NOT NULL,
+  script CHAR(128) NOT NULL) \g
+
+
+#
+# Dumping data for table 'mftest1_script'
+#
+
+
+#
+# Table structure for table 'fbtop_pos'
+#
+CREATE TABLE fbtop_pos (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  row INT NOT NULL,
+  col INT NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbtop_pos'
+#
+
+INSERT INTO fbtop_pos VALUES ('ROC1',3,2)\g
+INSERT INTO fbtop_pos VALUES ('ER1',5,2)\g
+INSERT INTO fbtop_pos VALUES ('EB1',3,4)\g
+INSERT INTO fbtop_pos VALUES ('coda_0',6,4)\g
+
+#
+# Table structure for table 'fbmid'
+#
+CREATE TABLE fbmid (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  code CHAR(512) NOT NULL,
+  inputs CHAR(400) NOT NULL,
+  outputs CHAR(400) NOT NULL,
+  first CHAR(32) NOT NULL,
+  next CHAR(32) NOT NULL,
+  inuse CHAR(32) NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbmid'
+#
+
+INSERT INTO fbmid VALUES ('ROC2','{/home/adaq/crl/sfi2.o mystring} {/home/adaq/crl/event_list.o mystring} ','','EB1:sbs1.jlab.org','yes','','no')\g
+INSERT INTO fbmid VALUES ('ER1','{CODA}  ','','coda_0','yes','','no')\g
+INSERT INTO fbmid VALUES ('EB1','{CODA} {CODA} ','ROC2:sbsfbdaq1a','','yes','','no')\g
+INSERT INTO fbmid VALUES ('coda_0','{/home/adaq/data/sbs_%d.dat} {CODA} ','ER1:sbs1','','yes','','no')\g
+
+#
+# Table structure for table 'unixroc_script'
+#
+CREATE TABLE unixroc_script (
+  name CHAR(32) NOT NULL,
+  state CHAR(32) NOT NULL,
+  script CHAR(128) NOT NULL) \g
+
+
+#
+# Dumping data for table 'unixroc_script'
+#
+
+
+#
+# Table structure for table 'fbbottom_option'
+#
+CREATE TABLE fbbottom_option (
+  name CHAR(32) NOT NULL,
+  value CHAR(80) NOT NULL) \g
+
+
+#
+# Dumping data for table 'fbbottom_option'
+#
+
+INSERT INTO fbbottom_option VALUES ('dataLimit','0')\g
+INSERT INTO fbbottom_option VALUES ('eventLimit','0')\g
+INSERT INTO fbbottom_option VALUES ('tokenInterval','64')\g
+INSERT INTO fbbottom_option VALUES ('dataFile','/home/adaq/data/sbs_%d.dat')\g
+INSERT INTO fbbottom_option VALUES ('rocMask','8')\g
+
+#
+# Table structure for table 'mftest2_script'
+#
+CREATE TABLE mftest2_script (
+  name CHAR(32) NOT NULL,
+  state CHAR(32) NOT NULL,
+  script CHAR(128) NOT NULL) \g
+
+
+#
+# Dumping data for table 'mftest2_script'
+#
+
+
+#
+# Table structure for table 'mftest1_pos'
+#
+CREATE TABLE mftest1_pos (
+  name CHAR(32) NOT NULL PRIMARY KEY,
+  row INT NOT NULL,
+  col INT NOT NULL) \g
+
+
+#
+# Dumping data for table 'mftest1_pos'
+#
+
+INSERT INTO mftest1_pos VALUES ('ROC2',2,2)\g
+INSERT INTO mftest1_pos VALUES ('ROC3',4,2)\g
+INSERT INTO mftest1_pos VALUES ('ER1',6,2)\g
+INSERT INTO mftest1_pos VALUES ('EB1',3,4)\g
+INSERT INTO mftest1_pos VALUES ('coda_0',6,4)\g
+

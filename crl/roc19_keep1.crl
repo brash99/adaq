@@ -1,0 +1,519 @@
+# 
+#  User readout list using a TI (pipeline) in MASTER mode
+#   With an SFI in a Fastbus crate... readout of an Lecroy 1881 ADC.
+#
+#    Bryan Moffit, TJNAF 2014
+#
+
+readout list GEN_USER
+maximum 4096,512
+sfi readout
+
+include "GEN_source.h"
+include "tiLib.h"
+include "sfi.h"
+
+# A24 Address for TI Module (e.g. Slot number = 2)
+const TRIG_ADDR = 0x080000
+# TRIG_MODE=0 for interrupt mode (External input)
+const TRIG_MODE = 1
+const SFI_ADDR  = hex e00000
+
+const BLOCKLEVEL=1
+const BUFFERLEVEL=1
+
+
+# Decision on whether (1) or not (0) to readout TI
+const READOUT_TI=1
+
+# 1881 Paramters
+const NADC = 8
+const ADC_SLOT1 = 5
+const ADC_SLOT2 = 6
+const ADC_SLOT3 = 7
+const ADC_SLOT4 = 8
+const ADC_SLOT5 = 9
+const ADC_SLOT6 = 10
+const ADC_SLOT7 = 11
+const ADC_SLOT8 = 12
+
+const Branch_num=1
+
+variable scan_mask
+
+extern int bigendian_out;
+int blockLevel=1;
+int nb = 0;
+unsigned int *tiData=NULL;
+unsigned int tibready;
+
+int adcslots[NADC];
+int modslots[NADC];
+int csr0[NADC];
+static int debug=1;
+
+############################################################
+# DOWNLOAD
+############################################################
+begin download
+
+variable res,laddr, jj, kk
+
+
+# When sending to a Linux Host set bigendian_out = 0
+bigendian_out = 0;
+
+# Setup SFI pointers to Enable triggers, and establish
+# DMA address offsets
+%%
+  res = (unsigned long) sysBusToLocalAdrs(0x39,SFI_ADDR,&laddr);
+  if (res != 0) {
+     printf("Error Initializing SFI res=%d \n",res);
+  } else {
+     printf("Calling InitSFI() routine with laddr=0x%x.\n",laddr);
+     InitSFI(laddr);
+  }
+%%
+
+
+# Setup TI
+%%
+{
+  /* measured longest fiber length */
+  tiSetFiberLatencyOffset_preInit(0x40); 
+ /* Set crate ID */
+  tiSetCrateID_preInit(0x1); /* ROC 1 */
+  
+  /* TI Setup */
+  tiInit(TRIG_ADDR,TRIG_MODE,0);
+  tiDisableBusError();
+
+ 
+
+  if(READOUT_TI==0) /* Disable data readout */
+    {
+      tiDisableDataReadout();
+
+      /* Disable A32... where that data would have been stored on the TI */
+      tiDisableA32();
+    }
+  
+  tiSetBlockBufferLevel(BUFFERLEVEL);
+
+  /* Override default BUSY level - Use if TI is not in a VXS crate*/
+  tiSetBusySource(0,1);
+  tiSetTriggerSource(TI_TRIGGER_PART_1);
+  tiStatus(0);
+  tiDisableVXSSignals();
+  tiSetEventFormat(2);
+ }
+%%
+
+%%
+{
+ 
+  /* setup the arrays containing the slotnumbers */ 
+  if (NADC>0) {
+    kk=0;
+    for(jj=ADC_SLOT1;jj<=ADC_SLOT8;jj++) {
+       adcslots[kk]=jj;
+       modslots[kk]=jj;
+       csr0[kk]=0x400;
+       kk++;
+     }
+  }
+
+  /* calculate the scan_mask */
+  scan_mask = 0;
+
+  for (jj=0; jj<NADC; jj++)
+     scan_mask |= (1<<modslots[jj]);
+  printf ("Crate Scan mask = %x\n",scan_mask);  
+
+}
+%%
+
+  log inform "User Download Executed"
+
+end download
+    
+############################################################
+# PRESTART
+############################################################
+begin prestart
+
+  variable pedsuppress
+
+  log inform "Entering User Prestart"
+
+  init trig source GEN
+  link async trig source GEN 1 to titrig and titrig_done
+  event type 1 then read GEN 1
+ 
+
+# 1881 Configuration
+  reset crate 0
+
+# Fast Clear/Reset 1881
+  write hex 40000000 into geographic control ADC_SLOT1
+  write hex 40000000 into geographic control ADC_SLOT2
+  write hex 40000000 into geographic control ADC_SLOT3
+  write hex 40000000 into geographic control ADC_SLOT4
+  write hex 40000000 into geographic control ADC_SLOT5
+  write hex 40000000 into geographic control ADC_SLOT6
+  write hex 40000000 into geographic control ADC_SLOT7
+  write hex 40000000 into geographic control ADC_SLOT8
+  sfi_error_decode(0);
+
+  %%
+    nb =0;
+    pedsuppress = 0; //getflag(PEDSUP);
+    //if(debug)
+      printf("ped suppression ? %d \n",pedsuppress); 
+    if(pedsuppress) {
+      load_thresholds();
+      set_thresholds();
+    }
+    sfi_error_decode(0);
+
+  %%
+
+ geographic control ADC_SLOT8
+     write hex 00000904
+  if pedsuppress is equal to 1 then    
+     secondary address 1
+        write hex 4000008B
+  else
+     secondary address 1
+        write hex 0000008B
+  end if
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+ 
+ geographic control ADC_SLOT7
+     write hex 00001904
+  if pedsuppress is equal to 1 then    
+     secondary address 1
+        write hex 4000008B
+  else
+     secondary address 1
+        write hex 0000008B
+  end if
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+ geographic control ADC_SLOT6
+     write hex 00001904
+  if pedsuppress is equal to 1 then    
+     secondary address 1
+        write hex 4000008B
+  else
+     secondary address 1
+        write hex 0000008B
+  end if
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+ geographic control ADC_SLOT5
+     write hex 00001904
+  if pedsuppress is equal to 1 then    
+     secondary address 1
+        write hex 4000008B
+  else
+     secondary address 1
+        write hex 0000008B
+  end if
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+ geographic control ADC_SLOT4
+     write hex 00001904
+  if pedsuppress is equal to 1 then    
+     secondary address 1
+        write hex 4000008B
+  else
+     secondary address 1
+        write hex 0000008B
+  end if
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+ geographic control ADC_SLOT3
+     write hex 00001904
+  if pedsuppress is equal to 1 then    
+     secondary address 1
+        write hex 4000008B
+  else
+     secondary address 1
+        write hex 0000008B
+  end if
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+ geographic control ADC_SLOT2
+     write hex 00001904
+  if pedsuppress is equal to 1 then    
+     secondary address 1
+        write hex 4000008B
+  else
+     secondary address 1
+        write hex 0000008B
+  end if
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+   geographic control ADC_SLOT1
+     write hex 00001104
+  if pedsuppress is equal to 1 then    
+     secondary address 1
+        write hex 4000008B
+  else
+     secondary address 1
+        write hex 0000008B
+  end if
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+
+  log inform "User Prestart Executed"
+
+end prestart
+
+############################################################
+# END
+############################################################
+begin end
+
+%%
+{
+  CDODISABLE(GEN,1,0);
+
+  tiStatus(0);
+  printf("Interrupt Count: %8d \n",tiGetIntCount());
+  printf("Live time percentage:%8d \n",tiLive(1));
+  printf("Live time:%8d \n",tiGetLiveTime());
+  printf("Busy time:%8d \n",tiGetBusyTime());
+
+  /* Free up the allocated memory for the tiData */
+  if(tiData!=NULL)
+    {
+      free(tiData);
+      tiData=NULL;
+   } 
+}
+%%
+
+  log inform "User End Executed"
+
+end end
+
+############################################################
+# PAUSE
+############################################################
+begin pause
+
+  CDODISABLE(GEN,1,0);
+
+  log inform "User Pause Executed"
+
+end pause
+
+############################################################
+# GO
+############################################################
+begin go
+  
+  log inform "Entering User Go"
+  
+%%
+{
+  /* Get the current Block Level */
+  blockLevel = tiGetCurrentBlockLevel();
+  printf("rocGo: Block Level set to %d\n",blockLevel);
+
+  /* Allocate some memory for TI data */
+  tiData = (unsigned int*)malloc(50*sizeof(unsigned int));
+}
+%%
+
+
+%%
+{
+  CDOENABLE(GEN,1,0);
+
+  tiStatus(0);
+}
+%%
+
+  log inform "User Go Executed"
+
+end go
+
+############################################################
+# TRIGGER
+############################################################
+begin trigger titrig
+  variable dCnt,ev_type,ii,datascan,was_scan,res, jj,fbres,numLocal,numBranchdata, syncFlag
+
+# Enable SFI Sequencer
+  *sfi.sequencerEnable = 0;
+
+  rol->dabufp = (long *) 0;
+%%
+{
+ 
+  if(READOUT_TI==1)
+    {
+      dCnt = tiReadBlock(tiData,50,0);
+      if(dCnt<=0)
+	{
+	  logMsg("No data or error.  dCnt = %d\n",dCnt);
+	}
+      else
+	{
+	  ev_type=(tiData[2]&(0xFF000000))>>24; /* Conform to CODA 2.x event type limit */
+	  tibready = tiBReady();
+	  numLocal= tiGetReadoutEvents(); //(tiData[4]&(0x0FF00000))>>20; /* number of evnets since last trigger */
+    	  numBranchdata=(tiData[4]&(0xF0000000))>>28; /* Number of branch with data */
+	  syncFlag = tiGetSyncEventFlag();
+	  if (numBranchdata==0){
+	  nb++;
+	  /*if (nb < 20)
+	     logMsg("dCnt = %d numLocal = %d ev_type = %d numBranchdata = %d syncFlag = %d tibready = %d  \n",dCnt, numLocal, ev_type, numBranchdata, syncFlag, tibready);
+	  if (nb %10 == 0)
+	      logMsg("No.of 0 branch events = %d   \n", nb);*/	
+	     }
+	  
+	}
+	
+    }
+ 
+}
+
+%%
+
+# Open up the event of type ev_type = 1
+open event type 1 of BT_BANK
+
+%%
+{
+  if(READOUT_TI==1)
+    {
+      /* Open a CODA Bank of 4byte unsigned integers, type=4 (for example) */
+      CBOPEN(4,BT_UI4,0);
+      if(dCnt<=0)
+	{
+	  logMsg("No data or error.  dCnt = %d\n",dCnt);
+	}
+      else
+	{
+	   *rol->dabufp++ =  0xddddcccc;
+	   for(ii=0; ii<dCnt; ii++) {
+	     *rol->dabufp++ = tiData[ii];
+           }
+           *rol->dabufp++ = 0xb0b04444;
+           *rol->dabufp++ = Branch_num;
+           *rol->dabufp++ = numBranchdata;
+ 
+	}
+
+	
+      CBCLOSE;
+    }
+
+ }
+
+%%
+
+# Fastbus 1881 readout
+%%
+
+ii=50;
+if (Branch_num==numBranchdata ) {
+     
+  /* Broadcast scan for data */
+  ii=0;
+  datascan = 0;
+  while ((ii<50) && ((datascan&scan_mask) != scan_mask)) {
+    fb_frcm_1(9,0,&datascan,1,0,1,0,0,0);
+    ii++;
+  }
+ }
+ was_scan=datascan;
+%%
+
+open bank 7 of BT_UI4
+ 
+  if ii is less than 50 then
+
+# Load next event for all ADCs via a Broadcast
+  fb_fwcm_1(0x15,0,0x400,1,0,1,0,0,0);
+
+# Block Read the Data - Should get all Boards if Multiblock is setup
+    output hex da000011
+    block read 520 from geo data ADC_SLOT8
+    output ii
+    output hex da000022
+ 
+# Check if Boards have any more data - 
+%%
+  datascan = 0;
+  fbres = fb_frcm_1(9,0,&datascan,1,0,1,0,0,0);
+  if (fbres) logMsg("fbres = 0x%x\n",fbres,0,0,0,0,0);
+  if ((datascan != 0) && (datascan&~scan_mask)) { 
+     logMsg("Error: Read data but More data available after readout datascan = 0x%08x fbres = 0x%x\n",datascan,fbres,0,0,0,0);
+  }
+%%
+  else
+%%
+  datascan = 0;
+  fbres = fb_frcm_1(9,0,&datascan,1,0,1,0,0,0);
+  if (fbres) logMsg("fbres = 0x%x\n",fbres,0,0,0,0,0);
+  if ((datascan != 0) && (datascan&~scan_mask)) { 
+     logMsg("Error:  datascan = 0x%08x fbres = 0x%x numBranchdata = %d \n",datascan,fbres,numBranchdata);
+ }
+%%
+    output was_scan
+    output ii
+    output hex da0000ff
+    
+  endif
+  close bank
+
+ close event
+
+end trigger
+
+begin done titrig
+
+end done
+
+############################################################
+# DONE (TRIGGER ACKNOWLEDGE)
+############################################################
+begin done
+  CDOACK(GEN,1,0);
+end done
+
+begin status
+
+end status
+
+

@@ -1,0 +1,72 @@
+: Esc [ 1 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 34 m
+& SGR: SELECT GRAPHIC RENDITION
+|micah-laptop|
+: Esc [ 1 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 34 m
+& SGR: SELECT GRAPHIC RENDITION
+|$ |
+: Esc [ m
+& SGR: SELECT GRAPHIC RENDITION
+|screen -xR 15295.pts-5.micah-laptop|
+. CR/^M LF/^J
+: Esc [ ? 1049 h
+& SM: SET MODE (private params)
+: Esc [ r
+: Esc [ m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 2 J
+& ED: ERASE IN PAGE
+: Esc [ H
+& CUP: CURSOR POSITION
+: Esc [ ? 7 h
+& SM: SET MODE (private params)
+: Esc [ ? 1 ; 4 ; 6 l
+& RM: RESET MODE (private params)
+: Esc [ 4 l
+& RM: RESET MODE
+: Esc [ ? 1 h
+& SM: SET MODE (private params)
+: Esc =
+& DECKPAM: KEYPAD APPLICATION MODE
+: Esc [ 0 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 1 ; 52 r
+: Esc [ H
+& CUP: CURSOR POSITION
+: Esc [ 2 J
+& ED: ERASE IN PAGE
+: Esc [ 51 B
+& CUD: CURSOR DOWN
+: Esc [ 7 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 27 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 37 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 44 m
+& SGR: SELECT GRAPHIC RENDITION
+|0- bash  |
+: Esc [ 97 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 104 m
+& SGR: SELECT GRAPHIC RENDITION
+|1* x|
+: Esc [ 37 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 44 m
+& SGR: SELECT GRAPHIC RENDITION
+|                                                                   |
+: Esc [ H
+& CUP: CURSOR POSITION
+: Esc [ 39 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ 49 m
+& SGR: SELECT GRAPHIC RENDITION
+: Esc [ H
+& CUP: CURSOR POSITION
+: Esc [ 2 J
+& ED: ERASE IN PAGE
+. LF/^J

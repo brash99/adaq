@@ -1,0 +1,265 @@
+The WebTerm java applet is a terminal emulator implemented in Java,
+which can be used to provide TELNET sessions from within Web browsers
+or other applications which use Java.
+
+
+License
+
+  WebTerm was written by Dianne Hackborn and Melanie Johnson.  The
+  design and implementation of WebTerm are available for royalty-free
+  adoption and use for non-commercial purposes, by any public or
+  private organization.  Copyright is retained by the Northwest
+  Alliance for Computational Science and Engineering and Oregon State
+  University.  Redistribution of any part of WebTerm or any derivative
+  works must include this notice.  Please address correspondence to
+  nacse-questions@nacse.org.
+
+  If you find WebTerm useful and/or wish to receive notification of
+  future releases, please let us know!  Use the form at url:
+
+    http://www.nacse.org/web/webterm/feedback.html
+
+  or send mail to nacse-questions@nacse.org.
+
+
+Building WebTerm
+  
+  After you've downloaded the WebTerm distribution, unload it using the
+  command
+  
+    zcat <filename> | tar -xvf -
+  
+  If you have the binary (byte-compiled) distribution, this will create a
+  number of *.class files, which are ready to run.  If you've downloaded
+  the source distribution, it will create a number of *.java files, which
+  you must then compile using javac (from the Java Development Kit),
+  using the command
+  
+    javac WebTerm.java VT200.java
+
+  This will create the *.class files.
+
+
+Using WebTerm
+  
+  To use WebTerm, include a link to it in an html file:
+  
+    <applet code=WebTerm.class width="100%" height="75%">
+    <h2 align=center>Your Web browser is decaf-only (no java)!</h2>
+    </applet>
+  
+  The width and height specifications are kludges to tell Netscape to
+  make it approximately the right size; unfortunately, there's currently
+  no way to specify an absolute size in characters.  The second line will
+  be printed, as you would expect, by browsers that don't support java.
+  
+  Though WebTerm provides a means of specifying the computer to which you
+  wish to connect, the security restrictions of most web browsers will
+  not allow you to make a connection to any machine other than the one
+  from which the applet was loaded (ie, the machine running the httpd
+  server).
+
+
+Parameters
+  
+  The "WebTerm.class" applet recognizes the following parameters:
+
+  HOST 
+    Name of initial host machine.  Default is the machine the applet
+    was retrieved from (for most browsers, this is the only useful
+    value).
+
+  PORT 
+    Number of port for connection. Default is 23, the standard Telnet port.
+
+  PROMPT#, REPLY#, ENDPROMPTS# 
+    A set of parameters for specifying automatic replies to incoming
+    text.  The '#' represents the prompt number -- prompts should start
+    at 1, and be consecutively numbered.  'PROMPT' is the trigger text,
+    'REPLY' is the text to send when the trigger is encountered, and if
+    'ENDPROMPTS' is true then this will turn off all prompts for the
+    rest of the telnet session.  See the section "Automatic Setup" for
+    an example.
+
+    The supplied strings may contain standard Java escape sequences,
+    including \n, \r, \t, \b, \f, \###, \u####, and \x##.
+
+
+Some Missing Features
+
+  There is no cut-and-paste mechanism. 
+
+  Resizing of the terminal is not well supported. 
+
+
+Automatic Setup
+  
+  WebTerm provides an automatic setup feature, utilizing a simple
+  expect-reply sequence.  For instance, to have WebTerm automatically
+  login as user "guest" with password "foobar" (on a system which prompts
+  with "login: " and "password: "), you might use the following code
+  after the <applet..> tag and before the </applet> tag:
+  
+    <param name="prompt1" value="login: ">
+    <param name="reply1" value="guest\r\n">
+    <param name="prompt2" value="password: ">
+    <param name="reply1" value="foobar\r\n">
+    <param name="endprompts2" value="true">
+
+
+Security
+  
+  Note that use of the automatic setup feature as described will invite
+  everyone in the world to login to your system as "guest" without
+  requiring the password.  If you use this feature, you should do so
+  only:
+  
+    1. on a login with a highly restrictive shell,
+  
+    2. or in an html file which is readable only by the owner, owned by
+       whatever user your httpd server runs as (usually the user
+       "nobody"), and protected by whatever form of access control your
+       httpd server provides.
+  
+    3. or in an html file which is readable only by the owner and owned
+       by a regular user (in which case it cannot be opened as a url, but
+       must be opened as a file, and will be accessible only on the local
+       system).
+
+
+Implementation classes
+
+  The following is a brief description of the java classes
+  included in the WebTerm distribution.
+
+  WebTerm
+
+    A full applet, which combines the below classes to
+    provide an actual VT100 terminal emulator. It
+    includes controls for select a host and port, opening
+    and closing the network connection, and the actual
+    terminal screen.
+
+
+  Telnet
+
+    Implements a complete Telnet session client. As far
+    as we know, this client implements the Telnet
+    protocol correctly, though fairly minimally; it supports
+    the standard Telnet options TERMINAL TYPE and
+    NAWS (the latter is used to communicate the terminal
+    dimensions to the host). When connecting to a host, it
+    always tries to turn on the host's ECHO option; this
+    must be supported for the client to work correctly.
+    This implementation was based on the March 1995
+    protocol standards.
+
+    The Telnet client communicates with the user
+    through an instance of an Emulator class, from
+    which it also receives information about the
+    emulation name and terminal dimensions.
+
+
+  PromptInfo
+
+    A class used to store the information about one
+    prompt which the Telnet class is currently watching
+    for.
+
+
+  Parameters
+
+    An interface used to hand the applet parameters to
+    the Telnet class.
+
+
+  Emulator
+
+    A generic base class for terminal emulations; this
+    implements a set of methods which the terminal uses
+    to send data to the Telnet session, and that the Telnet
+    session uses to send data to the terminal.
+
+
+  VT100Emulator
+
+    A subclass of the Emulator which implements the
+    VT100 control sequences. The following sequences
+    are currently implemented:
+
+      ESC >      Reset
+      ESC 8      Restore cursor position
+      ESC 7      Save cursor position
+      ESC D      Index
+      ESC E      Next index
+      ESC M      Reverse index
+      ESC c      Reset to initial state
+      ESC [ A    Move cursor up
+      ESC [ B    Move cursor down
+      ESC [ C    Move cursor right
+      ESC [ D    Move cursor left
+      ESC [ E    Move to next line
+      ESC [ F    Move to previous line
+      ESC [ H    Set cursor position
+      ESC [ f    Set cursor position
+      ESC [ J    Clear in display
+      ESC [ K    Clear in line
+      ESC [ L    Insert line above cursor
+      ESC [ M    Delete line at cursor
+      ESC [ c    Terminal type report
+      ESC m      Set mode (currently ignored)
+      ESC [ 6 n  Cursor position report
+      ESC [ 5 n  Terminal status report
+      ESC [r     Set scroll region
+
+    Probably the most important missing sequences are
+    those for horizontal tab stops.
+
+
+  Terminal
+
+    The basic functionality of an ASCII terminal.
+    Implements functions for writing text to the terminal,
+    moving the cursor, scrolling regions of the screen,
+    insert and deleting lines. The class has a small
+    amount of smarts for optimizing redrawing, but could
+    use quite a bit more.
+
+
+  RubberTextField
+
+    A slight variation on the standard TextField, which
+    allows it to shrink down more than usual.
+
+
+  ClassRegistry
+
+    A set of classes for communicating between objects
+    that exist in different applets in different frames,
+    windows, or documents.
+
+
+
+History
+
+  Changes in v1.3.1:
+    Added support for multiple terminal types 
+      (necessary for netscape 3.0)
+
+  Changes in v1.3:
+
+    Added REGISTRY and FONTSIZE parameters. 
+    Registers itself with a ClassRegistry, so that other applets
+      can insert text into its input stream with a "send" command. 
+    Now correctly handles smaller applet sizes. 
+    Cleaned up font allocation, now handles bold and italic fonts. 
+    Slight fixes to VT100 emulation. 
+    Split source into multiple files. 
+
+  Changes in v1.2:
+
+    Added support for text styles. 
+
+  Changes in v1.1:
+
+    Added PROMPT#, REPLY#, and ENDPROMPT# arguments. 

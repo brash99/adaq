@@ -1,0 +1,24 @@
+<rdf:RDF
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:cool="http://AFECSHOMEDB/schema/cool#"
+>
+
+<rdf:Description rdf:about="http://COOLHOME/Control/cdet_test1/Components/ROC6#ROC6">
+
+   <cool:hasName>ROC6</cool:hasName>
+   <cool:hasType>ROC</cool:hasType>
+   <cool:hasCode>{/home/adaq/crl/cdet_test3.o mystring} {/home/adaq/crl/event_list.o mystring}</cool:hasCode>
+   <cool:hasPriority>900</cool:hasPriority>
+   <cool:isCodaComponent>true</cool:isCodaComponent>
+   <cool:representsCoda2Component>true</cool:representsCoda2Component>
+
+   <cool:include rdf:resource="http://AFECSHOMEDB/Plugin/DPPlugin.rdf"/>
+   <cool:hasCommunicationPlugin rdf:resource="http://AFECSHOMEDB/Plugin/DPPlugin#DPPlugin"/>
+
+   <cool:XCo>0.0</cool:XCo>
+   <cool:YCo>0.0</cool:YCo>
+   <cool:WCo>80.0</cool:WCo>
+   <cool:HCo>80.0</cool:HCo>
+
+</rdf:Description>
+</rdf:RDF>

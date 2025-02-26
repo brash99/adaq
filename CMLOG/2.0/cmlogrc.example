@@ -1,0 +1,30 @@
+# Example configuration file for cmlog browser
+# specify use of this file by cmlog by setting
+# the CMLOG_CONFIG environment variable.
+
+
+# Type  Title      Tag       Width
+# ----  -----      ---       -----
+#Col     Facility   facility  50
+Col     Host       host      70
+Col     User       user      50
+Col     Session    domain    60
+Col     Time       cmlogTime 180
+Col     Status     status    50
+#Col     Severity   severity  50
+#Col     Error      code      50
+Col     Name       process    60
+Col     Message    text      400
+# Width of window (in pixels)
+windowWidth   950
+# Height of window (in Pixels)
+windowHeight  500
+# Color Code conversion information
+#codeConversion "domain=='davetest' " status
+codeConversion "" status
+{
+1   INFO     Green
+2   WARN     Yellow
+3   ERROR    Red
+4   SEVERE   Purple
+}

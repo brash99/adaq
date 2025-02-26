@@ -1,0 +1,294 @@
+#!/usr/bin/env perl
+
+# reseq.  Generated from reseq.in by configure.
+
+# Copyright (C) 2008,2013  Micah Cowan <micah@cowan.name>
+# 
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.
+
+use strict;
+use warnings;
+
+use Getopt::Long;
+
+use POSIX;
+use Time::HiRes qw(gettimeofday);
+
+our $VERSION = '1.1';
+
+our $inf;
+our $outf;
+our $replay = 0;
+our $last_time;
+our $halts = 0;
+our $timings;
+our $divisor = 1.0;
+
+our $timingsf;
+our $last_delay = undef;
+our $last_last_delay = 0.0;
+our $count;
+
+our $termios;
+our $orig_lflag;
+our $orig_ccmin;
+our $orig_cctime;
+
+our @controls = (
+	"NUL", "SOH", "STX", "ETX",
+	"EOT", "ENQ", "ACK", "BEL",
+	"BS", "HT", "LF", "VT",
+	"FF", "CR", "SO", "SI",
+	"DLE", "DC1", "DC2", "DC3",
+	"DC4", "NAK", "SYN", "ETB",
+	"CAN", "EM", "SUB", "ESC",
+	"IS4", "IS3", "IS2", "IS1"
+);
+our %controls;
+$controls{$controls[$_]} = chr($_) for (0 .. $#controls);
+$controls{'DEL'} = chr(0x7f);
+
+sub usage {
+    my $status = shift;
+    my $f = $status == 0 ? \*STDOUT : \*STDERR;
+
+    print $f <<END_USAGE;
+Usage: reseq [-t FILE] INPUT OUTPUT
+   or: reseq --replay [--halts] INPUT [OUTPUT]
+   or: reseq -h | --help
+   or: reseq -V | --version
+Reverse the translations made by teseq.
+
+ -h, --help          Print usage information (this message).
+ -V, --version       Display version and warrantee
+ --replay            Obey delay lines for video-style playback.
+ --halts             In addition to obeying delay lines, also obey
+                     "halt" lines (starting with "@@@"), pausing
+                     further processing until the user hits a key.
+ -d DIVISOR          Play back at DIVISOR times the normal speed.
+ -t, --timings=FILE  Output timing data to FILE, in the format used
+                     by script -t and scriptreplay.
+
+Report bugs to bug-teseq\@gnu.org
+END_USAGE
+    exit ($status);
+}
+
+sub version {
+    print <<END_VERSION;
+reseq (GNU teseq) $VERSION
+Copyright (C) 2008,2013  Micah Cowan <micah\@cowan.name>.
+Copying and distribution of this file, with or without modification,
+are permitted in any medium without royalty provided the copyright
+notice and this notice are preserved.
+There is NO WARANTEE, to the extent permitted by law.
+END_VERSION
+    exit (0);
+}
+
+sub emit {
+    my $str = join ($, ? $, : '', @_);
+    $count += length ($str);
+    print $outf $str;
+}
+
+sub process_control {
+    my $control = shift;
+    if ($control =~ /^x([[:xdigit:]]{2})/) {
+        &emit(chr (hex ($1)));
+    }
+    else {
+        $control =~ s#/.*$##;
+        unless (exists $controls{$control}) {
+            print STDERR ("reseq: line $.: unrecognized \"control\": "
+                          . "\"\Q$control\E\"\n");
+        } else {
+            &emit($controls{$control});
+        }
+    }
+}
+
+sub process_sequence {
+    my $stuff = shift;
+    if ($stuff eq 'Esc') {
+        &emit("\033");
+    }
+    elsif ($stuff eq 'Spc') {
+        &emit(' ');
+    }
+    else {
+        &emit("$stuff");
+    }
+}
+
+sub process_delay {
+    if ($replay) {
+        my $lt = $last_time;
+        $last_time = gettimeofday;
+        my $delay = $_[0];
+        return if !defined($delay);
+        $delay /= $divisor;
+        $delay -= ($last_time - $lt);
+        return if $delay <= 0.0001;
+        select (undef, undef, undef, $delay);
+    }
+    elsif ($timings) {
+        # Why must we wait until we've seen a second delay line before
+        # emitting the first one? The answer is that "script" emits its
+        # delays such that they are counted _before_ the read, rather than
+        # after. So we need to wait until the second delay line before
+        # we know how large a character-count we should place in the first
+        # line (which should get a zero-sized delay).
+        if (defined $last_delay) {
+            $last_last_delay = 0.0 unless defined $last_last_delay;
+            printf $timingsf ("%f %u\n", $last_last_delay, $count);
+        }
+        $count = 0;
+        $last_last_delay = $last_delay;
+        $last_delay = $_[0];
+    }
+}
+
+sub process_halt {
+    return unless $replay and $halts;
+    my $data;
+
+    # read any already-available data
+    sysread(STDIN, $data, 65535);
+
+    # Now block til we get one more char.
+    $termios->setcc( VMIN, 1 );
+    $termios->setattr( 0, &POSIX::TCSANOW );
+    sysread(STDIN, $data, 1);
+    $termios->setcc( VMIN, 0 );
+    $termios->setattr( 0, &POSIX::TCSANOW );
+}
+
+sub process_line {
+    local $_ = shift;
+    if (/^-?\|(.*)\|([-.]?)$/) {
+        &emit("$1");
+        &emit( "\n") if $2 eq '.';
+    }
+    elsif (/^\./g) {
+        &process_control ($1) while /\G\s*(\S+)/g;
+    }
+    elsif (/^:/g) {
+        &process_sequence ($1) while /\G\s*(\S+)/g;
+    }
+    elsif (/^@ +(.*)$/) {
+        &process_delay ($1);
+    }
+    elsif (/^@@@/) {
+        &process_halt;
+    }
+    elsif (/^[!\$+\[\/=\\^\{~]/) {
+        die "Unknown semantic line prefix, line $.: $&\n";
+    }
+    else {
+        # Acceptable line prefix with no crucial semantic value.
+        # This includes label (&) and description (") lines.
+    }
+}
+
+sub restore_term {
+    my $signal = shift;
+    $termios->setlflag( $orig_lflag );
+    $termios->setcc( VMIN, $orig_ccmin );
+    $termios->setcc( VTIME, $orig_cctime );
+    $termios->setattr( 0, &POSIX::TCSANOW );
+    if (defined $signal) {
+        undef $SIG{$signal};
+        raise $signal;
+    }
+}
+
+sub setup_signals {
+    for my $sig (qw(TERM INT TSTP)) {
+        $SIG{$sig} = \&restore_term;
+    }
+    $SIG{'CONT'} = \&comeback;
+}
+
+sub rawish_term {
+    my $new_lflag = $termios->getlflag;
+    $new_lflag &= ~(ECHO | ECHONL | ICANON | IEXTEN);
+    $termios->setlflag($new_lflag);
+    $termios->setcc( VMIN, 0 );
+    $termios->setcc( VTIME, 0 );
+
+    $termios->setattr( 0, &POSIX::TCSANOW ) or die "setattr: $!";
+}
+
+sub comeback {
+    &setup_signals;
+    &rawish_term;
+}
+
+### main ###
+
+&Getopt::Long::Configure ('bundling');
+&GetOptions ('help|h' => sub { &usage (0); },
+             'version|V' => \&version,
+             'replay' => \$replay,
+             'halts' => \$halts,
+             'timings|t=s' => \$timings,
+             'd=f' => \$divisor) || &usage (1);
+
+if ($replay) {
+    die "Divisor cannot be zero.\n" unless $divisor;
+    &usage (1) unless @ARGV == 1 || @ARGV == 2;
+}
+else {
+    &usage (1) unless @ARGV == 2;
+}
+
+if ($replay && $halts) {
+    # Put the terminal into raw mode, with no echo, and install signal
+    # handler to restore terminal settings.
+    unless ( -t STDIN ) {
+        die "Specified --halts, but STDIN is not a terminal.\n";
+    }
+
+    $termios = POSIX::Termios->new or die "Termios->new";
+    $termios->getattr( 0 ) or die "getattr: $!";
+    $orig_lflag = $termios->getlflag;
+    $orig_ccmin = $termios->getcc( VMIN );
+    $orig_cctime = $termios->getcc( VTIME );
+
+    &setup_signals;
+    &rawish_term;
+}
+
+if ($ARGV[0] eq '-') {
+    $inf = \*STDIN;
+}
+else {
+    open ($inf, '<', $ARGV[0]) or die "Couldn't open $ARGV[0]: $!\n";
+}
+
+if ($replay && @ARGV < 2 || $ARGV[1] eq '-') {
+    $outf = \*STDOUT;
+}
+else {
+    open ($outf, '>', $ARGV[1]) or die "Couldn't open $ARGV[1]: $!\n";
+}
+
+if ($timings) {
+    die "Can't do both --replay and --timings.\n" if ($replay);
+    open ($timingsf, '>', $timings) or die "Couldn't open ${timings}: $!\n";
+}
+
+my $line;
+select $outf;
+$| = 1;
+if ($replay) {
+    $last_time = gettimeofday;
+}
+while (defined ($line = <$inf>)) {
+    &process_line ("$line");
+}
+&process_delay (undef);
+&restore_term if $termios;

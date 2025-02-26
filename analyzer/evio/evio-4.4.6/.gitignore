@@ -1,0 +1,17 @@
+# Editor lint
+.#*
+*~
+*.sw?
+
+# scons stuff
+*.pyc
+.sconsign.dblite
+# ignore build directories, e.g. .Linux-x86_64
+src/examples/.???*
+src/exesrc/.???*
+src/libsrc/.???*
+src/libsrc++/.???*
+src/test/.???*
+
+# cmake stuff
+build/

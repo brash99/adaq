@@ -1,0 +1,27 @@
+<afecs>
+    <!--...................................................-->
+    <!--..     AFECS Platform Setup File                 ..-->
+    <!--..N.B. AFECS_HOME env. variables must be set     ..-->
+    <!--...................................................-->
+
+    <!--...................................................-->
+    <!--..     Platform settings                         ..-->
+    <!--...................................................-->
+
+    <expid>cdetfb</expid>
+    <platformHost>sbs2.jlab.org</platformHost>
+    <description>Afecs Platform</description>
+
+    <!--...................................................-->
+    <!--..     RC domain settings                        ..-->
+    <!--...................................................-->
+
+    <rcDescription>Afecs Test Platform RC Domain</rcDescription>
+
+    <!--.............................................>.....-->
+    <!--..     coda2 db settings                         ..-->
+    <!--..............................................>....-->
+
+    <dbUrl>jdbc:msql://sbs2:8101/cdetfb</dbUrl>
+    <dbDriver>com.imaginary.sql.msql.MsqlDriver</dbDriver> 
+</afecs>

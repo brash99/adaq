@@ -1,0 +1,174 @@
+universeDma(1)     TORNADO REFERENCE: VXWORKS      universeDma(1)
+
+NAME
+     Tundra Universe DMA system library
+
+SYNOPSIS
+     sysVmeDmaInit() - initialize the Universe DMA interface
+     sysVmeDmaInt()  - interrupt service routine for DMA
+         interface
+     sysVmeDmaDone() - polling routine that waits for the 
+         DMA to finish
+     sysVmeDmaGet()  - get the value of a parameter for DMA
+         transfer
+     sysVmeDmaSet()  - set a parameter for DMA transfer
+     sysVmeDmaCopy() - start DMA transfer between PCI bus and
+         VMEbus
+     async_sysVmeDmaCopy() - asynchronously start DMA transfer
+         between PCI bus and VMEbus
+
+     void sysVmeDmaInit
+         (int iflag)
+     void sysVmeDmaInt
+         (void)
+     STATUS sysVmeDmaDone
+         (int pcnt)
+     STATUS sysVmeDmaGet
+         (UINT32 type, UINT32 *pval)
+     STATUS sysVmeDmaSet
+         (UINT32 type, UINT32 pval)
+     STATUS sysVmeDmaCopy
+         (char  *locAdrs, char *vmeAdrs, int size, BOOL toVme)
+     STATUS async_sysVmeDmaCopy
+         (char  *locAdrs, char *vmeAdrs, int size, BOOL toVme)
+
+DESCRIPTION
+     This manual entry provides a description of a set of  system
+     calls  which interface to the Tundra Universe VME DMA inter-
+     face on the MVME2600 and MVME3600 PPC  VME  cards  from  the
+     Motorola  Computer  Group.   The  interface  was designed to
+     transfer amount of data through the DMA channel by way of  a
+     synchronous  or asynchronous system call.  DMA transfers can
+     be configured while the DMA channel is  busy  to  allow  for
+     better utilization of the interface.
+
+     The universeDMA interface will  transfer  up  to  16,000,000
+     bytes  of information between the VMEbus and the PCI bus per
+     DMA cycle request.  The addresses for the transfers must  be
+     on  an  even  3 bit boundary.  Errors which occur during the
+     cycle will be available in a global  data  area  which  will
+     indicate the error which occurred, the local address, vmebus
+     address, and data count when the error occured.   This  data
+     structure  is set in the sysVmeDmaInt Interrupt Service Rou-
+     tine.
+
+INCLUDE FILES
+     universeDma.h
+
+SYSTEM CALL DETAILS
+void sysVmeDmaInit (int iflag)
+     This system call will put the universeDMA interface  of  the
+     Tundra VME Chip into a state which can be configured for DMA
+     requests.  A binary semaphore will be created so that multi-
+     ple  calls  to  the  will block until a DMA request has been
+     completed.  The initial state  of  the  DGCS  and  DCTL  are
+     stored  in  a  set  of global variable used to configure DMA
+     transfers.  Using the global copies of the registers  allows
+     for configuration of a request while one is occuring.  Calls
+     to this routine after the first one will be ignored.
+
+void sysVmeDmaInt (void)
+     This is the ISR which handles  the  completion  of  all  DMA
+     transfers.   The  routine  will  check  the cause of the DMA
+     cycle complete and store the final values  of  the  Universe
+     LADR,  VADR,  DTBC  and  status  in  a global data structure
+     called   struct   stat_struct   univDmaStat.   Review    the
+     universeDma.h   file   for  the  field  definitions  of  the
+     stat_struct structure.  For developer's who wish  to  follow
+     the  status  of  each  DMA  transaction, a call back routine
+     could be added to the ISR to give more control to the appli-
+     cation when errors occur.
+
+STATUS sysVmeDmaGet (UINT32 type, UINT32 *pval)
+     This system call takes the flag type and returns  the  value
+     of the cooresponding value of the DCTL or DGCS configuration
+     registers for the next DMA cycle.  Global variables  contain
+     the  state  of  these  two  registers so that DMA cycles can
+     operate while the next is  configured.   The  state  of  the
+     register  associated  with  type  is returned in the integer
+     pointed to by pval. The following values for type are avail-
+     able and the possible pval which could be returned:
+
+         FRC_VME_DMA_LOCAL_BSIZE - PCI bus width
+            TRUE  - PCI64
+            FALSE - PCI32
+         FRC_VME_DMA_VME_ACAP - Address mode on VME
+            ACAP_A16 - Short I/O transfers
+            ACAP_A24 - VME A24 transfers
+            ACAP_A32 - VME A32 transfers
+         FRC_VME_DMA_VME_DCAP - Data Transfer Mode
+            DCAP_D8   - D8 Transfers
+            DCAP_D16  - D16 Transfers
+            DCAP_D32  - D32 Transfers
+            DCAP_BLT  - Block Mode D32 Transfers
+            DCAP_MBLT - Block Mode D64 Transfers
+            DCAP_D64  - D64 Transfers
+         FRC_VME_DMA_VME_BSIZE - Max DMA Transfer size
+            VME_BSIZE_DONE- Transfer until done
+            VME_BSIZE_256 - Transfer Size 256 bytes
+            VME_BSIZE_512 - Transfer Size 512 bytes
+            VME_BSIZE_1024- Transfer Size 1024 bytes
+            VME_BSIZE_2048- Transfer Size 2048 bytes
+            VME_BSIZE_4096- Transfer Size 4096 bytes
+            VME_BSIZE_8192- Transfer Size 8192 bytes
+         FRC_VME_DMA_VME_DELAY - Delay between Transfers
+            VME_DELAY_0   - 0   uSec wait
+            VME_DELAY_16  - 16  uSec wait
+            VME_DELAY_32  - 32  uSec wait
+            VME_DELAY_64  - 64  uSec wait
+            VME_DELAY_128 - 128 uSec wait
+            VME_DELAY_256 - 256 uSec wait
+            VME_DELAY_512 - 512 uSec wait
+            VME_DELAY_1024- 1024uSec wait
+         FRC_VME_DMA_VME_UCAP - User/Supervisor AM
+            TRUE  - Supervisor
+            FALSE - User
+         FRC_VME_DMA_VME_PCAP - Program/Data AM
+            TRUE  - Program
+            FALSE - Data
+         FRC_VME_DMA_LOCAL_DCTL -  Entire value of the DCTL
+         FRC_VME_DMA_LOCAL_DGCS -  Entire value of the DGCS
+
+     NOTE:For  developer's  who  don't  want  to  deal  with  the
+     indivdual flag fields, the entire state of the DCTL and DGCS
+     can be returned with the last two flags.  If the type  field
+     does not exist, an ERROR is returned.
+
+STATUS sysVmeDmaSet  (UINT32 type, UINT32 pval)
+     A compliment to the sysVmeDmaGet system call which sets  the
+     state of the DGCS and DCTL registers with values supplied to
+     this call.  The same flags described above can be  used  for
+     this  call  as  well.   If the type field does not exist, an
+     ERROR is returned.
+
+STATUS sysVmeDmaCopy  (char *locAdrs, char  *vmeAdrs,  int  size,
+     BOOL toVme)
+     This system call starts a DMA request if the DMA channel  is
+     idle.   If  the  dma control semaphore has been taken, a DMA
+     cycle is in progress and this call will block.  If not,  the
+     range  of the parameters passed to this call are checked for
+     the proper values.  If the count > 16,000,000 bytes, or  the
+     PCI  or  VME  address  aren't on an even 3 bit boundary, the
+     call returns with a specific parameter error.   If  the  are
+     all  within  range, the Universe DMA DGCS and DCTL registers
+     are loaded with  the  values  set  from  previous  calls  to
+     sysVmeDmaSet  , the DCTB register is stored with the size of
+     the transfer, and the VMEbus  address  is  loaded  into  the
+     VADR.   The  local  address  supplied  to  the  call will be
+
+     checked.  If the value is < 0x80000000, the address will  be
+     assumed  to be a local DRAM address.  It will be adjusted in
+     the system call to the PCI offset  of  DRAM.   If  it  is  >
+     0x8000000,  the  value  will  be  assumed  to  be a physical
+     address on the board and not adjusted.  When all values  are
+     loaded,  the  DMA cycle is started and the call returns with
+     OK.
+
+STATUS async_sysVmeDmaCopy  (char *locAdrs,  char  *vmeAdrs,  int
+     size, BOOL toVme)
+     This system call behaves the exact same was as the  sysVmeD-
+     maCopy  with  the  exception,  it  will not block if the DMA
+     channel is busy.  It will return a DMA_BUSY if  the  channel
+     is not available.
+
+

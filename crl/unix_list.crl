@@ -1,0 +1,107 @@
+#    R. Michaels/D. Abbott, JLab, Aug 2000
+#
+#    Example "list" for a UNIX based ROC
+#    This is a ROC that runs on a Unix host
+#    to generate fake data.
+#
+
+readout list BOB1
+maximum 1024,1000
+polling
+test readout
+const EVLEN = 100
+
+extern int bigendian_out;
+long counter;
+
+begin download
+
+  printf("in user download\n");
+  log inform "user download\n"
+
+#if sending big to little Endian
+# if ROC=Motorola and EB=Linux, you need this.
+# if ROC=Motorola and EB=Sun, you don't need it.
+# if both ROC and EB are Linux, you don't.
+#bigendian_out=0;
+
+end download
+
+begin prestart
+
+  log inform "user prestart\n"
+
+  init trig source TEST
+  link sync trig source TEST 1 to usrtrig and usrtrig_done
+  event type 1 then read TEST 1
+
+# test flag turns on/off triggers.
+# prescale is a prescale factor to slow things down.
+  TESTflag = 0;
+  TEST_prescale = 2000000;
+
+end prestart
+
+begin end
+
+  log inform "user end\n"
+  TESTflag = 0;
+  
+end end
+
+begin pause
+
+  log inform "user pause\n"
+  TESTflag = 0;
+
+end pause
+
+begin go
+
+  log inform "user go\n"
+  counter = 0;
+  TESTflag = 1;
+
+end go
+
+begin trigger usrtrig
+ 
+ variable jj
+ open event type EVTYPE of BT_UI4
+
+# one way of putting out data
+ output hex da000001
+
+# another way...
+%%
+/* here is a comment */
+ *rol->dabufp++ = 0xda000002;
+ for(jj = 0; jj < EVLEN; jj++) {
+    *rol->dabufp++ = counter++;
+ }
+ *rol->dabufp++ = 0xda0000ff;
+ usleep(4000);
+
+%%
+ 
+close event
+
+end trigger
+
+begin done usrtrig
+
+end done
+
+begin done
+
+end done
+
+begin status
+
+end status
+
+
+
+
+
+

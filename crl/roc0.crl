@@ -1,0 +1,288 @@
+# 
+#  User readout list using a TI (pipeline) in MASTER mode
+#   With an SFI in a Fastbus crate... readout of an Lecroy 1881 ADC.
+#
+#    Bryan Moffit, TJNAF 2014
+#
+
+readout list GEN_USER
+maximum 8192,256
+sfi readout
+
+include "GEN_source.h"
+include "tiLib.h"
+include "sfi.h"
+
+# A24 Address for TI Module (e.g. Slot number = 2)
+const TRIG_ADDR = 0x080000
+# TRIG_MODE=0 for interrupt mode (External input)
+const TRIG_MODE = 1
+const SFI_ADDR  = hex e00000
+
+const BLOCKLEVEL=1
+const BUFFERLEVEL=1
+
+
+# Decision on whether (1) or not (0) to readout TI
+const READOUT_TI=1
+
+# 1881 Paramters
+const NADC = 5
+const ADC_SLOT1 = 4
+const ADC_SLOT2 = 5
+const ADC_SLOT3 = 6
+const ADC_SLOT4 = 7
+const ADC_SLOT5 = 8
+
+# TDC 1877
+const NTDC=3
+const USLOT=20
+const LSLOT=18
+
+# NMOD = NADC + NTDC
+const NMOD=8 
+
+const Branch_num=1
+
+variable scan_mask
+
+extern int bigendian_out;
+int blockLevel=1;
+int nb = 0;
+unsigned int *tiData=NULL;
+unsigned int tibready;
+
+int tdcslots[NMOD];
+int adcslots[NMOD];
+int modslots[NMOD];
+int csr0[NMOD];
+static int debug=1;
+
+############################################################
+# DOWNLOAD
+############################################################
+begin download
+
+variable res,laddr, jj, kk, mm
+
+
+# When sending to a Linux Host set bigendian_out = 0
+bigendian_out = 0;
+
+# Setup SFI pointers to Enable triggers, and establish
+# DMA address offsets
+%%
+  res = (unsigned long) sysBusToLocalAdrs(0x39,SFI_ADDR,&laddr);
+  if (res != 0) {
+     printf("Error Initializing SFI res=%d \n",res);
+  } else {
+     printf("Calling InitSFI() routine with laddr=0x%x.\n",laddr);
+     InitSFI(laddr);
+  }
+%%
+
+
+# Setup TI
+%%
+{
+  /* measured longest fiber length */
+  tiSetFiberLatencyOffset_preInit(0x40); 
+ /* Set crate ID */
+  tiSetCrateID_preInit(0x1); /* ROC 1 */
+  
+  /* TI Setup */
+  tiInit(TRIG_ADDR,TRIG_MODE,0);
+  tiDisableBusError();
+
+ 
+
+  if(READOUT_TI==0) /* Disable data readout */
+    {
+      tiDisableDataReadout();
+
+      /* Disable A32... where that data would have been stored on the TI */
+      tiDisableA32();
+    }
+  
+  tiSetBlockBufferLevel(BUFFERLEVEL);
+
+  /* Override default BUSY level - Use if TI is not in a VXS crate*/
+  tiSetBusySource(0,1);
+  tiSetTriggerSource(TI_TRIGGER_PART_1);
+  tiStatus(0);
+  tiDisableVXSSignals();
+  tiSetEventFormat(2);
+ }
+%%
+
+%%
+{
+ 
+  /* setup the arrays containing the slotnumbers */ 
+  for(jj=0; jj<NMOD; jj++) {
+     adcslots[jj]=0;
+     tdcslots[jj]=0;
+     csr0[jj]=0;
+  }
+  mm=0;  
+  if (NADC>0) {
+    kk=0;
+    for(jj=ADC_SLOT1;jj<=ADC_SLOT5;jj++) {
+       adcslots[kk]=jj;
+       modslots[mm]=jj;
+       csr0[mm]=0x400;
+       kk++;
+       mm++;
+     }
+  }
+  if (NTDC>0) {
+    kk=0;
+    for(jj=LSLOT;jj<=USLOT;jj++) {
+       tdcslots[kk]=jj;
+       modslots[mm]=jj;
+       csr0[mm]=0x400;
+       kk++;
+       mm++;
+     }
+  }
+
+  /* calculate the scan_mask */
+  scan_mask = 0;
+
+  for (jj=0; jj<NMOD; jj++)
+     scan_mask |= (1<<modslots[jj]);
+  printf ("Crate Scan mask = %x\n",scan_mask);  
+
+}
+%%
+
+  log inform "User Download Executed"
+
+end download
+    
+############################################################
+# PRESTART
+############################################################
+begin prestart
+
+  variable burble
+
+
+  init trig source GEN
+  link async trig source GEN 1 to titrig and titrig_done
+  event type 1 then read GEN 1
+ 
+  burble=4444;
+
+end prestart
+
+############################################################
+# END
+############################################################
+begin end
+
+%%
+{
+  CDODISABLE(GEN,1,0);
+
+  tiStatus(0);
+  printf("Interrupt Count: %8d \n",tiGetIntCount());
+  printf("Live time percentage:%8d \n",tiLive(1));
+  printf("Live time:%8d \n",tiGetLiveTime());
+  printf("Busy time:%8d \n",tiGetBusyTime());
+
+  /* Free up the allocated memory for the tiData */
+  if(tiData!=NULL)
+    {
+      free(tiData);
+      tiData=NULL;
+   } 
+}
+%%
+
+  log inform "User End Executed"
+
+end end
+
+############################################################
+# PAUSE
+############################################################
+begin pause
+
+  CDODISABLE(GEN,1,0);
+
+  log inform "User Pause Executed"
+
+end pause
+
+############################################################
+# GO
+############################################################
+begin go
+  
+  log inform "Entering User Go"
+  
+%%
+{
+  /* Get the current Block Level */
+  blockLevel = tiGetCurrentBlockLevel();
+  printf("rocGo: Block Level set to %d\n",blockLevel);
+
+  /* Allocate some memory for TI data */
+  tiData = (unsigned int*)malloc(50*sizeof(unsigned int));
+}
+%%
+
+
+%%
+{
+  CDOENABLE(GEN,1,0);
+
+  tiStatus(0);
+}
+%%
+
+  log inform "User Go Executed"
+
+end go
+
+############################################################
+# TRIGGER
+############################################################
+begin trigger titrig
+
+# Enable SFI Sequencer
+  *sfi.sequencerEnable = 0;
+
+  rol->dabufp = (long *) 0;
+
+
+open event type 1 of BT_BANK
+
+      CBOPEN(1,BT_UI4,0);
+
+           *rol->dabufp++ = 0xb0b04444;
+
+
+      CBCLOSE;
+
+ close event
+
+end trigger
+
+begin done titrig
+
+end done
+
+############################################################
+# DONE (TRIGGER ACKNOWLEDGE)
+############################################################
+begin done
+  CDOACK(GEN,1,0);
+end done
+
+begin status
+
+end status
+
+

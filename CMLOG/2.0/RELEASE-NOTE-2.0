@@ -1,0 +1,133 @@
+The following summarizes new features of CMLOG version 2.0. The existing
+cmlog client applications should be able to work with the new version.
+
+A) Server:
+
+	The cmlog server has changed a little. It now spawns a thread or a
+	process to do a user request query. By doing this, an ongoing query
+	can be easily stopped. Currently this version of server has been 
+	tested on solaris 2.6 (threaded and process based), hpux 10.20 (process
+	based), RedHat Linux (5.2) (threaded and process based). 
+
+b) clientDaemon:
+
+	1) On unix the cmlogClientD takes a command line argument -i to allow
+	users to ctrl^c to stop the daemon. It is useful for users to debug
+	the system.
+
+	2) Some of error messages are suppressed. Those messages such as
+	"Cannot find cmlog server running" will only be shown once instead
+	of many times.
+
+	3) A bug that is causing multiple users on the same host to lose
+	context information (host, username and etc) is fixed.
+	
+	4) A bug that is causing an application not to be able to connect
+	to the client daemon after the client daemon has assigned large number
+	of client ids is fixed.
+
+c) Client:
+
+	1) setThrottle (getThrottle) have been tested and their C interfaces
+	have been implemented.
+
+	2) On VxWorks cmlogVxLogDisable and cmlogVxLogEnable are added to
+	disable and enable logging messages. The default logging behavior
+	is logging enabled.
+
+	3) If a outgoing cdevData contains a "cmlogTime" tagged value 
+	of double (float, int),	cmlogClient library will not do time stamp 
+	on the outgoing data object.
+
+d) Browser:
+
+	Browser member function queryCallback now supports four messages:
+	query, monitorOn, monitorOff and stopQuery. The last one is added
+	to support canceling a long query.
+
+e) Motif Browser Implementation (cmlog):
+
+	1) Command line options are supported:
+		-(c)onnect: automatic connection to the server
+		-(u)pdate:  automatic put cmlog into updating mode with
+			    a selection message specified in a config file
+		-f filename:use provided config file
+		-cfg file:  use provided config file
+		-q:         do a query with a query message and a time 
+			    interval provided in a config file
+		-hu:        do a query with a query message and a time 
+			    interval specified in a config file and put 
+			    cmlog into updating mode
+		-h:         this help
+	
+	2) Configuration file can specify a query message which will appear
+	in the query dialog box for all the query selections.
+
+	3) Configuration file can specify a update message which will appear
+	in the update dialog box for all the updating selections.
+
+	4) Configuration file can name the configuration. The configuration
+	name will appear on top of the window.
+
+	5) Long query can be canceled. If a user selects to get all messages
+	from query dialog box, a cancel dialog box will appear during the
+	query to enable the user to cancel the query.
+
+	6) Supports integer to string conversion, color coding a field and
+	blinking a color coded field. This option is fairly complex, and is
+	configured by a config file. The following is an example.
+	
+	codeConversion "none" Status
+	{
+	0	ok 	green
+	1	info	blue
+	2	warning yellow
+	-1	error	red	flash
+	}
+
+	The above segment states that all integer status values of 0, 1, 2, -1
+	will be converted to strings of "green", "blue", "yellow", "red". The
+	"red" field will flash (blink). The second field of the first line
+	("none") identifies sources of data. In particular cmlog converts 
+	integer fields to string representations the same way regardless
+	data sources if "none" is specified. The following example illustrates
+	how data conversions are done for different data sources.
+ 	
+	codeConversion "Facility == 'EPICS' " Severity
+	{
+	100	info 	green
+	101	info1	blue
+	102	warning yellow  flash
+	110	error	red	flash
+	}
+
+	codeConversion "Facility == 'SLC' " Severity
+	{
+	200	info 	green
+	201	info1	blue
+	202	warning yellow  flash
+	210	error	red	flash
+	}
+	
+	7) A simple query message helper button is added on the query dialog
+	box. Pressing message helper button bring out a dialog box that 
+	constructs simple query messages.
+
+	8) Users can save whatever in the display to a file in ascii form by
+	using "Save Screen" menu.
+
+	9) The "Save Current Setting" menu entry saves everything that can be
+	configured from a configuration file. 
+
+	10) Miscellaneous menu entries are added for convenience.
+
+Acknowledgment:
+
+	Special thanks to Ron MacKenzie at SLAC who has spent long
+	hours to design, discuss and test cmlog version 2.0. 
+	Many thanks to David Abbott at Jefferson Lab for his effort
+	to port and test cmlog on different platforms running VxWorks
+	and Linux. Many thanks to Johannes van Zeijt at BNL and Thomas Birke 
+	at BESSY for his testing and valuable suggestions. Finally many 
+	thanks to anyone who have made suggestions, comments and feedbacks 
+	to the system.

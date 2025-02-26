@@ -1,0 +1,495 @@
+#  Copied from sfi3.crl on June 22, 2010 because
+#  these two crates are nearly identical now.
+#
+#  Bob Michaels, Jefferson Lab, May 1997
+#  sfi4.crl readout list for CODA 2.0
+#  Source for readout of Lecroy FASTBUS modules
+#  using a Struck SFI and Power PC VME controller.  
+#
+#  Left arm crate for VDCs and scint, etc.
+#  The fastbus devices are:
+#       TDC 1875's in slots TDCnSLOT
+#       ADC 1881's in slots ADCnSLOT.
+#       TDC 1877's in slots LSLOT through USLOT
+#  The corresponding bits in SCAN_MASK must be set.
+#
+#  Modifications
+#    Nov 12, 97    RWM    Multiblock readout
+#                         Add TRIGSLOT for TDC 1877 trigger pattern
+#    Dec 29, 00    RWM    Add 2 ADCs and 1 TDC1877.  Rearrange slots
+#                         to increase efficiency.  TRIGSLOT treated 
+#                         same as other 1877s.
+#
+#    Dec 15, 01    RWM     Add timestamp
+#
+#    Jan 27, 03    RWM     Add the event type to output
+#
+#    Feb 25, 06    RWM     For GeN we have only TDC 1877 in readout.
+#    Feb 28, 06    SAW	  Kill 1877 scaler task on download, in case it is running
+#    May 28, 06    AC    adjusted the number of modules
+#    Jun 18  06    AC    Added 1875
+#    Jul 12  06    AC    Added 2 1881 in slot 20 and 21
+#    Jul 12  06    AC    Gate from front for 1881 slot 20  1us wide
+#    Jul 20  06    AC    Gate from front for 1881 slot 21 for BPM 50 ns#    Aug 4  06    AC    Droppind ADC in slot 20
+#    Jul 20  06    AC    Dropping FPP TDCs for test... previous csr saved in sfi4_keep_Feb-11-2007.crl
+#    Aug 7   07    RWM   Add 5 ADCs for CSR in slot 16-21, backplane gate
+#    Mar 12  08    AC    Removed CSR ADC from slot 16 to 19 keep CSRADC5 in slot 20 ( previous crl saved in save_12mar08 )
+#    Mar 12  08    AC    Readded FPP TDC in readout
+#    Mar 14  08    RM    Redded the programming of middle TDCS 
+#    Sep 11  08    KA    Removed ADC from slot 20 ( was not in use anymore) 
+#    Oct 8   08    RM    Remove FPP, put in a single TDC in slot 13 (but not block read)
+#                        Warning, TDC2SLOT overlaps with USLOT, but this is ok if NTDC77=0
+#    Nov 11  08    VS    Add 1877 TDC in Slot 9 ( for triggers ) TDC3SLOT
+#    Apr 01  09    VS    Drop 1875 TDC in Slot 18 ( for S1 and S2m) TDC1SLOT
+#    Jul 07  09    RM    Add the 3320 FADC in SFI slot
+#    Aug 05  09    RS    Add 1877 TDC in Crate 4 Slot 19 (for PVDIS) TDC4SLOT
+#    Nov 06  09    RM    Add ADCs in ROC4 slots 23,24,25.  But only if ADCPVD=1. 
+#                        Of course ADCPVD=1 has been tested but we leave it =0.
+#
+#
+#    June 22, 2010  RWM   Copied from sfi3.crl and add and ADC and a TDC
+#                         ROC4 is upper FB crate
+#
+#    Sep 13, 2010  RM     Added the 1875 in slot 16.
+#
+#    Oct 26  2010  AC     Switched ADC in slot 22 to front gate for sync check signal
+##   Dec 10 2010     Switching ADC to backplane gate
+#
+#    Feb 5, 2011   RM   Massive changes for SRC (Spring 2011).
+#                       Dropped all ADC except ADC1SLOT
+#                       Added TDC1877 to slots 15-21 and slot 23
+#                       (not my idea, it was driven by FPP)
+#    Feb 8, 2011  AC	Changed    NTDC1+NTDC2-2 to  NTDC1+NTDC2-1 this somehow fix the missing TDC
+#			Switched ADC to front gate
+#    Apr 13, 2011  AC	Cerenkov ADC moved from ROC3 to ROC4 : added 1881 in slot 21
+#    Nov 04 2011        Moved ADCs in slots 21 and 25 to new ROC (3rd FB crate)
+#                       and unused 1875 TDC in slot 24 and the 1877 in slot 23.
+#                       Removed the FPP TDCs from the readout including calls and set NMOD=8.
+#    Dec 18 2013   KA   Added two 1877 TDCs for FPP in slot 17 and 18 
+
+
+readout list SFI
+maximum 12000,256
+sfi readout
+ts control
+
+const SFI_ADDR  = hex e00000
+const IRQ_SOURCE_MASK = 0x10
+
+const WC_MASK = hex ffffff
+
+# TDC 1877
+const USLOT1 = 11
+const LSLOT1 = 3
+
+#TDCs for FPP
+const USLOT = 18
+const LSLOT = 17
+
+const NTDC1 = 9
+
+# Define Sparse Data Scan Mask (1 bit set for each SLOT (0-25))
+
+const NMOD = 11
+
+include "sfi4.h"
+include "ppcTimer.h"
+
+variable sfi_base_addr
+variable scan_mask
+
+int tdcslot[NMOD];
+int modslot[NMOD];
+int nhitmod[NMOD];
+int csr0[NMOD];
+
+static int buffered;
+static int debug=1;
+
+extern int bigendian_out;
+extern int vxTicks;   /* vxWorks time ticks */
+
+PPCTB TimeCount1,TimeCount2;
+
+begin download
+
+  variable res, laddr, jj,kk
+
+%%
+/* send data from big endian VME cpu to little endian host (linux)*/
+bigendian_out = 0;
+%%
+
+# Setup SFI pointers to Enable triggers, and establish
+# DMA address offsets
+%%
+  res = (unsigned long) sysBusToLocalAdrs(0x39,SFI_ADDR,&laddr);
+  if (res != 0) {
+     printf("Error Initializing SFI res=%d \n",res);
+  } else {
+     printf("Calling InitSFI() routine with laddr=0x%x.\n",laddr);
+     InitSFI(laddr);
+  }
+
+
+/* Initialize AUX Card */
+  sfiAuxInit();
+/* initialize the scaler in the SFI */
+initSCALER(1151);
+
+  init_strings();
+  buffered = getflag(BUFFERED);
+
+  if(debug) printf("Value for buffered = %d \n",buffered);
+
+
+/* initialize arrays for safety */
+for (jj=0; jj<NMOD; jj++) {
+   modslot[jj]=0;
+   csr0[jj]=0;
+}
+
+/* define slots for 1877(vdc)  */
+  kk=0;
+  for(jj=LSLOT1;jj<=USLOT1;jj++) {
+     tdcslot[kk]=jj;
+     modslot[kk]=jj;
+     csr0[kk]=0x400;
+     kk++;
+  }
+
+/*define slots for 1877(fpp)  */
+  for(jj=LSLOT;jj<=USLOT;jj++) {
+     tdcslot[kk]=jj;
+     modslot[kk]=jj;
+     csr0[kk]=0x400;
+     kk++;
+  }
+
+/* calculate the scan_mask */
+  scan_mask = 0;
+  for (jj=0; jj<NMOD; jj++) {
+     printf("slot = %d \n",modslot[jj]);
+     scan_mask |= (1<<modslot[jj]);
+  }
+
+  printf ("Crate Scan mask = %x\n",scan_mask);
+
+
+%%
+  
+  log inform "User Download Executed"
+
+end download
+    
+begin prestart
+
+  variable ii,jj,kk
+  variable pedaddr, modulescan, tslot, modid
+  variable pedsuppress
+
+  init_strings();
+
+
+  init trig source SFI
+  link async trig source SFI 1 to davetrig and davetrig_done
+  event type 1 then read SFI 1
+
+
+%%
+/*Reset AUX Port */
+  sfiAuxWrite(0x8000);
+
+/* For Interrupt driven triggers */
+  sfiTrigSource = IRQ_SOURCE_MASK;
+%%
+  reset crate 0
+
+# TDC 1877
+#
+# Common stop, 1.496 microsec time window(0xbb), LIFO depth 6
+# Program to respond to class 1 broadcasts
+
+# Block LSLOT1 to USLOT1
+
+      geographic control USLOT1
+         printf("upper TDC (1st blk) slot %d \n",USLOT1);
+         write hex 40000000
+         write hex 00000900
+         secondary address 1
+         write hex 40000003
+         secondary address 18
+         write hex bb6
+         secondary address 7
+         write 2
+      release
+      sfi_error_decode(0);
+
+# loop to setup the board in the block
+kk = 1;
+while kk is less than NTDC1-1
+         tslot = tdcslot[kk];
+         printf("TDC (1st blk) %d : slot %d \n",kk,tslot);
+         geographic control tslot
+         write hex 40000000
+         write hex 00001900
+         secondary address 1
+         write hex 40000003
+         secondary address 18
+         write hex bb6
+         secondary address 7
+         write 2
+        release
+        sfi_error_decode(0);
+	kk++;
+end while
+
+# End slot
+
+      geographic control LSLOT1
+         printf("lower TDC (1st blk) slot %d \n",LSLOT1);
+         write hex 40000000
+         write hex 00001100
+         secondary address 1
+         write hex 40000003
+         secondary address 18
+         write hex bb6
+         secondary address 7
+         write 2
+         release
+         sfi_error_decode(0);
+    
+# TDC 1877 (for FPP)
+# Common stop, 1.496 microsec time window(0xbb), LIFO depth 6
+# Program to respond to class 1 broadcasts
+# Sense both leading and trailing edge starts
+
+      geographic control USLOT
+        printf("FPP TDC slot %d \n",USLOT);
+         write hex 40000000
+         write hex 00000900
+         secondary address 1
+         write hex 60000003
+         secondary address 18
+        write hex bb6
+         secondary address 7
+         write 2
+      release
+      sfi_error_decode(0);
+
+      geographic control LSLOT
+         printf("FPP TDC slot %d \n",LSLOT);
+         write hex 40000000
+         write hex 00001100
+         secondary address 1
+         write hex 60000003
+         secondary address 18
+         write hex bb6
+         secondary address 7
+         write 2
+        release
+         sfi_error_decode(0);
+
+end prestart
+
+begin end
+
+  CDODISABLE(SFI,1,IRQ_SOURCE_MASK);
+
+  log inform "User End Executed"
+
+end end
+
+begin pause
+
+  CDODISABLE(SFI,1,IRQ_SOURCE_MASK);
+
+  log inform "User Pause Executed"
+
+end pause
+
+begin go
+  
+  log inform "Entering User Go"
+
+ clearSCALER();
+
+  CDOENABLE(SFI,1,IRQ_SOURCE_MASK);
+
+end go
+
+begin trigger davetrig
+
+variable datascan, ii, scan_result, kk, tslot, temp_var
+variable sync_or_unbuff, time1, event_ty, time2, event_no
+variable itimeout
+static int event_cnt = 0;
+static int icnt = 0;
+
+#ppcTimeBaseGet(&TimeCount1);
+
+#strobe NIM output 01
+*sfi.writeVmeOutSignalReg = 0x100;
+
+sync_or_unbuff = syncFlag || !buffered;
+event_cnt = event_cnt + 1;
+time1 = vxTicks;
+event_ty = EVTYPE;
+time2 = getSCALER(0);
+event_no = *rol->nevents;
+
+# Enable SFI Sequencer
+  *sfi.sequencerEnable = 0;
+
+ rol->dabufp = (long *)0;
+ open event type EVTYPE of BT_UI4
+
+# Execute Sparse Data Scan to determine if there is valid Data */
+  ii=0
+  datascan = 0
+  while (ii<100) and (scan_mask != (datascan&scan_mask))
+    read from broadcast control 9 into datascan
+    increment ii
+  end while
+
+if ii is less than 100 then
+
+# Load next event -- broadcast
+# For VDC TDCs and FPP TDCs
+
+   padr = 0x15;
+   fb_fwcm_1(0x15,0,0x400,1,0,1,0,0,0);
+
+# Multiblock readout for  TDCs
+# Units are words = 4*bytes
+
+ *sfi.writeVmeOutSignalReg = 0x1000000;
+ block read 2300 from geo data USLOT1
+ block read 300 from geo data USLOT
+ *sfi.writeVmeOutSignalReg = 0x100;
+
+else
+
+      output hex dc0000ff
+
+# Now clear bump the event pointers of all the modules that
+# did get a gate so that we do not get out of sync
+%%
+  for(kk=0;kk<NMOD;kk++) {
+     if(datascan & (1<<tdcslot[kk])) {
+       padr = tdcslot[kk];
+       fb_fwc_1(padr,0,0x400,1,1,0,1,0,0,0);
+     }
+  }
+
+%%
+
+end if
+
+# Output number of triggers and timeout counter.
+# fabc000N = header for fastbus counter (fabc)
+# N = number of words that follow.
+
+   output 0xfabc0008
+   output ii
+   output datascan
+   icnt = icnt + 1;
+   if(icnt > 20000) icnt = 0;
+   output icnt
+   output event_no
+   output event_ty
+   output event_cnt
+   output time1
+   output time2
+
+#
+   output 0xfaaa0001
+
+%%
+/* Words to flag if buffered/unbuffered */
+   if (buffered) { 
+        *rol->dabufp++ = 0xfafbbf00 + syncFlag;
+     }
+      else 
+     {
+        *rol->dabufp++ = 0xfabb0000;
+     }               
+
+%%
+
+
+# Check for extra hits, keep reading the modules with hits
+# until cleared, and put the number of extra hits into datastream.
+
+%%
+    for(ii=0;ii<NMOD;ii++) {
+      nhitmod[ii]=0;
+    }
+%%
+  if sync_or_unbuff is not equal to 0 then
+  itimeout=0;
+%%
+    do {
+      if(itimeout++>10000) break;
+      datascan = 0;
+      padr = 9;
+      fb_frcm_1(9,0,&datascan,1,0,1,0,0,0);
+      if(datascan & scan_mask) {
+	for(ii=0;ii<NMOD;ii++){
+	  if(datascan & (1<<modslot[ii])) {
+	    nhitmod[ii]++;
+	    padr = modslot[ii];
+	    fb_fwc_1(padr,0,csr0[ii],1,1,0,1,0,0,0);
+          }
+	}
+      }
+    } while(datascan & scan_mask);
+%%
+    ii = 0
+    while ii is less than NMOD
+      temp_var = nhitmod[ii];
+      if temp_var is not equal to 0 then
+	datascan = 0xdcfe0000 + (modslot[ii] << 11) + (nhitmod[ii] & 0x7ff);
+        output datascan   
+      end if
+      increment ii
+    end while
+  end if
+#ppcTimeBaseGet(&TimeCount2);
+#output 0xdeaddead
+%%
+/* bcopy(&TimeCount1,rol->dabufp,8);
+ rol->dabufp+=2;
+  bcopy(&TimeCount2,rol->dabufp,8);
+ rol->dabufp+=2;*/
+%%
+
+close event
+
+# write NIM output 
+*sfi.writeVmeOutSignalReg = 0x1000000;
+
+
+end trigger
+
+begin done davetrig
+%%
+#ifdef VXWORKSPPC
+  sysBusIntAck(5);       /* Acknowledge Universe chip */
+#endif
+%%
+
+end done
+
+begin done
+
+# Acknowledge B42 Interrupt
+   CDOACK(SFI,1,IRQ_SOURCE_MASK);
+
+end done
+
+begin status
+
+end status
+
+

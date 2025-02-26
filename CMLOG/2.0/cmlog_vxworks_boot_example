@@ -1,0 +1,31 @@
+
+   Below is a snippet of a vxWorks boot script that is 
+necessary to load and run a cmlog client. There are two
+different clients.
+    
+    cmlogClientD: standard CMLOG client deamon that pipes
+                  messages to the designated server.
+    
+    optional
+    cmlogVxLogMsg: grabs VxWorks logMsg() calls and pipes
+                   them to server. This is useful if one
+                   wants to log interrupt context messages
+                   on the server side.
+
+
+# --------------------------------------------------------
+#
+# Setup environment variables to point to cmlogServer host
+putenv "CMLOG_PORT=8102"
+putenv "CMLOG_HOST=mizar"
+
+
+# Download Message logging libraries/client
+ld < /site/coda/CMLOG/bin/ppc/cmlogClientD
+ld < /site/coda/CMLOG/lib/ppc/libcmlog.a
+ld < /site/coda/CMLOG/bin/ppc/cmlogVxLogMsg       <-- optional
+
+
+# Spawn tasks
+sp cmlogClientD
+sp cmlogVxLogMsg     <-- optional

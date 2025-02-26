@@ -1,0 +1,14 @@
+boot device          : dc 
+processor number     : 0 
+host name            : hvsrv3 
+file name            : /site/coda/kern/5.3.1/vx2306_IVG3 
+inet on ethernet (e) : 129.57.36.152 
+inet on backplane (b): 
+host inet (h)        : 129.57.88.47 
+gateway inet (g)     : 129.57.36.1 
+user (u)             : highv 
+ftp password (pw) (blank = use rsh): 
+flags (f)            : 0x20 
+target name (tn)     : sbscdet 
+startup script (s)   : ~/caen_hv/sbscdet.boot 
+other (o)            : 

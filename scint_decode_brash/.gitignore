@@ -1,0 +1,9 @@
+*.o
+*.a
+*.d
+*.root
+ped*.dat
+*.swp
+run*.png
+dumper
+fbanareal

@@ -1,0 +1,2 @@
+teseq_options='-C --color'
+run_reseq=false

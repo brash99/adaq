@@ -1,0 +1,67 @@
+#!/bin/bash
+inp="$@"
+echo "$1inp"
+# Command list
+c0='q'
+c1='d'
+
+
+# Display command
+if [ "$inp" == "$c1" ]; 
+then
+#echo $inp
+echo  "                C.A.E.N.       SY527        V4.05                    A932A"
+echo  "   GROUP00      Ch_En is: On     V0-SEL     I0-SEL      Crate 09       Page 0" 
+echo "      Channel     HVmax    Vmon     Imon       V0set    I0set       Pw   Status   Ch#
+ CHANNEL00    ----  0000.80  ----.--     1350.00  ----.--     Off           0.00
+ CHANNEL01    ----  0000.40  ----.--     1350.00  ----.--     Off           0.01
+ CHANNEL02    ----  0000.40  ----.--     1154.00  ----.--     Off           0.02
+ CHANNEL03    ----  0000.20  ----.--     1295.00  ----.--     Off           0.03
+ CHANNEL04    ----  0000.80  ----.--     1184.00  ----.--     Off           0.04
+ CHANNEL05    ----  0000.40  ----.--     1258.00  ----.--     Off           0.05
+ CHANNEL06    ----  0001.00  ----.--     1136.00  ----.--     Off           0.06
+ CHANNEL07    ----  0001.00  ----.--     1284.00  ----.--     Off           0.07
+ CHANNEL08    ----  0000.40  ----.--     1157.00  ----.--     Off           0.08
+ CHANNEL09    ----  0000.40  ----.--     1358.00  ----.--     Off           0.09
+ CHANNEL10    ----  0001.00  ----.--     1400.00  ----.--     Off           0.10
+ CHANNEL11    ----  0001.00  ----.--     1201.00  ----.--     Off           0.11
+ CHANNEL12    ----  0001.00  ----.--     1192.00  ----.--     Off           0.12
+ CHANNEL13    ----  0000.60  ----.--     1392.00  ----.--     Off           0.13
+ CHANNEL14    ----  0000.80  ----.--     1277.00  ----.--     Off           0.14 
+ CHANNEL15    ----  0001.00  ----.--     1351.00  ----.--     Off           0.15
+
+
+
+ Quit Change Update Next Prev More Switch V/Isel"
+fi
+
+
+# Quit command (go to prev. menu
+if [ "$inp" == "$c0" ]; 
+then
+#echo $inp
+echo "
+         C.A.E.N.       SY527        V4.05                   Crate 09
+
+
+
+
+      M A I N   M E N U
+
+      Display             Display/Modify channels
+      Protections         Set/Reset password
+      Crate               Connect a new crate
+      Map                 Crate map
+      Kill                Kill all channels
+      Alarms              Reset alarms
+      Status              Select type of alarm
+      Format              Reformat EEPROM
+      Upgrade             Firmware Upgrade via RS232
+      Quit                Abandon program
+
+
+      Select item
+"
+fi
+
+exit

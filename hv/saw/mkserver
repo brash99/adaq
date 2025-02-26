@@ -1,0 +1,1 @@
+ccppc -I. -I/site/vxworks/5.5/ppc/target/h -I/site/vxworks/5.5/ppc/target/h/rpc -I/site/vxworks/5.5/ppc/target/h/net -mcpu=604 -DCPU=PPC604 -DVXWORKS -D_GNU_TOOL -mlongcall -fno-for-scope -fno-builtin -fvolatile -DVXWORKSPPC -DVXWORKS_ppc -Wall -g  -c server.c   -o server.o

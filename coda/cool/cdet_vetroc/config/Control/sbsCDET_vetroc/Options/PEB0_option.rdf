@@ -1,0 +1,12 @@
+<rdf:RDF
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:cool="http://AFECSHOMEDB/schema/cool#"
+>
+
+<rdf:Description rdf:about="http://COOLHOME/Control/sbsCDET_vetroc/Options/PEB0_option#PEB0_option">
+
+   <cool:hasName>PEB0_option</cool:hasName>
+   <cool:hasConfigFile>PEB0.xml</cool:hasConfigFile>
+
+</rdf:Description>
+</rdf:RDF>

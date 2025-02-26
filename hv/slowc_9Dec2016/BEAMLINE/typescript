@@ -1,0 +1,87 @@
+Script started on Tue 14 Mar 2006 11:47:47 AM EST
+[adev@adaql4 HV_BB]$ ls
+HVframes.conf  hv_log  hv_maps	HVmaps.conf  HVmaps.conf~  hv_set  typescript
+[adev@adaql4 HV_BB]$ macs      pwd
+/adaqfs/home/adev/slowc/HV_BB
+[adev@adaql4 HV_BB]$ ls
+HVframes.conf  hv_log  hv_maps	HVmaps.conf  HVmaps.conf~  hv_set  typescript
+[adev@adaql4 HV_BB]$ cd ..
+[adev@adaql4 slowc]$ l
+bash: l: command not found
+[adev@adaql4 slowc]$ c ls
+bin    hvg   HV_MOLLER	reset	 useful_commands.txt  vxworks
+HV_BB  hvg1  HV_NA	scripts  vme
+[adev@adaql4 slowc]$ cd scripts/
+[adev@adaql4 scripts]$ ls
+adj.dat			      adj_ps_r_2485.dat
+adj_ps_l1_2485.dat	      adj_ps_r_2643.dat
+adj_ps_l1_2643.dat	      adj_ps_r_2644.dat
+adj_ps_l_1462.dat	      adj_ps_R_2923.dat
+adj_ps_L_1686_150ch.dat       adj_ps_R_2932_comp.dat
+adj_ps_l_1888.dat	      adj_sh1_2485.dat
+adj_ps_l_2072.dat	      adj_sh1_2643.dat
+adj_ps_l_2109.dat	      adj_sh_1462.dat
+adj_ps_l_2160.dat	      adj_sh_1686_150ch.dat
+adj_ps_l_2198.dat	      adj_sh_1686.dat
+adj_ps_l_2198-elasticcut.dat  adj_sh_1888.dat
+adj_ps_l_2401_small.dat       adj_sh_2072.dat
+adj_ps_l_2429.dat	      adj_sh_2109.dat
+adj_ps_l_2459.dat	      adj_sh_2160.dat
+adj_ps_l_2485.dat	      adj_sh_2198.dat
+adj_ps_l_2643.dat	      adj_sh_2198-elasticcut.dat
+adj_ps_l_2644.dat	      adj_sh_2401_small.dat
+adj_ps_L_2923.dat	      adj_sh_2429.dat
+adj_ps_L_2932_comp.dat	      adj_sh_2459.dat
+adj_ps_r1_2485.dat	      adj_sh_2485.dat
+adj_ps_r1_2643.dat	      adj_sh_2643.dat
+adj_ps_r_1462.dat	      adj_sh_2644.dat
+adj_ps_R_1686_150ch.dat       chantab.com
+adj_ps_r_1888.dat	      corr.com
+adj_ps_r_2072.dat	      getval.com
+adj_ps_r_2109.dat	      hv_adj.com
+adj_ps_r_2160.dat	      hv_adj.com~
+adj_ps_r_2198.dat	      hv_proc.com
+adj_ps_r_2198-elasticcut.dat  hv_proc.com~
+adj_ps_r_2401_small.dat       new.com
+adj_ps_r_2429.dat	      setval.com
+adj_ps_r_2459.dat	      test_adj.dat
+[adev@adaql4 scripts]$ emacs adj
+adj.dat                       adj_ps_r_2198.dat
+adj_ps_l1_2485.dat            adj_ps_r_2198-elasticcut.dat
+adj_ps_l1_2643.dat            adj_ps_r_2401_small.dat
+adj_ps_l_1462.dat             adj_ps_r_2429.dat
+adj_ps_L_1686_150ch.dat       adj_ps_r_2459.dat
+adj_ps_l_1888.dat             adj_ps_r_2485.dat
+adj_ps_l_2072.dat             adj_ps_r_2643.dat
+adj_ps_l_2109.dat             adj_ps_r_2644.dat
+adj_ps_l_2160.dat             adj_ps_R_2923.dat
+adj_ps_l_2198.dat             adj_ps_R_2932_comp.dat
+adj_ps_l_2198-elasticcut.dat  adj_sh1_2485.dat
+adj_ps_l_2401_small.dat       adj_sh1_2643.dat
+adj_ps_l_2429.dat             adj_sh_1462.dat
+adj_ps_l_2459.dat             adj_sh_1686_150ch.dat
+adj_ps_l_2485.dat             adj_sh_1686.dat
+adj_ps_l_2643.dat             adj_sh_1888.dat
+adj_ps_l_2644.dat             adj_sh_2072.dat
+adj_ps_L_2923.dat             adj_sh_2109.dat
+adj_ps_L_2932_comp.dat        adj_sh_2160.dat
+adj_ps_r1_2485.dat            adj_sh_2198.dat
+adj_ps_r1_2643.dat            adj_sh_2198-elasticcut.dat
+adj_ps_r_1462.dat             adj_sh_2401_small.dat
+adj_ps_R_1686_150ch.dat       adj_sh_2429.dat
+--More--[Kadj_ps_r_1888.dat             adj_sh_2459.dat
+--More--[Kadj_ps_r_2072.dat             adj_sh_2485.dat
+--More--[Kadj_ps_r_2109.dat             adj_sh_2643.dat
+--More--[Kadj_ps_r_2160.dat             adj_sh_2644.dat
+[adev@adaql4 scripts]$ emacs adj
+
+
+[adev@adaql4 scripts]$ 
+[adev@adaql4 scripts]$ 
+[adev@adaql4 scripts]$ emacs adj_ps_L_1932    2932_comp.dat 
+[adev@adaql4 scripts]$ emacs adj_ps_L_2932_comp.dat 
+[adev@adaql4 scripts]$ emacs adj_ps_L_2932_comp.dat 
+[adev@adaql4 scripts]$ exit
+exit
+
+Script done on Tue 14 Mar 2006 08:42:00 PM EST

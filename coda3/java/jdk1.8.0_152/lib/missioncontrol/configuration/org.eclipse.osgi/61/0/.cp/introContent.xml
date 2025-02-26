@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<introContent>
+	<page id="root" content="content/root.xhtml"/>
+    <page id="standby" content="content/standby.xhtml"/>
+    <page id="jfr_samples" content="content/jfr_samples.xhtml"/>
+    <page id="console_samples" content="content/console_samples.xhtml"/>
+    <page id="plugins_samples" content="content/plugins_samples.xhtml"/>
+    <page id="strings" content="content/strings.xhtml"/>
+    <page id="pageparts" content="content/pageparts.xhtml"/>
+	<page id="root_l" content="content/root_l.xhtml"/>
+    <page id="jfr_samples_l" content="content/jfr_samples_l.xhtml"/>
+    <page id="console_samples_l" content="content/console_samples_l.xhtml"/>
+    <page id="plugins_samples_l" content="content/plugins_samples_l.xhtml"/>
+</introContent>

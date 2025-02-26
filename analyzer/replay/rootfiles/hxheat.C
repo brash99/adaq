@@ -1,0 +1,65 @@
+{
+//========= Macro generated from object: hxheat/TotalHits: Module 6L, PMT 1
+//========= by ROOT version5.34/25
+   
+   TH2D *hxheat = new TH2D("hxheat","TotalHits: Module 6L, PMT 1",4,0,4,4,0,4);
+   hxheat->SetBinContent(7,13199);
+   hxheat->SetBinContent(8,13437);
+   hxheat->SetBinContent(9,13537);
+   hxheat->SetBinContent(10,13667);
+   hxheat->SetBinContent(13,12940);
+   hxheat->SetBinContent(14,13760);
+   hxheat->SetBinContent(15,13705);
+   hxheat->SetBinContent(16,13763);
+   hxheat->SetBinContent(19,30);
+   hxheat->SetBinContent(20,13221);
+   hxheat->SetBinContent(21,13369);
+   hxheat->SetBinContent(22,14263);
+   hxheat->SetBinContent(25,19);
+   hxheat->SetBinContent(26,12736);
+   hxheat->SetBinContent(27,12662);
+   hxheat->SetBinContent(28,13872);
+   hxheat->SetMinimum(6000);
+   hxheat->SetMaximum(15000);
+   hxheat->SetEntries(16);
+   hxheat->SetStats(0);
+   hxheat->SetContour(20);
+   hxheat->SetContourLevel(0,6000);
+   hxheat->SetContourLevel(1,6450);
+   hxheat->SetContourLevel(2,6900);
+   hxheat->SetContourLevel(3,7350);
+   hxheat->SetContourLevel(4,7800);
+   hxheat->SetContourLevel(5,8250);
+   hxheat->SetContourLevel(6,8700);
+   hxheat->SetContourLevel(7,9150);
+   hxheat->SetContourLevel(8,9600);
+   hxheat->SetContourLevel(9,10050);
+   hxheat->SetContourLevel(10,10500);
+   hxheat->SetContourLevel(11,10950);
+   hxheat->SetContourLevel(12,11400);
+   hxheat->SetContourLevel(13,11850);
+   hxheat->SetContourLevel(14,12300);
+   hxheat->SetContourLevel(15,12750);
+   hxheat->SetContourLevel(16,13200);
+   hxheat->SetContourLevel(17,13650);
+   hxheat->SetContourLevel(18,14100);
+   hxheat->SetContourLevel(19,14550);
+   hxheat->SetMarkerStyle(6);
+   hxheat->GetXaxis()->SetTitle("Column");
+   hxheat->GetXaxis()->SetRange(1,4);
+   hxheat->GetXaxis()->SetLabelFont(42);
+   hxheat->GetXaxis()->SetLabelSize(0.035);
+   hxheat->GetXaxis()->SetTitleSize(0.035);
+   hxheat->GetXaxis()->SetTitleFont(42);
+   hxheat->GetYaxis()->SetTitle("Row");
+   hxheat->GetYaxis()->SetRange(1,4);
+   hxheat->GetYaxis()->SetLabelFont(42);
+   hxheat->GetYaxis()->SetLabelSize(0.035);
+   hxheat->GetYaxis()->SetTitleSize(0.035);
+   hxheat->GetYaxis()->SetTitleFont(42);
+   hxheat->GetZaxis()->SetLabelFont(42);
+   hxheat->GetZaxis()->SetLabelSize(0.035);
+   hxheat->GetZaxis()->SetTitleSize(0.035);
+   hxheat->GetZaxis()->SetTitleFont(42);
+   hxheat->Draw("colz2");
+}

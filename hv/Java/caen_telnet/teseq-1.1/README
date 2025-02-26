@@ -1,0 +1,61 @@
+This is the README file for GNU Teseq.
+
+GNU Teseq is a tool for analyzing files that contain control characters
+and terminal control sequences. It is intended to be useful for diagnosing
+terminal emulators, and programs that make heavy use of terminal
+features (such as those based on the Curses library).
+ 
+  Copyright (C) 2008,2013 Micah Cowan
+
+  Copying and distribution of this file, with or without modification,
+  are permitted in any medium without royalty provided the copyright
+  notice and this notice are preserved.
+
+The latest version of this program is always available at
+http://ftp.gnu.org/gnu/teseq/.
+
+
+GNU Teseq takes raw terminal data as input, like:
+
+  ^[[1mHi^[[m there, world^H^H^H^H^Hearth
+
+And spits out something like:
+
+  : Esc [ 1 m
+  & SGR: SELECT GRAPHIC RENDITION
+  " Set bold text.
+  |Hi|
+  : Esc [ 0 m
+  & SGR: SELECT GRAPHIC RENDITION
+  " Clear graphic rendition to defaults.
+  | there, world|
+  . BS/^H BS/^H BS/^H BS/^H BS/^H
+  |earth|.
+
+The accompanying program `reseq' may then be used to reverse this
+translated output back into its original form, if desired.
+
+
+See the INSTALL file for information on how to build and install this
+program.
+
+Please report all bugs to bug-teseq@gnu.org.
+
+Teseq has no requirements beyond a normal Unix build environment.
+
+Teseq ships with a companion program, Reseq, which translates the
+output from Teseq back into its original source form.  Reseq is written
+in the Perl programming language, and so requires perl in order to
+run.
+
+Teseq also ships with a suite of regression tests. Some of these are
+written in relatively portable POSIX sh; some others require the Check
+test library, available at http://check.sourceforge.net/.
+
+If changes are made to the Check-based test suite sources (*.cm files),
+the Checkmk processor, available at
+http://micah.cowan.name/projects/checkmk/, will be required to generate
+the tests. At some point in the near future, Checkmk will be shipped as
+part of Check, and will not need to be obtained separately.
+
+GNU Teseq is free software. See the file COPYING for copying conditions.

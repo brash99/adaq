@@ -1,0 +1,18 @@
+# Date 23-April-2009
+# Map file for HV system
+#  Hadron stack DC configuration
+#    DC1 field up, field down, cathod front, cathod back, 
+#    DC2 field up, field down, cathod front, cathod back, 
+#
+# hv's host:port list (1 hvframes)   
+bbps1:2002
+
+11500 11501 11503 11503
+11504 11505 11506 11507
+
+
+
+
+
+
+

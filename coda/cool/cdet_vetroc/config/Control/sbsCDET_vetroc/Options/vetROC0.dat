@@ -1,0 +1,10 @@
+name                  = vetROC0
+type                  = ROC
+priority              = 1210
+code                  = {/home/adaq/coda3/SBS_CDET_VETROC/rol/dflay_test_list.so undefined} 
+isMaster              = true
+output                = Et
+etName                = /tmp/et_cdet_vetroc_PEB0
+etHost                = 239.200.0.0
+etPort                = 23912
+etGroup               = 1

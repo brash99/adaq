@@ -1,0 +1,41 @@
+Firmware problem for TI.  Oct 31, 2014
+
+TI address = 0xfa080000
+  User ID: 0x7101 	Firmware (version - revision): 0x2 - 0x032
+tiInit: ERROR: Firmware version (0x32) not supported by this driver.
+  Supported version = 0x203
+tiDisableBusError: ERROR: TI not initialized
+tiSetBusySource: ERROR: TI not initialized
+tiSetTriggerSource: ERROR: TI not initialized
+tiEnableTSInput: ERROR: TI not initialized
+tiLoadTriggerTable: ERROR: TI not initialized
+tiSetTriggerHoldoff: ERROR: TI not initialized
+tiSetTriggerHoldoff: ERROR: TI not initialized
+tiSetBlockBufferLevel: ERROR: TI not initialized
+tiStatus: ERROR: TI not initialized
+Crate Scan mask = 3
+tiDisableVXSSignals: ERROR: TI not initialized
+tiClockReset: ERROR: TI not initialized
+tiTrigLinkReset: ERROR: TI not initialized
+
+
+Updated Nov 13, 2014 (Dasuni)
+
+TI address = 0xfa080000
+  User ID: 0x7101 	Firmware (version - revision): 0x2 - 0x051
+tiInit: ERROR: Firmware version (0x51) not supported by this driver.
+  Supported version = 0x203
+tiDisableBusError: ERROR: TI not initialized
+tiSetBusySource: ERROR: TI not initialized
+tiSetTriggerSource: ERROR: TI not initialized
+tiEnableTSInput: ERROR: TI not initialized
+tiLoadTriggerTable: ERROR: TI not initialized
+tiSetTriggerHoldoff: ERROR: TI not initialized
+tiSetTriggerHoldoff: ERROR: TI not initialized
+tiSetBlockBufferLevel: ERROR: TI not initialized
+tiStatus: ERROR: TI not initialized
+Crate Scan mask = 7
+tiDisableVXSSignals: ERROR: TI not initialized
+tiClockReset: ERROR: TI not initialized
+tiTrigLinkReset: ERROR: TI not initialized
+

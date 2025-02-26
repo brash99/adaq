@@ -1,0 +1,1 @@
+date ;cnt=1; while [ $cnt -lt 10 ]; do hvg.newAug2014/hvcli -p 6002 -h sbscdet -m 'INIT' ; echo $cnt; let cnt=cnt+1; sleep 0.5; done; date;

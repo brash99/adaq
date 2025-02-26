@@ -1,0 +1,112 @@
+<html>
+<head>
+<title>WebTerm: History</title>
+</head>
+<body>
+
+<h3 align=center>WebTerm Terminal Emulator and Telnet Client</h3>
+<h2 align=center>Version History</h2>
+<hr>
+
+      <h3>Known Bugs</h3>
+
+      <ul>
+	<li> Inserting a character into the middle of text in emacs moves
+	  the right side of the line two columns to the right instead of
+	  one.
+      </ul>
+
+      <h3>Changes in v2.0:</h3>
+      <dl>
+	<dt> <strong>Bug fixes</strong>
+	<dd>
+	  <ul>
+	    <li> Completely rewrote VT100 escape sequence parser; it is now
+	      much more ANSI-compliant and robust.
+	    <li> Fixed many race conditions in Terminal and Telnet
+	      classes.
+	    <li> Telnet now uses a DataOutputStream for writing to its
+	      socket; directly writing to the socket's stream wasn't
+	      working on the Mac.
+	    <li> Wasn't catching exceptions when attempting to create
+	      fonts.
+	  </ul>
+	<dt> <strong>New features</strong>
+	<dd>
+	  <ul>
+	    <li> New "Options" window and button, allows dynamic loading
+	      and selection of emulators.
+	    <li> Added scrollable session mechanism to terminal.
+	    <li> Added basic color support to terminal.
+	    <li> New terminal modes: smooth scroll (well, not
+	      <em>really</em> that smooth), newline-does-CR, no wrapping,
+	      and inverse.
+	    <li> Slight optimizations to display rendering: keeps track of
+	      which lines have changed.
+	    <li> Added VT200 and VT52 emulation; expanded the XTerm and
+	      VT100 emulations, and changed the class's name to "VT200".
+	      Many many new control sequences are supported.
+	    <li> Telnet keeps track of both local and server options.
+	    <li> Telnet now allows the
+	      <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?856">BINARY</a>,
+	      <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?1079">TERMINAL-SPEED</a>,
+	      and
+	      <a href="http://www.pmg.lcs.mit.edu/cgi-bin/rfc/view?654">NAOHTD</a>
+	      options, but this isn't yet very well supported.
+	    <li> Now locally echos characters back the terminal when the
+	      TELNET server refuses to go into ECHO mode.
+	    <li> Lots of general code clean-up and documentation.
+	  </ul>
+      </dl>
+
+      <h3>Changes in v1.3:</h3>
+      <dl>
+	<dt> <strong>Bug fixes</strong>
+	<dd>
+	  <ul>
+	    <li> Thread.setDaemon() is an insecure method in Netscape 3.0,
+	      causing the applet to crash when connecting.  It is no longer
+	      called.
+	    <li> Now correctly handles smaller applet sizes.
+	    <li> Slight fixes to VT100 emulation.
+	    <li> The Telnet class now correctly handles multiple names from an
+	      emulation.
+	    <li> Cleaned up source: split into multiple files.
+	  </ul>
+	<dt> <strong>New features</strong>
+	<dd>
+	  <ul>
+	    <li> Added REGISTRY and FONTSIZE parameters.
+	    <li> Registers itself with a ClassRegistry, so that other
+	      applets can insert text into its input stream with
+	      a "send" command.
+	    <li> Cleaned up font allocation, now handles bold and italic
+	      fonts.
+	    <li> The VT100 emulation now also identifies itself as "XTERM" and
+	      "VT100", in addition to the original "DEC-VT100" type.  The xterm
+	      emulation should probably, at some point, be moved into a
+	      separate class.
+	  </ul>
+      </dl>
+
+      <h3>Changes in v1.2:</h3>
+      <ul>
+	<li> Added support for text styles.
+      </ul>
+	
+      <h3>Changes in v1.1:</h3>
+      <ul>
+	<li> Added PROMPT#, REPLY#, and ENDPROMPT# arguments. 
+      </ul>
+      
+
+<hr>
+<a href="./">Back to WebTerm home page</a>.<br>
+<a href="/">Back to NACSE home page</a>.
+<address>
+Comments and questions to
+<a href="http://www.nacse.org/cgi-bin/www_mailx?nacse-questions@nacse.org">
+nacse-questions@nacse.org</a>.
+</address>
+</body>
+</html>

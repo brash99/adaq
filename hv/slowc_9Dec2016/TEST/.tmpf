@@ -1,0 +1,229 @@
+UID        PID  PPID  C STIME TTY          TIME CMD
+root         1     0  0  2014 ?        00:00:18 init [5]         
+root         2     1  0  2014 ?        00:00:13 [migration/0]
+root         3     1  0  2014 ?        00:00:00 [ksoftirqd/0]
+root         4     1  0  2014 ?        00:00:00 [watchdog/0]
+root         5     1  0  2014 ?        00:00:12 [migration/1]
+root         6     1  0  2014 ?        00:00:00 [ksoftirqd/1]
+root         7     1  0  2014 ?        00:00:00 [watchdog/1]
+root         8     1  0  2014 ?        00:00:09 [migration/2]
+root         9     1  0  2014 ?        00:00:00 [ksoftirqd/2]
+root        10     1  0  2014 ?        00:00:00 [watchdog/2]
+root        11     1  0  2014 ?        00:00:06 [migration/3]
+root        12     1  0  2014 ?        00:00:00 [ksoftirqd/3]
+root        13     1  0  2014 ?        00:00:00 [watchdog/3]
+root        14     1  0  2014 ?        00:00:00 [events/0]
+root        15     1  0  2014 ?        00:00:00 [events/1]
+root        16     1  0  2014 ?        00:00:00 [events/2]
+root        17     1  0  2014 ?        00:00:00 [events/3]
+root        18     1  0  2014 ?        00:00:00 [khelper]
+root        19     1  0  2014 ?        00:00:00 [kthread]
+root        25    19  0  2014 ?        00:00:00 [kblockd/0]
+root        26    19  0  2014 ?        00:00:00 [kblockd/1]
+root        27    19  0  2014 ?        00:00:00 [kblockd/2]
+root        28    19  0  2014 ?        00:00:00 [kblockd/3]
+root        29    19  0  2014 ?        00:00:00 [kacpid]
+root       120    19  0  2014 ?        00:00:00 [cqueue/0]
+root       121    19  0  2014 ?        00:00:00 [cqueue/1]
+root       122    19  0  2014 ?        00:00:00 [cqueue/2]
+root       123    19  0  2014 ?        00:00:00 [cqueue/3]
+root       126    19  0  2014 ?        00:00:00 [khubd]
+root       128    19  0  2014 ?        00:00:00 [kseriod]
+root       193    19  0  2014 ?        00:00:00 [khungtaskd]
+root       194    19  0  2014 ?        00:00:12 [pdflush]
+root       195    19  0  2014 ?        00:00:22 [pdflush]
+root       196    19  0  2014 ?        00:00:22 [kswapd0]
+root       197    19  0  2014 ?        00:00:00 [aio/0]
+root       198    19  0  2014 ?        00:00:00 [aio/1]
+root       199    19  0  2014 ?        00:00:00 [aio/2]
+root       200    19  0  2014 ?        00:00:00 [aio/3]
+root       353    19  0  2014 ?        00:00:00 [kpsmoused]
+root       410    19  0  2014 ?        00:00:00 [scsi_eh_0]
+root       411    19  0  2014 ?        00:00:00 [scsi_eh_1]
+root       417    19  0  2014 ?        00:00:00 [ata/0]
+root       418    19  0  2014 ?        00:00:00 [ata/1]
+root       419    19  0  2014 ?        00:00:00 [ata/2]
+root       420    19  0  2014 ?        00:00:00 [ata/3]
+root       421    19  0  2014 ?        00:00:00 [ata_aux]
+root       437    19  0  2014 ?        00:00:00 [kstriped]
+root       461    19  0  2014 ?        03:04:05 [md13_raid1]
+root       465    19  0  2014 ?        03:06:16 [md12_raid1]
+root       469    19  0  2014 ?        03:06:20 [md11_raid1]
+root       473    19  0  2014 ?        01:50:03 [md10_raid1]
+root       477    19  0  2014 ?        00:29:44 [md5_raid1]
+root       481    19  0  2014 ?        00:05:31 [md4_raid1]
+root       485    19  0  2014 ?        00:11:06 [md3_raid1]
+root       489    19  0  2014 ?        00:01:46 [md2_raid1]
+root       493    19  0  2014 ?        00:01:29 [md1_raid1]
+root       497    19  0  2014 ?        00:00:08 [md0_raid1]
+root       498    19  0  2014 ?        00:00:01 [kjournald]
+root       522    19  0  2014 ?        00:00:00 [kauditd]
+adaq      1513     1  0 Mar23 ?        00:00:00 tcsh -c setenv LD_LIBRARY_PATH /adaqfs/home/adaq/prescale/GUI:/opt/ROOT/pro/lib/; /adaqfs/home/adaq/prescale/GUI/prescaleR
+adaq      1527  1513 57 Mar23 ?        10:28:33 /adaqfs/home/adaq/prescale/GUI/prescaleR
+root      1625  6750  0 Mar09 ?        00:00:00 sshd: adev [priv]
+adev      1629  1625  0 Mar09 ?        00:00:05 sshd: adev@pts/2 
+adev      1630  1629  0 Mar09 pts/2    00:00:00 -tcsh
+root      1818  6750  0 Mar09 ?        00:00:00 sshd: adev [priv]
+adev      1820  1818  0 Mar09 ?        00:00:08 sshd: adev@pts/9 
+adev      1821  1820  0 Mar09 pts/9    00:00:00 -tcsh
+root      1944    19  0  2014 ?        00:00:00 [kmpathd/0]
+root      1945    19  0  2014 ?        00:00:00 [kmpathd/1]
+root      1947    19  0  2014 ?        00:00:00 [kmpathd/2]
+root      1948    19  0  2014 ?        00:00:00 [kmpathd/3]
+root      1949    19  0  2014 ?        00:00:00 [kmpath_handlerd]
+root      1980    19  0  2014 ?        00:00:16 [kjournald]
+root      1982    19  0  2014 ?        00:00:03 [kjournald]
+root      1984    19  0  2014 ?        00:00:00 [kjournald]
+root      1986    19  0  2014 ?        00:00:00 [kjournald]
+root      1988    19  0  2014 ?        00:00:00 [kjournald]
+root      1990    19  0  2014 ?        00:00:00 [kjournald]
+root      1992    19  0  2014 ?        00:00:00 [kjournald]
+root      1994    19  0  2014 ?        00:00:00 [kjournald]
+root      2239    19  0  2014 ?        00:00:00 [iscsi_eh]
+root      2285    19  0  2014 ?        00:00:00 [cnic_wq]
+root      2291    19  0  2014 ?        00:00:00 [bnx2i_thread/0]
+root      2292    19  0  2014 ?        00:00:00 [bnx2i_thread/1]
+root      2293    19  0  2014 ?        00:00:00 [bnx2i_thread/2]
+root      2294    19  0  2014 ?        00:00:00 [bnx2i_thread/3]
+root      2311    19  0  2014 ?        00:00:00 [ib_addr]
+root      2329    19  0  2014 ?        00:00:00 [ib_mcast]
+root      2330    19  0  2014 ?        00:00:00 [ib_inform]
+root      2331    19  0  2014 ?        00:00:00 [local_sa]
+root      2337    19  0  2014 ?        00:00:00 [iw_cm_wq]
+root      2344    19  0  2014 ?        00:00:00 [ib_cm/0]
+root      2345    19  0  2014 ?        00:00:00 [ib_cm/1]
+root      2346    19  0  2014 ?        00:00:00 [ib_cm/2]
+root      2347    19  0  2014 ?        00:00:00 [ib_cm/3]
+root      2352    19  0  2014 ?        00:00:00 [rdma_cm]
+root      2372     1  0  2014 ?        00:00:00 iscsiuio
+root      2379     1  0  2014 ?        00:00:00 iscsid
+root      2380     1  0  2014 ?        00:00:00 iscsid
+root      2674     1  0  2014 ?        00:00:05 auditd
+root      2676  2674  0  2014 ?        00:00:03 /sbin/audispd
+root      2698     1  0  2014 ?        00:00:07 syslogd -m 0
+root      2701     1  0  2014 ?        00:00:00 klogd -x
+root      2711     1  0  2014 ?        00:07:15 irqbalance
+rpc       2735     1  0  2014 ?        00:00:05 portmap
+root      2767    19  0  2014 ?        00:00:00 [rpciod/0]
+root      2768    19  0  2014 ?        00:00:45 [rpciod/1]
+root      2769    19  0  2014 ?        00:00:00 [rpciod/2]
+root      2770    19  0  2014 ?        00:00:10 [rpciod/3]
+root      2791     1  0  2014 ?        00:00:00 mdadm --monitor --scan -f --pid-file=/var/run/mdadm/mdadm.pid
+dbus      2837     1  0  2014 ?        00:00:17 dbus-daemon --system
+root      2881     1  0  2014 ?        00:00:00 pcscd
+root      3015     1  0  2014 ?        00:00:00 ./hpiod
+root      3020     1  0  2014 ?        00:00:00 /usr/bin/python ./hpssd.py
+root      3055     1  0  2014 ?        00:00:01 xinetd -stayalive -pidfile /var/run/xinetd.pid
+root      3087  6750  0 Mar23 ?        00:00:00 sshd: adev [priv]
+adev      3096  3087  0 Mar23 ?        00:00:02 sshd: adev@pts/14
+adev      3097  3096  0 Mar23 pts/14   00:00:00 -tcsh
+root      3134     1  0  2014 ?        00:00:00 [lockd]
+root      3201     1  0  2014 ?        00:00:04 rpc.idmapd
+root      3219     1  0  2014 ?        00:00:00 sendmail: accepting connections
+smmsp     3227     1  0  2014 ?        00:00:00 sendmail: Queue runner@01:00:00 for /var/spool/clientmqueue
+root      3237     1  0  2014 ?        00:00:00 gpm -m /dev/input/mice -t exps2
+root      3246     1  0  2014 ?        00:01:25 crond
+xfs       3277     1  0  2014 ?        00:00:00 xfs -droppriv -daemon
+root      3314     1  0  2014 ?        00:00:01 rhnsd --interval 240
+avahi     3324     1  0  2014 ?        00:00:01 avahi-daemon: running [adaql1.local]
+avahi     3325  3324  0  2014 ?        00:00:00 avahi-daemon: chroot helper
+68        3334     1  0  2014 ?        00:00:35 hald
+root      3335  3334  0  2014 ?        00:00:00 hald-runner
+68        3342  3335  0  2014 ?        00:00:00 hald-addon-acpi: listening on acpi kernel interface /proc/acpi/event
+root      3351  3335  0  2014 ?        00:23:14 hald-addon-storage: polling /dev/hdc
+root      3458     1  0  2014 ?        00:00:09 /usr/sbin/smartd -q never
+root      3463     1  0  2014 tty1     00:00:00 /sbin/mingetty tty1
+root      3464     1  0  2014 tty2     00:00:00 /sbin/mingetty tty2
+root      3465     1  0  2014 tty3     00:00:00 /sbin/mingetty tty3
+root      3466     1  0  2014 tty4     00:00:00 /sbin/mingetty tty4
+root      3467     1  0  2014 tty5     00:00:00 /sbin/mingetty tty5
+root      3471     1  0  2014 tty6     00:00:00 /sbin/mingetty tty6
+root      3611    19  0  2014 ?        00:00:29 [nfsiod]
+adev      5471  1821  0 Mar09 pts/9    00:00:06 ssh a-onl@aonl1
+adaq      5708     1  0 Mar09 ?        00:00:00 tcsh -c setenv LD_LIBRARY_PATH /adaqfs/home/adaq/prescale/GUI:/opt/ROOT/pro/lib/; /adaqfs/home/adaq/prescale/GUI/prescaleR
+adaq      5725  5708 78 Mar09 ?        11-17:09:51 /adaqfs/home/adaq/prescale/GUI/prescaleR
+adaq      5742     1  0 Mar09 ?        00:00:00 tcsh -c setenv LD_LIBRARY_PATH /adaqfs/home/adaq/prescale/GUI:/opt/ROOT/pro/lib/; /adaqfs/home/adaq/prescale/GUI/prescaleR
+adaq      5756  5742 46 Mar09 ?        6-21:21:35 /adaqfs/home/adaq/prescale/GUI/prescaleR
+root      6750     1  0 Jan27 ?        00:00:00 /usr/sbin/sshd
+moller    8176     1  0 Mar10 ?        00:00:00 /usr/libexec/bonobo-activation-server --ac-activate --ior-output-fd=15
+root     11758  6750  0 Mar15 ?        00:00:00 sshd: adev [priv]
+adev     11922 11758  0 Mar15 ?        00:03:03 sshd: adev@pts/3 
+adev     11924 11922  0 Mar15 pts/3    00:00:00 -tcsh
+root     12663  6750  0 Mar15 ?        00:00:00 sshd: adev [priv]
+adev     12712 12663  0 Mar15 ?        00:02:43 sshd: adev@pts/4 
+adev     12714 12712  0 Mar15 pts/4    00:00:00 -tcsh
+adev     13915     1  0  2014 ?        07:35:26 Xvnc :8 -desktop adaql1.jlab.org:8 (adev) -httpd /usr/share/vnc/classes -auth /adaqfs/home/adev/.Xauthority -geometry 1600x1200 -depth 16 -rfbwait 30000 -rfbauth /adaqfs/home/adev/.vnc/passwd -rfbport 5908 -pn
+adev     13922     1  0  2014 ?        00:00:00 vncconfig -iconic
+adev     13924     1  0  2014 ?        00:00:02 twm
+adev     14297 11924  0 Mar22 pts/3    00:00:43 ssh a-onl@aonl4
+adev     14664 29797  0 Mar20 pts/11   00:00:00 /bin/bash ./hvs LEFT
+adev     14684 14664  0 Mar20 pts/11   00:08:54 /usr/bin/java -cp /adaqfs/home/adev/slowc/hvg.newAug2014 -Dprog.dir=/adaqfs/home/adev/slowc/hvg.newAug2014 -Dtask.dir=/adaqfs/home/adev/slowc/LEFT -Ddata.dir=/adaqfs/home/adev/slowc/LEFT/hv_set -Dlog.dir=/adaqfs/home/adev/slowc/LEFT/hv_log -Dmap.dir=/adaqfs/home/adev/slowc/LEFT/hv_maps HVS jdbc:postgresql:rcs_lg org.postgresql.Driver postgres halla rcs_hv_status
+adev     15939     1  0  2014 ?        01:47:56 Xvnc :9 -desktop adaql1.jlab.org:9 (adev) -httpd /usr/share/vnc/classes -auth /adaqfs/home/adev/.Xauthority -geometry 1600x1200 -depth 16 -rfbwait 30000 -rfbauth /adaqfs/home/adev/.vnc/passwd -rfbport 5909 -pn
+adev     15946     1  0  2014 ?        00:00:00 vncconfig -iconic
+adev     15947     1  0  2014 ?        00:04:01 xterm -iconic -geometry 80x24+10+10 -ls -title adaql1.jlab.org:9 (adev) Desktop
+adev     15948     1  0  2014 ?        00:00:00 twm
+adev     15950 15947  0  2014 pts/13   00:00:00 -tcsh
+adev     16002 29687  0 03:47 pts/10   00:00:00 /bin/bash ./hvs BEAMLINE
+adev     16022 16002  0 03:48 pts/10   00:00:22 /usr/bin/java -cp /adaqfs/home/adev/slowc/hvg.newAug2014 -Dprog.dir=/adaqfs/home/adev/slowc/hvg.newAug2014 -Dtask.dir=/adaqfs/home/adev/slowc/BEAMLINE -Ddata.dir=/adaqfs/home/adev/slowc/BEAMLINE/hv_set -Dlog.dir=/adaqfs/home/adev/slowc/BEAMLINE/hv_log -Dmap.dir=/adaqfs/home/adev/slowc/BEAMLINE/hv_maps HVS jdbc:postgresql:rcs_lg org.postgresql.Driver postgres halla rcs_hv_status
+adev     16151 12714  0 03:54 pts/4    00:00:00 /bin/bash ./hvs RIGHT
+adev     16194 16151  0 03:55 pts/4    00:00:41 /usr/bin/java -cp /adaqfs/home/adev/slowc/hvg.newAug2014 -Dprog.dir=/adaqfs/home/adev/slowc/hvg.newAug2014 -Dtask.dir=/adaqfs/home/adev/slowc/RIGHT -Ddata.dir=/adaqfs/home/adev/slowc/RIGHT/hv_set -Dlog.dir=/adaqfs/home/adev/slowc/RIGHT/hv_log -Dmap.dir=/adaqfs/home/adev/slowc/RIGHT/hv_maps HVS jdbc:postgresql:rcs_lg org.postgresql.Driver postgres halla rcs_hv_status
+root     16922  6750  0 Mar09 ?        00:00:00 sshd: adaq [priv]
+adaq     16924 16922  0 Mar09 ?        00:02:13 sshd: adaq@pts/12
+adaq     16925 16924  0 Mar09 pts/12   00:00:00 -tcsh
+adaq     17310     1  0 Mar14 ?        00:00:00 tcsh -c setenv LD_LIBRARY_PATH /adaqfs/home/adaq/prescale/GUI:/opt/ROOT/pro/lib/; /adaqfs/home/adaq/prescale/GUI/prescaleR
+adaq     17327 17310 66 Mar14 ?        6-15:23:12 /adaqfs/home/adaq/prescale/GUI/prescaleR
+root     18578  6750  3 08:53 ?        00:00:00 sshd: adev [priv]
+adev     18580 18578  0 08:53 ?        00:00:00 sshd: adev@notty 
+adev     18581 18580  0 08:53 ?        00:00:00 tcsh -c ps -ef
+adev     18596 18581  0 08:53 ?        00:00:00 ps -ef
+adaq     18715     1  0 Mar15 ?        00:00:00 tcsh -c setenv LD_LIBRARY_PATH /adaqfs/home/adaq/prescale/GUI:/opt/ROOT/pro/lib/; /adaqfs/home/adaq/prescale/GUI/prescaleR
+adaq     18732 18715 64 Mar15 ?        5-14:52:45 /adaqfs/home/adaq/prescale/GUI/prescaleR
+root     20453  6750  0 Mar15 ?        00:00:00 sshd: adaq [priv]
+adaq     20455 20453  0 Mar15 ?        00:00:01 sshd: adaq@notty 
+adaq     20456 20455  0 Mar15 ?        00:00:00 tcsh -c setenv LD_LIBRARY_PATH /adaqfs/home/adaq/prescale/GUI:/opt/ROOT/pro/lib/; /adaqfs/home/adaq/prescale/GUI/prescaleR
+adaq     20473 20456  0 Mar15 ?        00:00:03 /adaqfs/home/adaq/prescale/GUI/prescaleR
+moller   22278     1  0 Feb09 ?        00:00:00 /usr/libexec/bonobo-activation-server --ac-activate --ior-output-fd=15
+moller   22597     1  0  2014 ?        00:00:00 /bin/bash ./run_daemon_db msqld
+moller   22600 22597  0  2014 ?        00:00:07 msqld
+moller   22759     1  0  2014 ?        00:00:00 /bin/csh -f /adaqfs/appsroot/CMLOG/2.1/bin/Linux-rhe/cmlog_activate -s 8212
+moller   22762 22759  0  2014 ?        00:00:00 cmlogClientD
+moller   23675     1  0  2014 ?        00:00:00 /usr/libexec/bonobo-activation-server --ac-activate --ior-output-fd=15
+adaq     25002     1  0 Mar07 ?        00:00:00 tcsh -c setenv LD_LIBRARY_PATH /adaqfs/home/adaq/prescale/GUI:/opt/ROOT/pro/lib/; /adaqfs/home/adaq/prescale/GUI/prescaleR
+adaq     25016 25002 76 Mar07 ?        12-17:01:06 /adaqfs/home/adaq/prescale/GUI/prescaleR
+root     25063  6750  0 Feb06 ?        00:00:00 sshd: adev [priv]
+adev     25065 25063  0 Feb06 ?        00:00:06 sshd: adev@pts/16
+adev     25066 25065  0 Feb06 pts/16   00:00:00 -tcsh
+adaq     25539     1  0 Mar14 ?        00:00:00 tcsh -c setenv LD_LIBRARY_PATH /adaqfs/home/adaq/prescale/GUI:/opt/ROOT/pro/lib/; /adaqfs/home/adaq/prescale/GUI/prescaleR
+adaq     25553 25539 64 Mar14 ?        6-07:46:28 /adaqfs/home/adaq/prescale/GUI/prescaleR
+root     26080  6750  0 Mar07 ?        00:00:00 sshd: adev [priv]
+adev     26083 26080  0 Mar07 ?        00:00:00 sshd: adev@pts/5 
+adev     26084 26083  0 Mar07 pts/5    00:00:00 -tcsh
+adev     26135 26084  0 Mar07 pts/5    00:00:00 vim HVframes.conf
+root     26657  6750  0 Mar04 ?        00:00:00 sshd: adev [priv]
+adev     26659 26657  0 Mar04 ?        00:00:05 sshd: adev@pts/6 
+adev     26660 26659  0 Mar04 pts/6    00:00:00 -tcsh
+root     26939     1  0  2014 ?        00:00:00 ypbind
+root     29183     1  0  2014 ?        00:00:00 /sbin/udevd -d
+ntp      29447     1  0 Jan28 ?        00:00:00 ntpd -u ntp:ntp -p /var/run/ntpd.pid
+root     29510     1  0 Jan28 ?        00:00:00 cupsd
+root     29684  6750  0 Mar16 ?        00:00:00 sshd: adev [priv]
+adev     29686 29684  0 Mar16 ?        00:01:01 sshd: adev@pts/10
+adev     29687 29686  0 Mar16 pts/10   00:00:00 -tcsh
+root     29794  6750  0 Mar16 ?        00:00:00 sshd: adev [priv]
+adev     29796 29794  0 Mar16 ?        00:01:49 sshd: adev@pts/11
+adev     29797 29796  0 Mar16 pts/11   00:00:00 -tcsh
+root     30141     1  0  2014 ?        00:09:24 automount --pid-file /var/run/autofs.pid
+root     30266     1  0  2014 ?        00:00:00 rpc.rquotad
+root     30270    19  0  2014 ?        00:00:00 [nfsd4]
+root     30271     1  0  2014 ?        00:00:24 [nfsd]
+root     30272     1  0  2014 ?        00:00:20 [nfsd]
+root     30273     1  0  2014 ?        00:00:20 [nfsd]
+root     30274     1  0  2014 ?        00:00:18 [nfsd]
+root     30275     1  0  2014 ?        00:00:18 [nfsd]
+root     30276     1  0  2014 ?        00:00:21 [nfsd]
+root     30277     1  0  2014 ?        00:00:20 [nfsd]
+root     30278     1  0  2014 ?        00:00:17 [nfsd]
+root     30281     1  0  2014 ?        00:00:39 rpc.mountd
+rpcuser  30329     1  0  2014 ?        00:00:00 rpc.statd
+root     30348     1  0  2014 ?        00:00:00 /usr/sbin/atd
+adaq     31645     1  0  2014 ?        00:00:54 et_start -n 1000 -s 100000

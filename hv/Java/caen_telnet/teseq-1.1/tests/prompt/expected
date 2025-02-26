@@ -1,0 +1,20 @@
+: Esc [ 1 m
+: Esc [ 34 m
+|micah-laptop|
+: Esc [ 1 m
+: Esc [ 34 m
+|(|
+: Esc [ 1 m
+: Esc [ 31 m
+|1|
+: Esc [ 1 ; 33 m
+|man|
+: Esc [ 1 m
+: Esc [ 34 m
+|)|
+: Esc [ m
+: Esc [ 1 m
+: Esc [ 34 m
+|$ |
+: Esc [ m
+. LF/^J

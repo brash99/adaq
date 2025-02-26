@@ -1,0 +1,241 @@
+81a82
+>   gStyle->SetPalette(1);
+145c146
+< void print_event(Int_t adc_cut=50, Int_t start_event=1, Int_t num_events=1, Int_t tdc_min=750, Int_t tdc_width=200){
+---
+> void print_event(Int_t adc_cut=50, Int_t start_event=1, Int_t num_events=1, Int_t tdc_min=750, Int_t tdc_width=300){
+169c170,389
+< TCanvas *plot_adc(Int_t pmt=1, Int_t tdc_min=750, Int_t tdc_width=200){
+---
+> 
+> 
+> TCanvas *plot_adc_fit(Int_t pmt=1, Int_t tdc_min=750, Int_t tdc_width=300, Int_t adc_neighbor_cut=60, Int_t adc_cut=50){
+> 
+>         TString cut, draw, draw1, title, grtitle;
+>         title.Form("run_%d_ADC_Fit",run);
+>         TCanvas *cADCFit = new TCanvas("cADCFit",title,xcanvas,ycanvas);
+> 	title.Form("run_%d_ADC_Mean_Fit",run);
+> 	TCanvas *cADCMeanFit= new TCanvas("cADCMeanFit",title,xcanvas,ycanvas);
+> 
+> 	// Setting up different arrays and objects used to create the two canvases.
+> 
+> 	TH1D *htmp[NUMPIXEL];
+> 	TF1 *function;
+> 	Int_t histmax_cut[16], gaus_cut_plus[16];
+> 	Float_t gaus_cut_minus[16];
+> 
+> 	Double_t upixel[NUMPIXEL]={1,2,3,4,5,6,7,8,9,10,11,12,13,14,15,16};
+> 	Double_t epixel[NUMPIXEL]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+> 	Double_t errors[NUMPIXEL]={0,0,0,0,0,0,0,0,0,0,0,0,0,0,0,0};
+> 
+> 	Double_t constants[16], means[16], sigmas[16];
+> 
+> 	TString tmpentry;
+> 	MyStyle->SetStatX(0.9);
+>         MyStyle->SetStatY(0.6);
+>         MyStyle->SetStatY(0.4);
+> 
+> 	setPaddleIndices(); //Setting the geometric paddle locations
+> 
+> 	Int_t nbin=300;
+> 	Int_t min=-100, max=800;
+> 
+> 	for(Int_t i = 1; i <= NUMPIXEL; i++)
+> 	  {
+> 	    tmpentry.Form("htmp%d",i);
+> 	    htmp[i-1] = new TH1D(tmpentry,tmpentry,nbin,min,max);
+> 	    htmp[i-1]->SetLineColor(kRed);
+> 	    title.Form("Run %d ADC Fit pmt %d, paddle %d: %d < tdc < %d",run,pmt,i,tdc_min,tdc_min+tdc_width);
+> 	    htmp[i-1]->SetTitle(title);
+> 	  }
+> 
+> 	// Filling the histograms using only adc data with good tdc and good adc neighbor cut.
+> 
+> 	Int_t nentries=n_events_to_analyze;
+> 
+> 	for (Int_t id=1;id<=nentries;id++)
+> 	  {
+> 	    T->GetEntry(id);
+> 	    Int_t ipaddle = (pmt)*NUMPADDLE+1;
+> 	    for (Int_t pixel=0; pixel < NUMPIXEL; pixel++)
+> 	    {
+> 		Int_t index = (pmt-1)*NUMPIXEL+pixel;
+> 		if (pixel!=pixel1[pmt-1]-1 && pixel!=pixel2[pmt-1]-1)
+> 		{
+> 		  ipaddle--;
+> 		  if(tdcl[index] > tdc_min && tdcl[index] < tdc_min+tdc_width)
+> 		  {
+> 		    if (ipaddle == 0) 
+> 		    {
+> 			if (adc_c[index] > adc_cut && adc_c[paddleindex[ipaddle+1]] < adc_neighbor_cut )
+> 			{
+> 			    htmp[pixel]->Fill(adc_c[index]);
+> 			}
+> 		    }
+> 		    else if (ipaddle == NUMPMT*NUMPADDLE)
+> 		    {
+> 			if (adc_c[index] > adc_cut && adc_c[paddleindex[ipaddle-1]] < adc_neighbor_cut )
+> 			{
+> 			    htmp[pixel]->Fill(adc_c[index]);
+> 			}
+> 		    }
+> 		    else
+> 		    {
+> 			if (adc_c[index] > adc_cut && adc_c[paddleindex[ipaddle-1]] < adc_neighbor_cut && adc_c[paddleindex[ipaddle+1]] < adc_neighbor_cut)
+> 			{
+> 			    htmp[pixel]->Fill(adc_c[index]);
+> 			}
+> 		    }
+> 		  }
+> 		}
+> 	    }
+> 	  }
+> 
+> 	// Creating the canvas of adc data with good tdc and fitting the adc with a gaussian or "landau" function.
+> 
+> 	cADCFit->Clear();
+> 	cADCMeanFit->Clear();
+> 	cADCFit->Divide(4,4);
+> 
+>         Int_t count = 0;
+>         for (Int_t i=0; i<NUMPIXEL; i++)
+> 	  {
+> 	    if(i != pixel1[pmt-1]-1 && i != pixel2[pmt-1]-1) 
+> 	      {
+> 
+> 		cADCFit->cd(count+1);
+> 		// gPad->SetLogy();
+> 		cADCFit->Update();
+>                 
+> 		//Int_t entries = htmp[i]->GetEntries();
+> 		//float mean = htmp[i]->GetMean(1);
+> 		//float RMS = htmp[i]->GetRMS(1);
+>                 
+> 		htmp[i]->SetStats(0);
+> 		htmp[i]->Draw();
+> 
+> 		histmax_cut[i] = htmp[i]->GetBinCenter(htmp[i]->GetMaximumBin());
+> 		gaus_cut_plus[i] = histmax_cut[i] + 250;
+> 		gaus_cut_minus[i] = histmax_cut[i] - 250;
+> 		htmp[i]->Fit("gaus","","", gaus_cut_minus[i], gaus_cut_plus[i]);
+> 
+> 		//htmp[i]->Fit("landau","","", 0, 250);
+> 		function = htmp[i]->GetFunction("gaus");
+> 		function->SetLineColor(1);
+> 
+> 		constants[i] = function->GetParameter(0);
+> 		means[i] = function->GetParameter(1);
+> 		sigmas[i] = function->GetParameter(2);
+> 
+> 		count++;
+> 	      }
+> 	  }
+> 
+> 	// Printing out means and sigmas to screen with corresponding pixel number.
+> 
+> 	for (Int_t i=0; i<NUMPIXEL; i++)
+> 	  {
+> 	    cout << "Pixel number: " << i+1 << "   \t mean = " << means[i] << "    \t sigma = " << sigmas[i] << endl;
+> 	  }
+> 
+>         title.Form("run_%d_ADC_pmt_%d_tdc_min_%d_max_%d.png",run,pmt,tdc_min,tdc_min+tdc_width);
+>         cADCFit->Print(title);
+>         cADCFit->cd(0);
+> 
+> 	// End of work on canvas with adc data fitted with a function
+> 
+> 	// Creating the canvas of mean adc data with good tdc data.
+> 
+> 	cADCMeanFit->cd();
+> 
+> 	Double_t mmean[2]={0,0};
+> 	Double_t merror[2]={1,1};
+> 	Double_t mpixel[2]={0,0};
+> 	Double_t mepixel[2]={0,0};
+> 	mpixel[0]=pixel1[pmt-1];
+> 	mpixel[1]=pixel2[pmt-1];
+> 
+> 	Double_t yline[2]={100,100};
+> 	Double_t xline[2]={0,17};
+> 
+> 	// Calculating errors on the mean adc data and printing out number of entries, means, and errors
+> 	// to screen with corresponding pixel number.
+> 
+> 	count = 0;
+> 	for (Int_t i = 0; i < NUMPIXEL; i++)
+> 	{
+> 	    if(i != pixel1[pmt-1]-1 && i != pixel2[pmt-1]-1) 
+> 	    {
+> 		Int_t entries = htmp[i]->GetEntries();
+> 		errors[i] = sigmas[i]/sqrt(entries);
+> 		if(means[i] > 1)
+> 		{
+> 		    cout << "Pixel number: " <<  i+1 << "  \t entries: " << entries << "\t mean: " 
+> 			 << means[i] << "\t error: " << errors[i] << endl;
+> 		}
+>                	count++;
+> 	    }
+> 	}
+> 
+> 	// Creating three different graphs for used pixels, missing pixels, and general formatting.
+> 
+> 	gr = new TGraphErrors(NUMPIXEL,upixel,means,epixel,errors);
+> 	gr->SetMarkerStyle(21);
+> 	gr->GetXaxis()->SetTitle("Pixel Number");
+> 	gr->GetYaxis()->SetTitle("Mean ADC Fit (Good TDC)");
+> 	gr->GetYaxis()->SetTitleOffset(1.4);
+> 	grtitle.Form("run_%d_pmt_%d_adc_mean",run,pmt);
+> 	gr->SetTitle(grtitle);
+> 	gr2 = new TGraphErrors(2,mpixel,mmean,mepixel,merror);
+> 	gr2->SetMarkerStyle(21);
+> 	gr2->SetMarkerColor(2);
+> 	gr2->SetTitle("");
+> 	gr3 = new TGraph(2,xline,yline);
+> 	gr3->SetLineColor(2);
+> 	gr3->SetLineWidth(2);
+> 	gr3->SetLineStyle(2);
+> 	gr3->SetTitle("");
+> 
+> 	// Drawing the three different graphs to the adc mean values canvas.
+> 
+> 	gr->Draw("AP");
+> 	gr2->Draw("P");
+> 	gr3->Draw("L");
+>             
+>         cADCMeanFit->Update();
+> 	cADCMeanFit->cd(0);
+> 
+> 	// End of work on canvas with adc mean data.
+> 
+> 	// Creating a file to output parameters of function fitted to the ADC data with good TDC.
+> 
+> 	ofstream outfile("adc_fitresults.text");
+> 
+> 	outfile << "Run #: " << run << "\t PMT #: " << pmt << " \t  Paramters of fitted ADC data with good TDC. \n";
+> 	outfile << "Pixel # \t Mean Value \t Error \t Sigma \n" << endl;
+> 	for(Int_t i = 0; i < NUMPIXEL; i++)
+> 	  {
+> 	    outfile << i+1 << "\t" << means[i] << "\t" << errors[i] << "\t" << sigmas[i] << endl;
+> 	  }
+> 	cout << "Created output file for parameters." << endl;
+> 	outfile.close();
+> 	
+> 	return cADCMeanFit;
+> 	return cADCFit;
+> }
+> 
+>   
+> 
+> TCanvas *plot_adc(Int_t pmt=1, Int_t tdc_min=750, Int_t tdc_width=300){
+184c404
+<         Int_t min=-100, max=200;
+---
+>         Int_t min=-100, max=500;
+248c468
+< TCanvas *plot_tdc(Int_t pmt=1, Int_t adc_cut=40, Int_t tdc_min=750, Int_t tdc_width=200){
+---
+> TCanvas *plot_tdc(Int_t pmt=1, Int_t adc_cut=40, Int_t tdc_min=750, Int_t tdc_width=300){
+478c698
+< TCanvas *plot_occupancy(Int_t adc_cut=40, Int_t adc_neighbor_cut=10000, Int_t multiplicity_cut=12, Int_t tdc_min=750, Int_t tdc_width=200){
+---
+> TCanvas *plot_occupancy(Int_t adc_cut=40, Int_t adc_neighbor_cut=10000, Int_t multiplicity_cut=12, Int_t tdc_min=750, Int_t tdc_width=300){

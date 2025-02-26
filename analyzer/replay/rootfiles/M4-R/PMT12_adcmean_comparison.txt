@@ -1,0 +1,17 @@
+Comparison of mean ADC for PMT12 before and after optimized resistors are installed.
+	   (1869)      	   	 	(1878)
+Pixel	   Mean	   Sigma		Mean	Sigma
+1	   646	   480			665	126
+2	   609	   130			387	75
+3	   370	   79			350	73
+5	   686	   156			393	87
+6	   359	   86			336	73
+7	   318	   58			308	60
+8	   627	   117	   		394	77
+9	   452	   95			390	70
+10	   337	   76			318	66
+11	   320	   65			287	52
+12	   551	   110			392	77
+13	   609	   108			410	80	
+14	   478	   90			395	88
+15	   487	   106			403	86

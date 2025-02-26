@@ -1,0 +1,1075 @@
+#  Source for VME control of Trigger Supervisor#    (CODA 2.0 readout list)
+#    David Abbott, CEBAF 1996
+#
+#  This TS is run as a ROC with periodic scaler readout.
+#  Also it is downloaded to the unused TS crate to
+#  program its FTM; in this case the "disable" flag is
+#  passed in the config string.
+#
+#  Modifications
+#    3-Sep-97  R.Michaels  Add 3 type of scalers
+#                          (they are cleared here)
+#    5-Sep-97  R.Michaels  Add BPM VME crate, rearrange the
+#                          ts branches.  Move scaler-clear to
+#                          prestart, add logic for scaler gating.
+#   14-Jul-98  R.Michaels  Use RADSTONE PPC.  Adjust VME address offsets:
+#   RADSTONE offset is 0xf4ff0000 for A16 (instead of 0xffff0000 for 68040)
+#            offset is 0xc1200000 for A24 (instead of 0xf0000000   )
+#   How to determine offset in vxworks -- at vxworks-> prompt:
+#        bobvar=0
+#        sysBusToLocalAdrs(0x29,0x0ed0,&bobvar)  (0x29 for A16, 0x39 for A24)
+#        and print bobvar by typing bobvar
+#
+#   10-Sep-98  R. Michaels  Scaler clear in go again. Lev-1 accept is
+#                           no longer disabled in end, instead let last_scaler
+#                           script readout, and it then disables lev-1
+#                           for proper scaler gating.
+#
+#   22-Mar-98  R. Michaels  SIS3800 (non-FIFO mode) scaler added.
+#                
+#   27-Apr-99  R. Michaels  SIS3801 (FIFO) added.  
+#
+#    3-Jun-99  R. Michaels  Simultaneous 3800/3801 deployment.
+#
+#    2-Dec-99  R. Michaels  Counting Room VME crate added to branch 4
+#                           (reminder: add "cntrm" to usr string)
+#
+#   21-Sep-00  R. Michaels  Allow for swapping the roles of Left and
+#                           Right spectrometers.  This is accomplished
+#                           with using compiled flag RLSWITCH.  Note
+#        lspect, rspect  -- tells which arm to read out, but not
+#                           which TS is controlling.  Need RLSWITCH.
+#        RLSWITCH -- tells which TS is controlling (LOCAL, LEFT, or RIGHT)
+#                    LOCAL would be used for 2-TS mode.
+#        lcoinc, rcoinc  -- logically enough to know which TS is 
+#                           controlling ("l" = left, "r" = right)
+#                           The "lcoinc" and "rcoinc" ignore RLSWITCH. 
+#
+#   21-mar-01  R. Michaels  Add the RICH VME crate on branch 4.
+#
+#   24-sep-01  R. Michaels  Add scaler readout during synch events.
+#                           Must imitate 'tstir' example.
+#                           Change to Motorola 2400 cpu.
+#
+#   31-jul-02  R. Michaels  Implement G0 helicity mode
+#                           for SIS3801 scalers
+#
+#   24-mar-03  R. Michaels  Implementation of new trigger supervisor TS2.
+#                           One difference is that we must now program
+#                           new registers (like csr2), also some bits have
+#                           moved.  Also will enable "external events" on
+#                           13th input -- for event type NEXTEVT.  Make TS2
+#                           run in fast mode.  Will assign TS2 scalers and
+#                           read them out in events.
+#
+#   31-oct-03  R. Michaels  Both arms have TS2 now.  Old code in ./save_31oct03
+#                           with "PREts2".  Also will start using sysBusTo
+#                           LocalAdrs() to get VME address.
+#
+#   9 Aug 04   R. Michaels  Add "dvcs" flag to include DVCS crates.
+#                           You'll need a string "dvcs" in the userstring
+#                           for the Readout List component attributes.
+#                           (similar to "rich").
+#
+#  20 Dec 04   R. Michaels  New flags "psevent" and "tsreadout".  
+#                           psevent=1(0) --> allow(disallow) Prescale
+#                                            factor "event".
+#                           tsreadout=1(0) --> force(not) readout
+#                           of trigger routine, regardless of "disable".
+#  4 Jan 05    R. Michaels  L-arm needs to have L1A from "local" input
+#                           even though it is "disable".  Hack:  
+#                           if "lscale" then put FTM in local.
+#                           Remove this hack after SRC experiment.
+#  4 May 05    R. Michaels  Removed the previous hack.
+#
+#  29 May 05   R. Michaels  Add the F1 TDC crate.
+#
+#    Jun 27 th 06   AC     added sync signal from TI for Right synch in 
+#                          two single arm mode by modifying SCAON and SCAOFF
+#
+#  13 Nov 06   R. Michaels  Prepare for e04018.  RLSWITCH=RARM, and adjust
+#                           the hardware ROC #'s (all FB on 1 branch)
+#
+#  9 July 08   R. Michaels  Fixed a bug whereby the wrong scaler was 
+#                           readout for L-HRS for non-helicity scaler
+#                           (affects the 'evleft' data).
+#
+#  28 Aug 08   R. Michaels  Scalers re-arranged for transversity.
+#                           No SIS3801 scalers now !
+#                           A work in progress.  Making it stable 1st
+#
+#  18 Sep 08   R. Michaels  Modify readout for transversity.
+#                           Read all norm scalers every MINTERV events.
+#                           Read a subset of scalers every event.
+#  8 Aug 10    A. Camsonne  Added one DVCS crate on branch 3 ( HW ROC 5 )
+# 
+#  9 Aug 10    R. Michaels  Reverse the change made on 28Aug08, i.e. put the
+#                           SIS3801 scalers back in again.
+#                           
+#                           
+#  22 Aug 10    A. Camsonne  Added second DVCS crate on branch 3 ( HW ROC 0 )
+#
+#  28 Sep 10    R. Michaels  Added the code to compute trigbit from prescale factors.
+#                            If PSN <= 0 then this particular trigger is disabled.
+#
+# 13 Nov 10     A. Camsonne  Added timers for dead time checks
+# 13 Nov 10     A. Camsonne  Added roc4 flag to only have ROC4
+# 05 Nov 11     V. Sulkosky  Added roc5 flag to include ROC5
+#
+# 28 Nov 2012   R. Michaels   roc3,roc4,roc5 flags to add these rocs (if = 1).
+# 28 Feb 2013   A. Camsonne  adding flag lvme64 to include the VME64X crate on left HRS Branch 2 HW ROC 4
+
+# 28 Apr 2014  R. Michaels     added TSLive* variables.   Adjusted scaler readings in trigger routine.
+
+# 8 Sept 2014  A. Camsonne     Updated DVCS branch 2 : trigger crate top is HW ROC 0, Bottom crate HW ROC 4 , 3rd crate HW ROC 5
+#                                                    VME64X  crate second floor is Branch 2 HW ROC 7
+#
+#  23sep2014  P.King    Updated DVCS branch 2 again; trigger crate top is HW ROC 0, 
+#                                   Bottom crate HW ROC 4 , 2nd crate from bottom HW ROC 6,
+#                                   3rd crate from bottom HW ROC 5
+#  07oct2014  P.King   All trigger patterns except TriggerInput#9 will fire L1A outputs 0-2 and 4-7.  Don't use fast mode.
+#                                 TriggerInput#9 will fire L1A outputs 3 and 4-7.  L1A3 will be used to form the LHRS
+#                                 ADC and TDC gates, as L1A1 is used for the standard LHRS ADC and TDC gates.
+#
+#  17oct2014  P.King  Fixed L1A assertion pattern for TriggerInput#9 to fire all outputs except L1A1.  Pattern is 0xFE.
+readout list TSL
+maximum 10000,5000
+vme readout
+ts control
+
+const LOCAL = 0
+const RARM = 1
+const LARM = 2
+const RCS = 3
+# Here we pick the controlling TS
+# ...But this is ignored if config is lcoinc or rcoinc
+# RARM vs LOCAL
+const RLSWITCH = LOCAL
+
+# VME addresses
+const TIR_ADDR = 0xad0
+const TS_ADDR = hex ed0000
+const MEM_ADDR = hex ed4000
+const MASK_01 = hex 003fff0f
+const FTMCSRADDR = hex ed0
+const FTMSTAADDR = hex ed2
+const BASE_SCAL_ADDR_R = hex ceb000
+const NUM_SCALERS_R = 7
+const BASE_SCAL_ADDR_L = hex abc000
+const NUM_SCALERS_L = 7
+
+# modifiying the masks in order to get a cop of the state on output 3
+# to be used to synch 
+#previous values were
+#const OPORT_SCAON  = 2
+#const OPORT_SCAOFF = hex fd
+const OPORT_SCAON  = 6
+const OPORT_SCAOFF = hex f9
+
+# External Event type
+const NEXTEVT = 13
+
+# To wait for scalers to be ready (1), or not (0)
+const WAIT_SCALERS = 0
+
+# Turn off scaler readout (tests)
+const TURN_OFF_SCALER = 0
+
+# If we are running scalers in delayed mode
+const OUT_OF_TIME_SCALER = 0
+
+# Minimum interval to wait for scaler readings.  
+# For 1 kHz helicity rate need this to be 1 accomodate the
+# max flush out of 500 from RingBuffer, when considering the
+# DAQ may only run at 5 Hz during cosmics check.
+const MINTERV = 200
+
+# To turn on(0) or off(1) the readout
+const HARD_OFF = 0
+
+include "usrstrutils.c"
+include "scaler.c"
+include "ppcTimer.h"
+
+static int sync,buffered,gem;
+static int rspect,lspect,nofpp,roc25;
+static int rcoinc,lcoinc,bpm,cntrm,rich,f1tdc,dvcs,dvcs2,dvcs3,roc3,roc4,roc5,tsonly,haponly,lvme64x;
+static int retime;
+static int disable,nots,locftm;
+static int base_scal_addr,num_scalers;
+static int rscale,lscale;
+static int clr3800flg,clr3801flg;
+static short *ftmcsr,*ftmsta;  /* FTM csr and status registers */
+
+static int debug = 1;   /* to debug(1) or not(0) */
+static int ncnt = 0;
+static int bevtcnt = 0;
+static int first_flag3 = 1;
+static int psevent = 0;   /* to allow(1) or not(0) Prescale factor "event" */
+static int tsreadout = 0; /* to force(1) or not(0) TS "trigger" readout */
+
+int oport_state;
+
+extern int bigendian_out; 
+extern int rocActivate;
+extern int scaRunReady;
+extern int user_flag3;
+extern int vxTicks;   /* vxWorks time ticks */
+extern int TSLive1;
+extern int TSLive2;
+
+PPCTB TimeCount1,TimeCount2;
+
+begin download
+
+  variable res, laddr
+  variable i,j,scal_addr
+
+%%
+
+/* send data from big endian VME cpu to little endian host (linux)*/
+  bigendian_out = 0; 
+
+  init_strings();
+
+/* The following flags must be passed in config string */
+rspect=0;lspect=0;rcoinc=0;lcoinc=0;nofpp=0;disable=0;locftm=0;buffered=0;roc3=0;roc4=0;roc5=0;
+rscale=0;lscale=0;bpm=0;cntrm=0;rich=0;f1tdc=0;dvcs=0;gem=0;dvcs2=0;dvcs3=0;tsonly=0;haponly=0;lvme64x=0;
+  buffered = getflag(BUFFERED);
+  gem = getflag(GEM);
+  rspect = getflag(RSPECT);  /* right spectrometer single arm mode */
+/* lspect = left spectrometer, formerly H-arm detectors */
+/* rspect = right spectrometer, formerly E-arm detector  (noted, 21-Sep-00) */
+  lspect = getflag(LSPECT);   /* left spectrometer single arm mode */
+  roc3 = getflag(ROC3);   /* add ROC3 */
+  roc4 = getflag(ROC4);   /* add ROC4 */
+  roc5 = getflag(ROC5);   /* add ROC5 */
+haponly = getflag(HAPONLY);
+  tsonly = getflag(TSONLY);
+  rcoinc = getflag(RCOINC);  /* coincidence mode, controlled by right arm*/
+  lcoinc = getflag(LCOINC);  /* coincidence mode, controlled by left arm */
+  nofpp  = getflag(NOFPP);   /* suppress FPP */
+  retime = getflag(RETIME);  /* to decide if retiming is done or not */
+  disable = getflag(DISABLE);  /* to disable this TS (only one arm can be) */
+  locftm = getflag(LOCFTM);  /* use FTM in a local mode, even if ... */
+  rscale = getflag(RSCALE);  /* to define which scalers to readout */
+  lscale = getflag(LSCALE);  
+  nots = getflag(NOTS); 
+  bpm = getflag(BPM);  /* To read out the BPM crate */
+  cntrm = getflag(CNTRM);  /* VME crate in counting room */
+  rich = getflag(RICH);   /* RICH VME crate */
+  f1tdc = getflag(F1TDC); /* F1 TDC VME crate */
+  dvcs = getflag(DVCS);   /* DVCS VME crates */
+  dvcs2 = getflag(DVCS2);   /* DVCS VME crates */
+  dvcs3 = getflag(DVCS3);   /* DVCS VME crates */
+  roc25 = getflag(ROC25); /* Happex crate RHRS */	
+  lvme64x = getflag(LVME64X); /*Left HRS upper VME64X crate*/
+  if (TURN_OFF_SCALER==1) {
+    printf("NOTE:  Turning OFF scalers  (no good for production mode !)\n");
+  }
+
+  if (nots) {
+      printf("This TS disabled but will readout like a ROC\n");
+      disable=1;
+      tsreadout=1;
+  }
+
+  if(rscale) {
+      res = sysBusToLocalAdrs(0x39, BASE_SCAL_ADDR_R, &laddr);
+      if (res != 0) {
+        printf("Error in sysBusToLocalAdrs res=%d for BASE_SCAL_ADDR_R\n",res);
+      } else {
+        base_scal_addr = laddr;
+      }
+      num_scalers = NUM_SCALERS_R;
+      scalertype[0] = 1151;
+      scalertype[1] = 3800;
+      scalertype[2] = 3800;
+      scalertype[3] = 1151;
+      scalertype[4] = 1151;
+      scalertype[5] = 560;
+      scalertype[6] = 560;
+  }
+  if(lscale) {
+      res = sysBusToLocalAdrs(0x39, BASE_SCAL_ADDR_L, &laddr);
+      if (res != 0) {
+        printf("Error in sysBusToLocalAdrs res=%d for BASE_SCAL_ADDR_L\n",res);
+      } else {
+        base_scal_addr = laddr;
+      }
+      num_scalers = NUM_SCALERS_L;
+      scalertype[0] = 1151;
+      scalertype[1] = 3801;
+      scalertype[2] = 3800;
+      scalertype[3] = 3800;
+      scalertype[4] = 3800;
+      scalertype[5] = 3800;
+      scalertype[6] = 3800;
+  }
+
+for (i=0; i<num_scalers; i++) {
+   dropit[i] = 0;
+   j=i;
+/* wierd mapping of R-arm is different */
+   if (rscale) {
+     if (i>= 5) j = i-3;  
+     if (i==9) j = 0xa;    
+   }
+   scal_addr = base_scal_addr + (j<<8);
+   printf("scaler[%d] is of type %d \n",i,scalertype[i]);
+   if (scalertype[i] < 3800) {
+     printf("scaler[%d]   addr = 0x%x \n",i,scal_addr);
+   } 
+   if(scalertype[i]==1151) 
+   slecroy1151[i] = (struct lecroy_1151_scaler *)scal_addr;
+   if(scalertype[i]==7200) 
+     sstr7200[i] = (struct str_7200_scaler *)scal_addr;
+   if(scalertype[i]==560) 
+     scaen560[i] = (struct caen_v560_scaler *)scal_addr;
+}
+
+rocActivate = 0;
+
+/* Here we specify any scalers that need to be dropped */
+/* but doesn't work for 3800 or 3801 types */
+/*  if (rscale) {      */
+/*     dropit[0] = 1;  */
+/*  }                  */ 
+
+
+/* Set up pointers to FTM and TS */
+
+  ftmcsr = 0;
+  ftmsta = 0;
+  tsmem = 0; 
+  ts = 0;
+
+  res = sysBusToLocalAdrs(0x29, FTMCSRADDR, &laddr);
+  if (res != 0) {
+     printf("Error in sysBusToLocalAdrs res=%d for FTMCSRADDR \n",res);
+  } else {
+     ftmcsr = (short *)laddr;
+  }
+  printf("ftm csr address = 0x%x\n",ftmcsr);
+
+  res = sysBusToLocalAdrs(0x29, FTMSTAADDR, &laddr);
+  if (res != 0) {
+     printf("Error in sysBusToLocalAdrs res=%d for FTMSTAADDR \n",res);
+  } else {
+     ftmsta = (short *)laddr;
+  }
+  printf("ftm sta address = 0x%x\n",ftmsta);
+
+  res = sysBusToLocalAdrs(0x39, MEM_ADDR, &laddr);
+  if (res != 0) {
+     printf("Error in sysBusToLocalAdrs res=%d for MEM_ADDR \n",res);
+  } else {
+     tsmem = (long *)laddr;
+  }
+  res = sysBusToLocalAdrs(0x39, TS_ADDR, &laddr);
+  if (res != 0) {
+     printf("Error in sysBusToLocalAdrs res=%d for TS_ADDR \n",res);
+  } else {
+     ts = (struct vme_ts *)laddr;
+  }
+  printf("trigger supervisor address = 0x%x\n",ts);
+
+  res = (unsigned long) sysBusToLocalAdrs(0x29,TIR_ADDR,&laddr);
+  if (res != 0) {
+     printf("Error in sysBusToLocalAdrs res=%d \n",res);
+  } else {
+     printf("Trigger Interface address = 0x%x\n",laddr);
+     tir[1] = (struct vme_tir *)laddr;
+  }
+  printf("tir[1] address = 0x%x\n",tir[1]);
+
+  if (!disable) ts->csr  = 0x8000;      /* reset Trigger Supervisor */
+  oport_state = 0;
+  tir[1]->tir_oport = oport_state;
+
+  TSLive1=0;
+  TSLive2=0;
+
+%%
+  log inform " User Download Executed  (vers 2.1)"
+
+end download
+    
+begin prestart
+
+  variable isca
+  variable jj, kk, laddr, mem_value
+  variable trigbit
+  unsigned short temp;
+
+  log inform "Entering User Prestart"
+
+  init_strings();
+
+  init trig source VME
+  link async trig source VME 1 to ts_trig and ts_trig_done
+  event type 1 then read VME 1
+
+  rol->poll = 1;
+  VMEflag = 0;
+  VME_prescale = 1;
+  first_flag3 = 1;
+  TSLive1=0;
+  TSLive2=0;
+
+%%
+
+  daLogMsg("INFO","  HELLO HELLO  HELLO HELLO \n");
+
+  if(debug) {
+    if (lscale) daLogMsg("INFO","lscale is on \n");
+    if (rscale) daLogMsg("INFO","rscale is on \n");
+    if(rspect) daLogMsg("INFO","right spectrometer singles mode \n");
+    if(lspect) daLogMsg("INFO","left spectrometer singles mode \n");
+    if(rcoinc) daLogMsg("INFO","coincidence mode, TS on right arm \n");
+    if(lcoinc) daLogMsg("INFO","coincidence mode, TS on left arm \n");
+    if(disable) 
+     daLogMsg("INFO","=======  TS disabled for this arm ======\n");
+    if(rich) daLogMsg("INFO","RICH VME crate will be required\n");
+    if(f1tdc) daLogMsg("INFO","F1 TDC VME crate will be required\n");
+    if(dvcs||dvcs2) daLogMsg("INFO","The DVCS VME crates will be required\n");
+    if(gem) daLogMsg("INFO","The GEM VME crates will be required\n");
+    if(RLSWITCH==RCS) daLogMsg("INFO","L-arm scalers crate for RCS\n");
+  }
+
+/* Program the FTM */
+
+  kk=0x34;       /* retime (ALWAYS used) from OR of t1 and t2 */
+  if (locftm) kk |= 1 ;  /* use local mode */
+  if (!disable) kk |= 1;   /* put into local mode, else remote */
+  if (rcoinc||lcoinc) kk |= 2;  /* include busy from remote */
+  if ((RLSWITCH==LARM)&&rspect) kk |= 2;  /* busy from remote */
+  if ((RLSWITCH==RARM)&&lspect) kk |= 2;  /* ditto */
+  *ftmcsr = kk&0xff; 
+  daLogMsg("INFO","FTM csr at 0x%x is programmed for 0x%x \n",
+    ftmcsr,*ftmcsr&0xff);
+
+  printf("Config   disable=%d  psevent=%d  tsreadout=%d \n",disable,psevent,tsreadout);
+
+
+  if (!disable) {
+
+  ts->csr  = 0x8000;      /* reset Trigger Supervisor */
+
+  /* Leave the Ext. Evts.  DISABLED for now !!  (March, '03) */
+  /*xxx  ts->csr2 |= 0x400;  */  /* enable External Events */
+  /*xxx  ts->userData1 = NEXTEVT;  */ /* tie Ext. Events to Evt Type NEXTEVT */
+  /*xxx  ts->csr2 |= 0x8000;*/   /* Fast Mode */
+  ts->scalAssign = 0xf1ec20;   /* assign scalers */
+
+  if(!buffered) {
+     ts->csr2 |= 0x03E0;  /* ROC Lock mode on all BRANCHES*/
+     daLogMsg("INFO","TS not in buffered mode");
+
+  } else {
+     ts->csr2 |= 0x0100;  /* ROC Lock mode on branch 4 (VME crate) */
+     ts->csr2 |= 0x10;    /* 5th bit -> use external frontend busy */
+/* Program Sync Register, synch = N-1, where N=number of events
+                                       between synch checks */
+     temp=99;   
+     ts->sync = temp; 
+     temp=ts->sync;  
+     ts->csr2 |= 0x1;  /* Enable scheduled syncs */
+     daLogMsg("INFO","TS programmed for buffering, sync interval = %d\n",
+       temp+1);
+  }
+
+	  jj=0;
+
+	  printf("Everything %d %d %d \n",RLSWITCH,LOCAL,lspect);
+
+  if ( ((RLSWITCH == LARM)  && (!rcoinc)) || 
+       ((RLSWITCH == LOCAL) && (lspect)) ||
+       (lcoinc) ) {
+/* Here it is assumed that the TS is on the left arm  */
+      if(roc3) jj |=  0x00000020; /* HW ROC6,branch1  */
+      if(roc4) jj |=  0x00000010; /* HW ROC5,branch1  */
+      if(roc5) jj |=  0x00000040; /* HW ROC7,branch1  */
+      //      if(lvme64x) jj |=  lvme64x << 8; /* HW ROC4,branch2  */
+      if(lvme64x) jj |=  0x00008000; /* HW ROC7,branch2  */
+      if(dvcs2) jj |=  0x00007100; /* HW ROC 0,4,5,6 branch2  */
+/* Add L-arm scalers :  */
+      if(lscale) jj |= 0x40000000;
+      printf("Left Arm TS Control --  Roc Selection %x\n",jj);
+      ts->roc = jj;
+  }
+
+  if(haponly){
+    jj |= 0x10000000;
+ jj |= 0x40000000;
+  ts->roc = jj;
+  }
+
+  if(tsonly){
+ jj = 0x40000000;
+  ts->roc = jj;
+  }
+
+  if ( ((RLSWITCH == RARM)  && (!lcoinc)) || 
+       ((RLSWITCH == LOCAL) && (rspect)) || (rcoinc) ) {
+/* Here it is assumed that the TS is on the right (formerly electron) arm  */
+    jj=0;
+/*               xx11x11x --> roc1,2,4,5   FPP is ROC4 in hardware */
+    if(rspect) jj = 0x6;      /* Enable ROC 1 & ROC 2 on branch 1 */
+    if(rcoinc&&!nofpp) jj = 0x36; /* ROC1,2,4,5 all on br 1 */
+    if(rcoinc&&nofpp) jj = 0x26;  /* same as above, minus roc4 */
+    if(roc25) jj |= 0x10000000;  /* ROC 25 Happex crate */
+/* Add L-arm scalers (APEX test run)  */
+    jj |= 0x40000000;  /* ROC1 on branch 4 */
+    if(gem) jj |= 0x10000000;  /* Br 4, roc 4 */
+    printf("TS Control\n Roc Selection %x\n",jj);
+    ts->roc = jj;
+  } 
+
+
+
+
+/* Enable all triggers, except those with PS factor <= 0 */
+
+    trigbit = 1;  /* bit 0 is always set (non-strobe mode) */
+
+    if (getint(PS1) > 0)  trigbit += (1<<1); 
+    if (getint(PS2) > 0)  trigbit += (1<<2);
+    if (getint(PS3) > 0)  trigbit += (1<<3);
+    if (getint(PS4) > 0)  trigbit += (1<<4);
+    if (getint(PS5) > 0)  trigbit += (1<<5);
+    if (getint(PS6) > 0)  trigbit += (1<<6);
+    if (getint(PS7) > 0)  trigbit += (1<<7);
+    if (getint(PS8) > 0)  trigbit += (1<<8);
+/* Note, T9-12 cannot be prescaled, but they can be disabled now (if PSN <= 0) */
+    if (getint(PS9) > 0)  trigbit += (1<<9);
+    if (getint(PS10) > 0) trigbit += (1<<10);
+    if (getint(PS11) > 0) trigbit += (1<<11);
+    if (getint(PS12) > 0) trigbit += (1<<12);
+
+    printf("Trigger register setting = 0x%x \n",trigbit);
+
+    ts->trig = trigbit;
+
+
+
+  ts->timer[1] = 0x05;   /* Level 2 Timer */
+  ts->timer[2] = 0x05;   /* Level 3 Timer */
+
+  /* Set trigger input prescale factors. */
+
+  jj = getint(PS1)-1; jj = ((jj>=0)? jj : 0); ts->prescale[0] = jj;
+  jj = getint(PS2)-1; jj = ((jj>=0)? jj : 0); ts->prescale[1] = jj;
+  jj = getint(PS3)-1; jj = ((jj>=0)? jj : 0); ts->prescale[2] = jj;
+  jj = getint(PS4)-1; jj = ((jj>=0)? jj : 0); ts->prescale[3] = jj;
+  jj = getint(PS5)-1; jj = ((jj>=0)? jj : 0); ts->prescale[4] = jj;
+  jj = getint(PS6)-1; jj = ((jj>=0)? jj : 0); ts->prescale[5] = jj;
+  jj = getint(PS7)-1; jj = ((jj>=0)? jj : 0); ts->prescale[6] = jj;
+  jj = getint(PS8)-1; jj = ((jj>=0)? jj : 0); ts->prescale[7] = jj;
+
+
+  daLogMsg("INFO","Prescale trig 1 = %d  trig 2 = %d\n", 
+   ((ts->prescale[0]+1)&0xffffff),((ts->prescale[1]+1)&0xffffff));
+  daLogMsg("INFO","Prescale trig 3 = %d  trig 4 = %d\n", 
+   ((ts->prescale[2]+1)&0xffffff),((ts->prescale[3]+1)&0xffffff));
+  daLogMsg("INFO","Prescale trig 5 = %d  trig 6 = %d\n", 
+   ((ts->prescale[4]+1)&0xffff),((ts->prescale[5]+1)&0xffff));
+  daLogMsg("INFO","Prescale trig 7 = %d  trig 8 = %d\n", 
+   ((ts->prescale[6]+1)&0xffff),((ts->prescale[7]+1)&0xffff));
+
+
+/* Front End Busy timer 40ns/count */
+  /*Set to 3us by Daniel Kirby*/
+	ts->timer[3] = 75;     /* 3 microsec */
+
+  ts->csr2 |= 0x0004;      /* Enable FEB Timer */
+
+/*  construct memory data  ---  in the following model, all trigger patterns 
+    that form the memory address are assigned to trigger class 1.  For those 
+    trigger patterns with a single hit, the ROC code is set to be the trigger 
+    input number. Otherwise, the ROC code is set to 0x05. All LEVEL 1 ACCEPT 
+    signals are asserted for every pattern.  */
+/*  Don't assert L1A3 for any pattern.  L1A pattern should be: 0xFB */
+
+   
+  ts_memory[0] = 0;
+  for( laddr = 1; laddr <= 4095;  laddr++ )          /*  assign data to all memory addresses  */
+	ts_memory[laddr] = 0x5FB03;
+  jj = 0;
+  for( laddr = 1; laddr <= 4095;  laddr = 2*laddr )   /*  fix ROC code for single hit patterns  */
+     {
+        jj++;
+	if (jj == 9) 
+	  /*  Don't assert L1A1 for trigger pattern 9 */
+	  ts_memory[laddr] = 0xFE03 + (0x10000)*jj;
+	else 
+	  ts_memory[laddr] = 0xFB03 + (0x10000)*jj;
+     }
+/* load and test memory */        
+
+  for( laddr = 0; laddr <= 4095;  laddr++ )
+     {
+        tsmem[laddr] = ts_memory[laddr];
+        mem_value = tsmem[laddr];
+        if( ts_memory[laddr] != ( MASK_01 & mem_value ) )
+                  printf("***** TS memory error %x %x\n",ts_memory[laddr],MASK_01&mem_value);
+     }
+
+/* Enable level 1 hardware */
+    ts->csr = 0x40;
+
+  }   /* ..if (!disable) .. */
+
+  oport_state = oport_state & OPORT_SCAOFF;  /* disable scaler gates */
+  tir[1]->tir_oport = oport_state;
+
+
+  if (TURN_OFF_SCALER==0) {
+    //   printf("about to scal int dis\n");
+  /*   if (lscale && !disable) { */
+/*       scalIntDisableAdr(0xfaab3000); */
+/*     } */
+/*     if (rscale  && !disable) { */
+/*       scalIntDisableAdr(0xface7000); */
+/*     } */
+/*     taskDelay(60); */
+
+/* Reset scalers  */
+
+   printf("+++++++ num scalers = %d\n",num_scalers);
+
+    if ( num_scalers > 0) {
+      clr3800flg=0;
+      clr3801flg=0;
+      for (isca=0;isca<num_scalers; isca++) {
+         if ( dropit[isca] == 1 ) goto skipit1; 
+         if(scalertype[isca]==1151) { 
+            slecroy1151[isca]->reset = 0;
+         }
+        if(scalertype[isca]==7200) { 
+            sstr7200[isca]->clrR = 0;
+            sstr7200[isca]->gEnCntR = 0;
+        }
+        if(scalertype[isca]==560) {
+            scaen560[isca]->ClrR = 0;
+            temp=scaen560[isca]->clrVETOR;
+        }
+        if(scalertype[isca]==3800) clr3800flg=1;
+        if(scalertype[isca]==3801) clr3801flg=1;
+skipit1:
+      }
+      if(clr3800flg) ClrSIS3800();   
+      if(clr3801flg) runStartClrSIS(); 
+      rocActivate = 0;
+
+      taskDelay(60);
+  }
+
+ }    /* if (TURN_OFF_SCALER==0) ... */
+%%
+
+  log inform "User Prestart Executed in ts.crl"
+
+end prestart
+
+begin end
+
+  variable i, j, vmeoff, ihel, nring
+  variable iscaler, ichan
+  int tir_dat;
+
+# Go turned off  (we used to also disable lev-1, but not now)
+  if (!disable) ts->csr = 0x10000;   
+  VMEflag = 0;
+
+  TSLive1=0;
+  TSLive2=0;
+
+  oport_state = oport_state & OPORT_SCAOFF;  /* disable scaler gates */
+  tir[1]->tir_oport = oport_state;
+
+  taskDelay(30);
+
+# Disable CODA
+  if (!disable & !tsreadout) CDODISABLE(VME,1,0);
+  VMEflag = 0;
+
+  taskDelay(30);
+
+  if (!disable) SISInterrupt(0);  
+
+# open user event of type 100.  It,s the last scaler reading.
+
+  if (!disable) UEOPEN(100,BT_UI4,0);  
+
+%%
+
+ if ( TURN_OFF_SCALER==0 && !disable ) {
+   tir_dat = tir[1]->tir_iport;
+   *rol->dabufp++ = 100;
+   *rol->dabufp++ = tir_dat & 0xfff;
+
+    if (lscale) { /* 104 kHz time stamp */
+     *rol->dabufp++ = Read3800(0xab3000,9);  
+    } else {
+     *rol->dabufp++ = Read3800(0xce1000,9);  
+    }
+
+    bevtcnt = bevtcnt + 1;
+    if(bevtcnt > 20000) bevtcnt = 0;
+    *rol->dabufp++ = bevtcnt;
+    *rol->dabufp++ = 0xfb0b0002;  /* The 2 here matches the 2 in loop */
+    for (ihel = 0; ihel < 2; ihel++) {
+      if (lscale) {
+        if (ihel == 0) *rol->dabufp++ = 0xabc10000;
+        if (ihel == 1) *rol->dabufp++ = 0xabc20000;
+      } else {
+        if (ihel == 0) *rol->dabufp++ = 0xceb00000; 
+        if (ihel == 1) *rol->dabufp++ = 0xceb10000; 
+      } 
+      for (ichan = 0; ichan < 32; ichan++) {
+        *rol->dabufp++ = Read3801(0,ihel,ichan);
+      }      
+    }
+    *rol->dabufp++ = Read3801(0,1,100);   /* num read */
+    *rol->dabufp++ = Read3801(0,-1,100);  /* num bad reads */
+    /* Don't have or need Ring buffer when helicity is in-time */ 
+    /*   nring = NumRing();  */
+    /*    if (nring > 50) nring = 50;  */
+/* Error if we have too much in ring buffer        */
+/* It means you are not reading it out fast enough */
+/*    *rol->dabufp++ = 0xfb1b0000 + nring;         */
+    /*    for (i = 0; i < nring; i++) {    */
+    /*      for (j = 0; j < 4; j++) *rol->dabufp++ = ReadRing(i,j);    */
+    /*    }   */
+    /*    ResetRing(nring);   */
+
+/* Header for Ed's scalers (fed) -- there are 23 of them. */
+    *rol->dabufp++ = 0xfed00000 + 23;
+ 
+/* Read out Ed's trigger supervisor scalers */
+
+    ts->scalControl = 0x800000;   /* first latch the scalers */
+
+    for (i = 0; i < 18; i++) *rol->dabufp++ = ts->scaler[i];
+    *rol->dabufp++ = ts->scalEvent;
+    *rol->dabufp++ = ts->scalLive1;
+    *rol->dabufp++ = ts->scalLive2;
+     *rol->dabufp++ = ts->trigCount;  /* FIFO count            */
+     *rol->dabufp++ = ts->trigData;   /* trigger latch pattern */
+
+    ts->scalControl = 0x000000;  /* clear latch bit */
+
+/* Read out the (non-helicity) norm scaler for this crate */
+     vmeoff = 0;
+     if (lscale) {
+        *rol->dabufp++ = 0xabc30000;
+        vmeoff = 0xab3000;  
+     } else {
+        *rol->dabufp++ = 0xceb20000;
+        vmeoff = 0xce1000;
+     }
+     for (ichan = 0; ichan < 32; ichan++) {
+        *rol->dabufp++ = Read3800(vmeoff,ichan);
+     }      
+   if (lscale) {
+        *rol->dabufp++ = 0xabc70000;
+        vmeoff = 0xab7000;
+     } else {
+        *rol->dabufp++ = 0xceb20000;
+        vmeoff = 0xce1000;
+     }
+     for (ichan = 0; ichan < 32; ichan++) {
+        *rol->dabufp++ = Read3800(vmeoff,ichan);
+     }      
+  rocActivate = 0;
+
+  }
+else {
+
+    *rol->dabufp++ = 0xfb0b0000;
+
+ }
+
+%%
+
+# close the event 
+  if (!disable) UECLOSE;              
+
+  taskDelay(30);
+
+  log inform "User End Executed"
+
+end end
+
+begin pause
+
+  if (!disable) ts->csr = 0x10000;
+  CDODISABLE(VME,1,0);
+  VMEflag = 0;
+
+  TSLive1=0;
+  TSLive2=0;
+
+  oport_state = oport_state & OPORT_SCAOFF;  /* disable scaler gates */
+  tir[1]->tir_oport = oport_state;
+
+#  scalIntEnable();
+  rocActivate = 0;
+
+  log inform "User Pause Executed"
+
+end pause
+
+begin go
+
+  variable i,isca,jj
+  unsigned short temp;
+  log inform "Entering User Go"
+
+%%
+  oport_state |= OPORT_SCAON ; /* enable scaler gates */
+  tir[1]->tir_oport = oport_state;
+
+/* Clear the trigger supervisor scalers */
+  ts->scalControl = 0xfffff;   
+
+  VMEflag = 0;  /* don't enable dummy triggers */
+
+  oport_state |= OPORT_SCAON ; /* enable scaler gates */
+  tir[1]->tir_oport = oport_state;
+
+/* '!disnable' shouldn't be necessary, but LNE is blanked on R-arm */
+  if (!disable && (WAIT_SCALERS == 1)) { 
+       jj = 0;
+       while (scaRunReady == 0 && jj++ < 20) taskDelay(10); 
+  }
+  if (tsreadout || !disable) {
+     printf("(**) About to CDOENABLE in go ...\n");
+     CDOENABLE(VME,1,0);
+     taskDelay(60*5); 
+     if (!disable) ts->csr = 0x41;
+  }
+  
+  if (tsreadout || !disable ) {
+     rocActivate = 1;
+     scaRunReady = 1;
+  } 
+
+
+ if ( num_scalers > 0) {
+      clr3800flg=0;
+      clr3801flg=0;
+      for (isca=0;isca<num_scalers; isca++) {
+         if ( dropit[isca] == 1 ) goto skipit1; 
+         if(scalertype[isca]==1151) { 
+            slecroy1151[isca]->reset = 0;
+         }
+        if(scalertype[isca]==7200) { 
+            sstr7200[isca]->clrR = 0;
+            sstr7200[isca]->gEnCntR = 0;
+        }
+        if(scalertype[isca]==560) {
+            scaen560[isca]->ClrR = 0;
+            temp=scaen560[isca]->clrVETOR;
+        }
+        if(scalertype[isca]==3800) clr3800flg=1;
+        if(scalertype[isca]==3801) clr3801flg=1;
+skipit1:
+      }
+      if(clr3800flg) ClrSIS3800();   
+      if(clr3801flg) runStartClrSIS();  
+      rocActivate = 0;
+
+      taskDelay(60);
+
+  }
+
+%%
+
+end go
+
+begin trigger ts_trig
+
+ variable ii, event_ty, event_no, i, j
+ variable time1, time2, helicity, ihel, nring
+ variable iscalerr, ichan,  vmeoff
+ int tir_dat;
+
+/* If tsreadout==1 we force a readout */
+ if (disable && !tsreadout ) return;
+%%
+ ppcTimeBaseGet(&TimeCount1);
+ oport_state |= 1; 
+ tir[1]->tir_oport = oport_state;
+
+ event_ty = EVTYPE;
+ event_no = *rol->nevents;
+ time1 = vxTicks;
+
+ if (psevent == 1) {
+/* The following lines up to UECLOSE should go into the active TS */
+    if (user_flag3 == 1 || first_flag3 == 1) {
+      user_flag3 = 0;
+      first_flag3 = 0;
+      UEOPEN(120,BT_UI4,0);  /* User event of type 120 */
+      for (i = 0; i < 8; i++) {
+        if (i < 4)
+          *rol->dabufp++ = ((ts->prescale[i]+1)&0xffffff);
+        if (i >= 4 && i < 8)
+          *rol->dabufp++ = ((ts->prescale[i]+1)&0xffff);
+      }
+      UECLOSE;     /* close the event */
+   }
+ }
+
+%%
+
+ //SISInterrupt(0);   
+ 
+ rol->dabufp = (long *) 0;
+ open event type EVTYPE of BT_UI4
+
+%%
+
+ if ( HARD_OFF == 0 ) {   /* HARD_OFF=1 will turn off the readout (for tests) */
+ 
+   tir_dat = tir[1]->tir_iport;
+   *rol->dabufp++ = event_ty;
+   *rol->dabufp++ = tir_dat & 0xfff;
+   if (lscale) {  /* 104 kHz time stamp */
+     *rol->dabufp++ = Read3800(0xab3000,9);  
+   } else {
+     *rol->dabufp++ = Read3800(0xce1000,9);  
+   }
+
+   bevtcnt = bevtcnt + 1;
+   if(bevtcnt > 10) bevtcnt = 0;
+
+   *rol->dabufp++ = bevtcnt;
+   *rol->dabufp++ = time1;
+   *rol->dabufp++ = (tir_dat & 0x10)>>4;  /* helicity bit */
+   *rol->dabufp++ = Read3800(0xab3000,7); /* 2nd opinion about time */
+   *rol->dabufp++ = Read3800(0xab5000,7);  /* 3rd opinion about time */
+   *rol->dabufp++ = 0xcafe0000;   /* Alex's header */
+   *rol->dabufp++ = event_no;
+
+   if ( !TURN_OFF_SCALER && ( syncFlag || ((ncnt++ % MINTERV)==0))) { 
+     //     if ( !TURN_OFF_SCALER ) {
+     *rol->dabufp++ = 0xfb0b0002;  /* The 2 here matches the 2 in loop */
+     for (ihel = 0; ihel < 2; ihel++) {
+       if (lscale) {
+       if (ihel == 0) *rol->dabufp++ = 0xabc10000;
+       if (ihel == 1) *rol->dabufp++ = 0xabc20000;
+       } else {
+       if (ihel == 0) *rol->dabufp++ = 0xceb00000;
+       if (ihel == 1) *rol->dabufp++ = 0xceb10000;
+       }
+
+       for (ichan = 0; ichan < 32; ichan++) {
+          *rol->dabufp++ = Read3801(0,ihel,ichan);
+       }      
+    }
+    *rol->dabufp++ = Read3801(0,1,100);   /* num read */
+    *rol->dabufp++ = Read3801(0,-1,100);  /* num bad reads */
+
+    *rol->dabufp++ = 0xfed00000 + 23;
+ 
+    ts->scalControl = 0x800000;   
+
+     for (i = 0; i < 18; i++) *rol->dabufp++ = ts->scaler[i];
+     *rol->dabufp++ = ts->scalEvent;
+     *rol->dabufp++ = ts->scalLive1;
+     *rol->dabufp++ = ts->scalLive2;
+     TSLive1=ts->scalLive1;
+     TSLive2=ts->scalLive2;
+     *rol->dabufp++ = ts->trigCount;  /* FIFO count            */
+     *rol->dabufp++ = ts->trigData;   /* trigger latch pattern */
+
+
+     ts->scalControl = 0x000000;  
+
+/* Read out the (non-helicity) norm scaler for this crate */
+     vmeoff = 0;
+     if (lscale) {
+        *rol->dabufp++ = 0xabc30000;
+        vmeoff = 0xab3000;
+     } else {
+        *rol->dabufp++ = 0xceb20000;
+        vmeoff = 0xce1000;
+     }
+     for (ichan = 0; ichan < 32; ichan++) {
+        *rol->dabufp++ = Read3800(vmeoff,ichan);
+     }      
+     if (lscale) {
+        *rol->dabufp++ = 0xabc70000;
+        vmeoff = 0xab7000;
+     } else {
+        *rol->dabufp++ = 0xceb20000;
+        vmeoff = 0xce1000;
+     }
+     for (ichan = 0; ichan < 32; ichan++) {
+        *rol->dabufp++ = Read3800(vmeoff,ichan);
+     }      
+
+
+
+   } else {
+
+    *rol->dabufp++ = 0xfb0b0000;
+
+ }
+
+   /* When running with helicity in-time we don't need the ring buffer, so I leave this out for now (Apr 2014) */
+   
+   /*  nring = NumRing();                                          */
+   /*   if(nring > 10){                  */
+   /*   if (nring > 50) nring = 50;                   */
+/* Error if we have too much in ring buffer        */
+/* It means you are not reading it out fast enough */
+   /*  *rol->dabufp++ = 0xfb1b0000 + nring;                   */
+    /* for (i = 0; i < nring; i++) {                                      */
+    /*    for (j = 0; j < 8; j++) *rol->dabufp++ = ReadRing(i,j);                    */
+    /*    }                                      */
+    /*    ResetRing(nring);                      */
+    /*  }                      */
+
+
+}  /* HARD_OFF loop */
+
+
+ oport_state = oport_state & 0xfe;
+ tir[1]->tir_oport = oport_state;
+ppcTimeBaseGet(&TimeCount2);
+*rol->dabufp++=0xdeaddead;
+ bcopy(&TimeCount1,rol->dabufp,8);
+ rol->dabufp+=2;
+  bcopy(&TimeCount2,rol->dabufp,8);
+ rol->dabufp+=2;
+%%
+ close event
+
+end trigger
+
+begin done ts_trig
+
+end done
+
+begin done
+
+CDOACK(VME,1,0);
+# Acknowledge tir register
+#  tirtack(0);
+
+end done
+
+begin status
+
+end status
+
+
+
+
+
+
+

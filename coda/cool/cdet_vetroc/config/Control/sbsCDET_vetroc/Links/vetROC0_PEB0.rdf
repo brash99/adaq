@@ -1,0 +1,19 @@
+<rdf:RDF
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:cool="http://AFECSHOMEDB/schema/cool#"
+>
+
+<rdf:Description rdf:about="http://COOLHOME/Control/sbsCDET_vetroc/Links/vetROC0_PEB0#vetROC0_PEB0">
+
+   <cool:hasName>vetROC0_PEB0</cool:hasName>
+   <cool:hasDescription>Missing</cool:hasDescription>
+   <cool:sourceComponentName>vetROC0</cool:sourceComponentName>
+   <cool:destinationComponentName>PEB0</cool:destinationComponentName>
+
+   <cool:startX>80.0</cool:startX>
+   <cool:startY>40.0</cool:startY>
+   <cool:endX>120.0</cool:endX>
+   <cool:endY>40.0</cool:endY>
+
+</rdf:Description>
+</rdf:RDF>

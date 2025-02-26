@@ -1,0 +1,13 @@
+boot device          : fei
+unit number          : 0 
+processor number     : 0 
+host name            : sbs2
+file name            : /site/coda/kern/5.5/vx5100_v2
+inet on ethernet (e) : 129.57.37.53:fffffe00
+host inet (h)        : 129.57.37.50
+gateway inet (g)     : 129.57.36.1
+user (u)             : adaq
+ftp password (pw)    : Gep!2019
+flags (f)            : 0x20 
+target name (tn)     : sbsvme14
+startup script (s)   : /home/adaq/vxworks/sbsvme14_sbs2.boot

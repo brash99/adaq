@@ -1,0 +1,11 @@
+# Date 20-Apr-2015
+# Map file for test
+#  All slots are shown.  Each column is a card, slot 0 on left
+#
+# hv's host:port list (1 hvframe)
+sbscdet:2012
+
+10800
+10806
+10812 
+10818 

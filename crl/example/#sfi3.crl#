@@ -1,0 +1,528 @@
+
+#
+#  Bob Michaels, Jefferson Lab, 1st version May 1997
+#  sfi3.crl readout list for CODA 2.0
+#  Source for readout of Lecroy FASTBUS modules
+#  using a Struck SFI and Power PC VME controller.  
+#
+#  Left arm crate for VDCs and scint, etc.
+#  The fastbus devices are:
+#       TDC 1875's in slots TDCnSLOT
+#       ADC 1881's in slots ADCnSLOT.
+#       TDC 1877's in slots LSLOT through USLOT
+#  The corresponding bits in SCAN_MASmust be set.
+#
+#  Modifications
+#    Nov 12, 97    RWM    Multiblock readout
+#                         Add TRIGSLOT for TDC 1877 trigger pattern
+#    Dec 29, 00    RWM    Add 2 ADCs and 1 TDC1877.  Rearrange slots
+#                         to increase efficiency.  TRIGSLOT treated 
+#                         same as other 1877s.
+#
+#    Dec 15, 01    RWM     Add timestamp
+#
+#    Jan 27, 03    RWM     Add the event type to output
+#    Jun 8 th 06   AC      changed cratemap
+#    Jun 18 th 06   AC     added 1881
+#    Jul 12th 06 AC added 1881 in slot 23
+#    Jul 1st 09 RM switched ADC to 13 bit
+#    Nov 11th 09 AC switched ADC to 12 bit
+#
+#    Jun 22, 2010  RWM    Rearrange for APEX.  ROC3 is lower FB crate
+# 
+#    Nov 13 2010  AC Added counters to check dead time
+#    Dec 10 2010 AC Switched to backplane
+#    Nov 04 2011 VS Copied from sfi3 ROC 5 is middle FB crate
+#
+
+readout list SFI
+maximum 120000,128
+sfi readout
+ts control
+
+const SFI_ADDR  = hex e00000
+const IRQ_SOURCE_MASK = 0x10
+
+const WC_MASK = hex ffffff
+
+# ADC 1881M
+const USE1881 = 1
+const ADC1SLOT = 16
+const ADC2SLOT = 17
+const ADC3SLOT = 18
+const ADC4SLOT = 19
+const ADC5SLOT = 20
+const ADC6SLOT = 21
+
+const ADCMODE13bit = hex 40000043
+const ADCMODE12bit = hex 40000083
+# Define Sparse Data Scan Mask (1 bit set for each SLOT (0-25))
+
+# 1881 ADCs
+const NMOD = 6
+
+
+include "sfi3.h"
+include "ppcTimer.h"
+
+variable sfi_base_addr
+variable scan_mask
+
+int modslot[NMOD];
+int nhitmod[NMOD];
+int csr0[NMOD];
+
+PPCTB TimeCount1,TimeCount2;
+
+static int buffered;
+static int debug=1;
+
+extern int bigendian_out;
+extern int vxTicks;   /* vxWorks time ticks */
+
+
+begin download
+
+  variable res, laddr, jj,kk
+
+%%
+/* send data from big endian VME cpu to little endian host (linux)*/
+bigendian_out = 0;
+%%
+
+# Setup SFI pointers to Enable triggers, and establish
+# DMA address offsets
+%%
+  res = (unsigned long) sysBusToLocalAdrs(0x39,SFI_ADDR,&laddr);
+  if (res != 0) {
+     printf("Error Initializing SFI res=%d \n",res);
+  } else {
+     printf("Calling InitSFI() routine with laddr=0x%x.\n",laddr);
+     InitSFI(laddr);
+  }
+
+
+/* Initialize AUX Card */
+  sfiAuxInit();
+/* initialize the scaler in the SFI*/
+initSCALER(1151);
+
+  init_strings();
+  buffered = getflag(BUFFERED);
+
+  if(debug) printf("Value for buffered = %d \n",buffered);
+
+/* initialize arrays for safety */
+for (jj=0; jj<NMOD; jj++) {
+   modslot[jj]=0;
+   csr0[jj]=0;
+}
+
+  kk=0;
+/* 1881 */
+if (USE1881) {
+modslot[kk]=ADC1SLOT;  csr0[kk]=0x400;
+kk++;
+modslot[kk]=ADC2SLOT;  csr0[kk]=0x400;
+kk++;
+modslot[kk]=ADC3SLOT;  csr0[kk]=0x400;
+kk++;
+modslot[kk]=ADC4SLOT;  csr0[kk]=0x400;
+kk++;
+modslot[kk]=ADC5SLOT;  csr0[kk]=0x400;
+kk++;
+modslot[kk]=ADC6SLOT;  csr0[kk]=0x400;
+kk++;
+}
+
+/* calculate the scan_mask */
+  scan_mask = 0;
+  for (jj=0; jj<NMOD; jj++) {
+     printf("slot = %d \n",modslot[jj]);
+     scan_mask |= (1<<modslot[jj]);
+  }
+
+  printf ("Crate Scan mask = %x\n",scan_mask);
+
+
+%%
+  
+  log inform "User Download Executed"
+
+end download
+    
+begin prestart
+
+  variable ii,jj,kk, adc_id
+  variable pedaddr, modulescan, tslot, modid
+  variable pedsuppress
+
+  init_strings();
+
+
+  init trig source SFI
+  link async trig source SFI 1 to davetrig and davetrig_done
+  event type 1 then read SFI 1
+
+
+%%
+/*Reset AUX Port */
+  sfiAuxWrite(0x800
+0);
+
+/* For Interrupt driven triggers */
+  sfiTrigSource = IRQ_SOURCE_MASK;
+%%
+  reset crate 0
+
+# ADC 1881
+#
+# master reset all  ADC's
+
+if USE1881 is equal to 1 then
+write hex 40000000 into geographic control ADC1SLOT
+write hex 40000000 into geographic control ADC2SLOT
+write hex 40000000 into geographic control ADC3SLOT
+write hex 40000000 into geographic control ADC4SLOT
+write hex 40000000 into geographic control ADC5SLOT
+write hex 40000000 into geographic control ADC6SLOT
+
+sfi_error_decode(0);
+ 
+# Want pedestal suppression ?
+
+%%
+    pedsuppress = getflag(PEDSUP);
+    if(debug)
+      printf("ped suppression ? %d \n",pedsuppress); 
+    if(pedsuppress) {
+      load_thresholds();
+      set_thresholds();
+    }
+    sfi_error_decode(0);
+
+%%
+
+
+# 2nd address 1: Sparcification mode (4xxxxxxx) or not (0xxxxxxx)
+# ADCN is primary link of multiblock readout, ADC1 is end, rest is middle
+# The differences is in 0904 (primary), 1904 (middle), and 1104 (end) for CSR.
+# 12 bit is hex 40000083 and 13 bit ( when it works... ) hex 40000043
+# Origin of gate:  for secondary address 1 programming, last 2 bits:
+# if = 1, from front panel
+# if = 3, from TR6 lines
+
+
+  geographic control ADC6SLOT
+     write hex 00000904
+     if pedsuppress is equal to 1 then
+        secondary address 1
+# enable front panel gate
+        write hex 40000041
+     else
+        secondary address 1
+        write hex 00000041
+     end if
+     secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+  geographic control ADC5SLOT
+     write hex 00001904
+     if pedsuppress is equal to 1 then
+        secondary address 1
+        write hex 40000043
+     else
+        secondary address 1
+        write hex 00000043
+     end if
+     secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+  geographic control ADC4SLOT
+     write hex 00001904
+     if pedsuppress is equal to 1 then
+        secondary address 1
+        write hex 40000043
+     else
+        secondary address 1
+        write hex 00000043
+     end if
+     secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+  geographic control ADC3SLOT
+     write hex 00001904
+     if pedsuppress is equal to 1 then
+        secondary address 1
+        write hex 40000043
+     else
+        secondary address 1
+        write hex 00000043
+     end if
+     secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+  geographic control ADC2SLOT
+     write hex 00001904
+     if pedsuppress is equal to 1 then
+        secondary address 1
+        write hex 40000043
+     else
+        secondary address 1
+        write hex 00000043
+     end if
+     secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+ geographic control ADC1SLOT
+     write hex 00001104
+     if pedsuppress is equal to 1 then
+        secondary address 1
+        write hex 40000043
+     else
+        secondary address 1
+        write hex 00000043
+     end if
+     secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+
+
+end if 
+
+end prestart
+
+begin end
+
+
+  CDODISABLE(SFI,1,IRQ_SOURCE_MASK);
+
+  log inform "User End Executed"
+
+end end
+
+begin pause
+
+  CDODISABLE(SFI,1,IRQ_SOURCE_MASK);
+
+  log inform "User Pause Executed"
+
+end pause
+
+begin go
+  
+  log inform "Entering User Go"
+
+ clearSCALER();
+
+  CDOENABLE(SFI,1,IRQ_SOURCE_MASK);
+
+end go
+
+begin trigger davetrig
+
+variable datascan, ii, scan_result, kk, tslot, temp_var
+variable sync_or_unbuff, time1, event_ty, time2, event_no 
+variable itimeout
+static int event_cnt = 0;
+static int icnt = 0;
+
+#strobe NIM output 01
+#ppcTimeBaseGet(&TimeCount1);
+*sfi.writeVmeOutSignalReg = 0x100;
+sync_or_unbuff = syncFlag || !buffered;
+event_cnt = event_cnt + 1;
+time1 = vxTicks;
+event_ty = (EVTYPE&0xf);
+time2 = getSCALER(0);  
+event_no = *rol->nevents;
+
+# Enable SFI Sequencer
+  *sfi.sequencerEnable = 0;
+
+ rol->dabufp = (long *)0;
+ open event type event_ty of BT_UI4
+
+# Execute Sparse Data Scan to determine if there is valid Data */
+  ii=0
+  datascan = 0
+  while (ii<100) and (scan_mask != (datascan&scan_mask))
+    read from broadcast control 9 into datascan
+    increment ii
+  end while
+
+ 
+if ii is less than 100 then
+
+# Load next event -- broadcast
+# For the ADCs
+
+   padr = 0x15;
+fb_fwcm_1(0x15,0,0x400,1,0,1,0,0,0);
+
+*sfi.writeVmeOutSignalReg = 0x1000000;
+if USE1881 is equal to 1 then
+block read 1600 from geo data ADC6SLOT
+end if 
+*sfi.writeVmeOutSignalReg = 0x100;
+
+
+else
+
+      output hex dc0000ff
+
+# Now clear bump the event pointers of all the modules that
+# did get a gate so that we do not get out of sync
+%%
+ 
+  if (USE1881) {
+    if(datascan & (1<<ADC1SLOT)) {
+      padr = ADC1SLOT;
+      fb_fwc_1(padr,0,0x400,1,1,0,1,0,0,0);
+    }
+    if(datascan & (1<<ADC2SLOT)) {
+      padr = ADC2SLOT;
+      fb_fwc_1(padr,0,0x400,1,1,0,1,0,0,0);
+    }
+    if(datascan & (1<<ADC3SLOT)) {
+      padr = ADC3SLOT;
+      fb_fwc_1(padr,0,0x400,1,1,0,1,0,0,0);
+    }
+    if(datascan & (1<<ADC4SLOT)) {
+      padr = ADC4SLOT;
+      fb_fwc_1(padr,0,0x400,1,1,0,1,0,0,0);
+    }
+    if(datascan & (1<<ADC5SLOT)) {
+      padr = ADC5SLOT;
+      fb_fwc_1(padr,0,0x400,1,1,0,1,0,0,0);
+    }
+    if(datascan & (1<<ADC6SLOT)) {
+      padr = ADC6SLOT;
+      fb_fwc_1(padr,0,0x400,1,1,0,1,0,0,0);
+    }
+  }
+
+%%
+
+
+end if
+
+
+# Output number of triggers and timeout counter.
+# fabc000N = header for fastbus counter (fabc)
+# N = number of words that follow.
+
+   output 0xfabc0008
+   output ii
+   output datascan
+   icnt = icnt + 1;
+   if(icnt > 20000) icnt = 0;
+   output icnt
+   output event_no
+   output event_ty
+   output event_cnt
+   output time1
+   output time2
+
+#
+   output 0xfaaa0001
+
+%%
+/* Words to flag if buffered/unbuffered */
+   if (buffered) { 
+        *rol->dabufp++ = 0xfafbbf00 + syncFlag;
+     }
+      else 
+     {
+        *rol->dabufp++ = 0xfabb0000;
+     }               
+
+%%
+
+
+# Check for extra hits, keep reading the modules with hits
+# until cleared, and put the number of extra hits into datastream.
+
+%%
+    for(ii=0;ii<NMOD;ii++) {
+      nhitmod[ii]=0;
+    }
+%%
+  if sync_or_unbuff is not equal to 0 then
+  itimeout=0;
+%%
+    do {
+      if(itimeout++>10000) break;
+      datascan = 0;
+      padr = 9;
+      fb_frcm_1(9,0,&datascan,1,0,1,0,0,0);
+      if(datascan & scan_mask) {
+	for(ii=0;ii<NMOD;ii++){
+	  if(datascan & (1<<modslot[ii])) {
+	    nhitmod[ii]++;
+	    padr = modslot[ii];
+	    fb_fwc_1(padr,0,csr0[ii],1,1,0,1,0,0,0);
+          }
+	}
+      }
+    } while(datascan & scan_mask);
+%%
+    ii = 0
+    while ii is less than NMOD
+      temp_var = nhitmod[ii];
+      if temp_var is not equal to 0 then
+	datascan = 0xdcfe0000 + (modslot[ii] << 11) + (nhitmod[ii] & 0x7ff);
+        output datascan   
+      end if
+      increment ii
+    end while
+  end if
+#ppcTimeBaseGet(&TimeCount2);
+#output 0xdeaddead
+%%
+/* bcopy(&TimeCount1,rol->dabufp,8);
+ rol->dabufp+=2;
+  bcopy(&TimeCount2,rol->dabufp,8);
+ rol->dabufp+=2;*/
+%%
+close event
+
+# write NIM output 
+*sfi.writeVmeOutSignalReg = 0x1000000;
+
+
+end trigger
+
+begin done davetrig
+%%
+#ifdef VXWORKSPPC
+  sysBusIntAck(5);       /* Acknowledge Universe chip */
+#endif
+%%
+
+end done
+
+begin done
+
+# Acknowledge B42 Interrupt
+   CDOACK(SFI,1,IRQ_SOURCE_MASK);
+
+end done
+
+begin status
+
+end status
+
+

@@ -1,0 +1,14 @@
+# Date 28-Feb-2012
+# Map file for RHRS Lumi HV system
+#
+# hv's host:port list (1 hvframe)
+hatsv3:2005
+
+11503
+11504
+11505
+11506
+11508
+11509
+11510
+11511

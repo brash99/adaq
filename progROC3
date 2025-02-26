@@ -1,0 +1,39 @@
+#!/usr/bin/python
+import getpass
+import sys
+import telnetlib
+
+HOST = "localhost"
+user = "root"
+password = "dbps"
+
+tn = telnetlib.Telnet("rasterts",2006)
+
+tn.write("\n");
+if password:
+    tn.read_until("[VxWorks Boot]:")
+    tn.write("c\n")
+
+
+tn.write("dc\n")
+tn.write("0\n");
+tn.write("sbs1\n");
+tn.write("/site/coda/kern/5.5/vx2306_v4\n");
+tn.write("129.57.36.64:fffffe00\n");
+tn.write("\n");
+tn.write("129.57.36.67\n");
+tn.write("129.57.36.1\n");
+tn.write("adaq\n");
+tn.write("cebaF111\n");
+tn.write("0x20\n");
+tn.write("sbsfbdaq2a\n");
+tn.write("/home/adaq/vxworks/sbsfbdaq2a.boot\n");
+tn.write("\n");
+tn.write("p\n");
+print tn.read_until("[VxWorks Boot]:");
+tn.write("@\n");
+print tn.read_until("Starting at 0x100000...")
+print tn.read_until("executing startup script")
+
+exit();
+#exit()

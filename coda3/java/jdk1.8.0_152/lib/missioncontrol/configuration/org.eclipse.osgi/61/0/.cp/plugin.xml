@@ -1,0 +1,28 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<?eclipse version="3.2"?>
+<plugin>
+    <extension point="org.eclipse.ui.intro">
+      <introProductBinding
+            introId="com.jrockit.mc.rcp.intro"
+            productId="com.jrockit.mc.rcp.application.product">
+      </introProductBinding>
+      <intro
+            class="org.eclipse.ui.intro.config.CustomizableIntroPart"
+            id="com.jrockit.mc.rcp.intro"
+            label="%WELCOME_MENU_LABEL"/>            
+   </extension> 
+   <extension point="org.eclipse.ui.intro.config">
+      <config
+            content="$nl$/introContent.xml"
+            id="com.jrockit.mc.rcp.intro.config"
+            introId="com.jrockit.mc.rcp.intro">
+         <presentation
+               home-page-id="root"
+               standby-page-id="standby">
+            <implementation
+                  kind="html">
+            </implementation>
+         </presentation>
+      </config>
+  </extension>
+</plugin>

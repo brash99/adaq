@@ -1,0 +1,21 @@
+<?xml version="1.0"?>
+<component name="vetROC0">
+
+   <transports>
+
+     <server name="PEB0_transport" class="Et" etName="/tmp/et_cdet_vetroc_PEB0" method="mcast" host="anywhere" port="23911" uPort="23912" wait="0"/>
+
+   </transports>
+
+   <modules>
+
+     <RocModule class="RocSimulation" id="2" timeStats="off" > 
+
+         <outchannel id="2" name="PEB0" transp="PEB0_transport" group="1" chunk="2" single="false" />
+
+     </RocModule>
+
+   </modules>
+
+</component>
+

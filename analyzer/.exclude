@@ -1,0 +1,16 @@
+old
+new
+OLD
+NEW
+.#*
+*.o
+*.os
+*.pyc
+*.d
+*.so
+ha_compiledata.h
+*Dict.[Ch]
+*~
+.git
+examples/runR.dat
+utils/dbconvert

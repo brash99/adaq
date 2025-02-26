@@ -1,0 +1,34 @@
+#!/bin/bash
+
+XPOS=1000
+
+pidlist=`ps -ef|grep rcgui | grep -v "grep"|grep -v 'emacs' | awk '{print $2}'`
+
+if [ "$pidlist" != "" ] ; then
+    echo "coda is already running, are you sure you want to start a new coda? this will kill the previous process."
+    read -p "Input Y or y to start a new coda:  " choice
+    echo $choice
+    if [ "$choice" != "y" -a "$choice" != "Y" ] ; then
+	exit
+    fi
+fi
+
+
+
+
+  xterm -geometry 60x5+${XPOS}+0 -hold -T "platform" -bg "red" -e /bin/tcsh -c platform &
+  sleep 8
+  xterm -geometry 60x25+${XPOS}+375 -hold -T "Event Builder" -bg "green" -e /bin/tcsh -c "coda_eb_rc3 -i -s $SESSION -n EB1 -t CDEB" &
+  xterm -geometry 60x5+${XPOS}+125 -hold -T "Event Recorder" -bg "orange" -e /bin/tcsh -c "coda_er_rc3 -i -s $SESSION -n ER1 -t ER"  &
+  xterm -geometry 60x5+${XPOS}+250 -hold -T "rcgui" -bg "yellow" -e /bin/tcsh -c "rcgui -n RC1 -s $SESSION -h $HOST" &
+
+echo "If UNIX roc test, start coda_roc by hand"
+echo "coda_roc_rc3 -i $SESSION -n ROCU -t ROC"
+echo " "
+
+
+
+
+
+
+

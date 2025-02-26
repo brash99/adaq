@@ -1,0 +1,113 @@
+#!/bin/csh -f
+#-----------------------------------------------------------------------------#
+#  Copyright (c) 1991, 1992  Southeastern Universities Research Association,  #
+#                            Continuous Electron Beam Accelerator Facility    #
+#                                                                             #
+#    This software was developed under a United States Government license     #
+#    described in the NOTICE file included as part of this distribution.      #
+#                                                                             #
+# CEBAF Data Acquisition Group, 12000 Jefferson Ave., Newport News, VA 23606  #
+#      coda@cebaf.gov   Tel: (804) 249-7562    Fax: (804) 249-7363            #
+#-----------------------------------------------------------------------------#
+# Description:
+#       Activation Script for cmlog client daemon
+#	This script is designed to be used purely by the logging clients
+#
+# Useage:
+#
+#       cmlog_activate [options]
+#
+#       where valid options are:
+#
+#	-l[og] <file>	    The name of the log file. The default is none apart
+#			    from the console logger, where the default is
+#			    coda_console.log
+#
+#	-nol[og]	    Force no log file.
+#
+#	-p[rogram] <p>	    The name of the program to activate. This overrides
+#			    the default which is cmlogClientD
+#
+#	-f[ile] <f>	    Synonym for -program
+#
+#       -s[erver]           server port
+#
+#       -u[dp]              client daemon port
+#
+#	The parameters are:
+#
+#     
+# Author:
+#	Jie Chen
+#	CEBAF Data Acquisition Group
+#
+# Revision History:
+#      $Log: cmlog_activate,v $
+#      Revision 1.2  1999/10/19 18:02:30  chen
+#      change /bin/csh to /bin/csh -f
+#
+#      Revision 1.1.1.1  1999/09/07 15:29:11  chen
+#      CMLOG version 2.0
+#
+# Revision 1.2  1998/01/22  13:51:10  chen
+# minor changes
+#
+# Revision 1.1  1997/08/01  15:29:37  bickley
+# Added cmlog to application development system.
+#
+#
+#------------------------------------------------------------------------------
+
+	set node    =   `hostname`
+	set parms   = ""
+	set program = "cmlogClientD"
+	set options = ""
+	set logfile = "/dev/null"
+	set ostype  = `uname`
+	set sp      = ""
+	set cp      = ""
+
+        while ($#argv > 0)
+            switch ("$argv[1]")
+                case -f:
+                case -file:
+                case -p:
+                case -program:
+		    set program = $argv[2]
+		    shift
+		    breaksw
+		case -l:
+		case -log:
+		    set logfile = $argv[2]
+		    shift
+		    breaksw
+		case -nol:
+		case -nolog:
+		    set logfile = "/dev/null"
+		    shift
+		    breaksw
+		case -s:
+		case -server:
+		    set sp = $argv[2]
+		    shift
+		    breaksw
+	        case -u:
+		case -udp:
+		    set cp = $argv[2];
+		    shift
+		    breaksw
+		default:
+		    set params = ($params $argv[1])
+	    endsw
+	    shift
+	end
+
+	echo "start client daemon"
+	if ($sp == "") then
+		echo "start client daemon: $program >& $logfile &"
+		$program >& $logfile &
+	else
+		echo "setenv CMLOG_PORT $sp; $program >& $logfile &"
+		setenv CMLOG_PORT $sp; $program >& $logfile&
+	endif
+

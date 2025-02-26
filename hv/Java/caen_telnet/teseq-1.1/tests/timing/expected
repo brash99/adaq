@@ -1,0 +1,724 @@
+|Script started on Sun 27 Jul 2008 01:24:21 AM PDT|.
+@ 1.892021
+: Esc [ 1 m
+: Esc [ 34 m
+|micah-laptop|
+: Esc [ 1 m
+: Esc [ 34 m
+|$ |
+: Esc [ m
+@ 1.452655
+|c|
+@ 1.390192
+|l|
+@ 0.184562
+|e|
+@ 0.188689
+|a|
+@ 0.201789
+|r|
+@ 0.457606
+. CR LF
+@ 0.004566
+: Esc [ H
+: Esc [ J
+@ 0.075358
+: Esc [ 1 m
+: Esc [ 34 m
+|micah-laptop|
+: Esc [ 1 m
+: Esc [ 34 m
+|$ |
+: Esc [ m
+@ 1.919509
+|v|
+@ 0.141218
+|i|
+@ 0.081164
+|m|
+@ 0.433678
+. CR LF
+@ 1.131813
+: Esc [ ? 1002 h
+@ 0.000691
+: Esc [ ? 1049 h
+: Esc [ ? 1 h
+: Esc =
+@ 0.001848
+: Esc [ 1 ; 51 r
+: Esc [ 34 l
+: Esc [ 34 h
+: Esc [ ? 25 h
+: Esc [ 23 m
+: Esc [ 24 m
+: Esc [ m
+: Esc [ H
+: Esc [ J
+@ 0.001963
+: Esc [ ? 25 l
+: Esc [ 2 ; 1 H
+: Esc [ 1 m
+: Esc [ 34 m
+|~                                                                          |-
+-|     |
+: Esc [ 3 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 4 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 5 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 6 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 7 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 8 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 9 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 10 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 11 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 12 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 13 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 14 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 15 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 16 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 17 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 18 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 19 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 20 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 21 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 22 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 23 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 24 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 25 ; 1 H
+|~                               |
+@ 0.001651
+|                                                |
+: Esc [ 26 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 27 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 28 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 29 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 30 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 31 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 32 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 33 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 34 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 35 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 36 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 37 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 38 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 39 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 40 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 41 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 42 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 43 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 44 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 45 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 46 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 47 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 48 ; 1 H
+|~                                                                          |-
+-|   |
+@ 0.003452
+|  |
+: Esc [ 49 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ 50 ; 1 H
+|~                                                                          |-
+-|     |
+: Esc [ m
+: Esc [ 51 ; 63 H
+|0,0-1         All|
+: Esc [ 20 ; 32 H
+|VIM - Vi IMproved|
+: Esc [ 22 ; 33 H
+|version 7.1.138|
+: Esc [ 23 ; 29 H
+|by Bram Moolenaar et al.|
+: Esc [ 24 ; 19 H
+|Vim is open source and freely distributable|
+: Esc [ 26 ; 26 H
+|Help poor children in Uganda!|
+: Esc [ 27 ; 18 H
+|type  :help iccf|
+: Esc [ 34 m
+|<Enter>|
+: Esc [ m
+|       for information |
+: Esc [ 29 ; 18 H
+|type  :q|
+: Esc [ 34 m
+|<Enter>|
+: Esc [ m
+|               to exit         |
+: Esc [ 30 ; 18 H
+|type  :help|
+: Esc [ 34 m
+|<Enter>|
+: Esc [ m
+|  or  |
+: Esc [ 34 m
+|<F1>|
+: Esc [ m
+|  for on-line help|
+: Esc [ 31 ; 18 H
+|type  :help version7|
+: Esc [ 34 m
+|<Enter>|
+: Esc [ m
+|   for version info|
+: Esc [ 1 ; 1 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.865942
+: Esc [ ? 25 l
+: Esc [ 51 ; 53 H
+|i         |
+: Esc [ 1 ; 1 H
+@ 0.001118
+: Esc [ 51 ; 53 H
+|          |
+: Esc [ 1 ; 1 H
+@ 0.000384
+: Esc [ 51 ; 1 H
+: Esc [ 1 m
+|-- INSERT --|
+: Esc [ m
+: Esc [ 51 ; 63 H
+: Esc [ K
+: Esc [ 51 ; 63 H
+|0,1           All|
+@ 0.000305
+: Esc [ 1 ; 1 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 1.123360
+: Esc [ ? 25 l
+: Esc [ 2 ; 1 H
+: Esc [ K
+: Esc [ 20 ; 32 H
+: Esc [ 1 m
+: Esc [ 34 m
+|                 |
+: Esc [ 22 ; 33 H
+|               |
+: Esc [ 23 ; 29 H
+|                        |
+: Esc [ 24 ; 19 H
+|                                           |
+: Esc [ 26 ; 26 H
+|                             |
+: Esc [ 27 ; 18 H
+|                                              |
+: Esc [ 29 ; 18 H
+|                                              |
+: Esc [ 30 ; 18 H
+|                                              |
+: Esc [ 31 ; 18 H
+|                                              |
+: Esc [ m
+: Esc [ 51 ; 63 H
+|2,1           All|
+: Esc [ 2 ; 1 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.151158
+: Esc [ ? 25 l
+: Esc [ 3 ; 1 H
+: Esc [ K
+: Esc [ 51 ; 63 H
+|3,1           All|
+: Esc [ 3 ; 1 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.221821
+: Esc [ ? 25 l
+|T|
+: Esc [ 51 ; 63 H
+|3,2           All|
+: Esc [ 3 ; 2 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.230072
+: Esc [ ? 25 l
+|h|
+: Esc [ 51 ; 63 H
+|3,3           All|
+: Esc [ 3 ; 3 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.120668
+: Esc [ ? 25 l
+|i|
+: Esc [ 51 ; 63 H
+|3,4           All|
+: Esc [ 3 ; 4 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.081142
+: Esc [ ? 25 l
+|s|
+: Esc [ 51 ; 63 H
+|3,5           All|
+: Esc [ 3 ; 5 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.111310
+: Esc [ ? 25 l
+: Esc [ 51 ; 63 H
+|3,6           All|
+: Esc [ 3 ; 6 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.174663
+: Esc [ ? 25 l
+|i|
+: Esc [ 51 ; 63 H
+|3,7           All|
+: Esc [ 3 ; 7 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.100686
+: Esc [ ? 25 l
+|s|
+: Esc [ 51 ; 63 H
+|3,8           All|
+: Esc [ 3 ; 8 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.070991
+: Esc [ ? 25 l
+: Esc [ 51 ; 63 H
+|3,9           All|
+: Esc [ 3 ; 9 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.107447
+: Esc [ ? 25 l
+|t|
+: Esc [ 51 ; 63 H
+|3,10          All|
+: Esc [ 3 ; 10 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.094193
+: Esc [ ? 25 l
+|h|
+: Esc [ 51 ; 63 H
+|3,11          All|
+: Esc [ 3 ; 11 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.081003
+: Esc [ ? 25 l
+|e|
+: Esc [ 51 ; 63 H
+|3,12          All|
+: Esc [ 3 ; 12 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.090798
+: Esc [ ? 25 l
+: Esc [ 51 ; 63 H
+|3,13          All|
+: Esc [ 3 ; 13 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.081522
+: Esc [ ? 25 l
+|s|
+: Esc [ 51 ; 63 H
+|3,14          All|
+: Esc [ 3 ; 14 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.148364
+: Esc [ ? 25 l
+|o|
+: Esc [ 51 ; 63 H
+|3,15          All|
+: Esc [ 3 ; 15 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.141824
+: Esc [ ? 25 l
+|n|
+: Esc [ 51 ; 63 H
+|3,16          All|
+: Esc [ 3 ; 16 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.060759
+: Esc [ ? 25 l
+|g|
+: Esc [ 51 ; 63 H
+|3,17          All|
+: Esc [ 3 ; 17 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.161823
+: Esc [ ? 25 l
+: Esc [ 51 ; 63 H
+|3,18          All|
+: Esc [ 3 ; 18 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.103918
+: Esc [ ? 25 l
+|t|
+: Esc [ 51 ; 63 H
+|3,19          All|
+: Esc [ 3 ; 19 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.080305
+: Esc [ ? 25 l
+|h|
+: Esc [ 51 ; 63 H
+|3,20          All|
+: Esc [ 3 ; 20 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.050445
+: Esc [ ? 25 l
+|a|
+: Esc [ 51 ; 63 H
+|3,21          All|
+: Esc [ 3 ; 21 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.070627
+: Esc [ ? 25 l
+|t|
+: Esc [ 51 ; 63 H
+|3,22          All|
+: Esc [ 3 ; 22 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.118463
+: Esc [ ? 25 l
+: Esc [ 51 ; 63 H
+|3,23          All|
+: Esc [ 3 ; 23 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.444856
+: Esc [ ? 25 l
+|n|
+: Esc [ 51 ; 63 H
+|3,24          All|
+: Esc [ 3 ; 24 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.073532
+: Esc [ ? 25 l
+|e|
+: Esc [ 51 ; 63 H
+|3,25          All|
+: Esc [ 3 ; 25 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.128163
+: Esc [ ? 25 l
+|v|
+: Esc [ 51 ; 63 H
+|3,26          All|
+: Esc [ 3 ; 26 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.131262
+: Esc [ ? 25 l
+|e|
+: Esc [ 51 ; 63 H
+|3,27          All|
+: Esc [ 3 ; 27 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.063440
+: Esc [ ? 25 l
+|r|
+: Esc [ 51 ; 63 H
+|3,28          All|
+: Esc [ 3 ; 28 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.082112
+: Esc [ ? 25 l
+: Esc [ 51 ; 63 H
+|3,29          All|
+: Esc [ 3 ; 29 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.137879
+: Esc [ ? 25 l
+|e|
+: Esc [ 51 ; 63 H
+|3,30          All|
+: Esc [ 3 ; 30 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.081607
+: Esc [ ? 25 l
+|n|
+: Esc [ 51 ; 63 H
+|3,31          All|
+: Esc [ 3 ; 31 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.093221
+: Esc [ ? 25 l
+|d|
+: Esc [ 51 ; 63 H
+|3,32          All|
+: Esc [ 3 ; 32 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.118556
+: Esc [ ? 25 l
+|s|
+: Esc [ 51 ; 63 H
+|3,33          All|
+: Esc [ 3 ; 33 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.141764
+: Esc [ ? 25 l
+|.|
+: Esc [ 51 ; 63 H
+|3,34          All|
+: Esc [ 3 ; 34 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.393286
+: Esc [ ? 25 l
+: Esc [ 4 ; 1 H
+: Esc [ K
+: Esc [ 51 ; 63 H
+|4,1           All|
+: Esc [ 4 ; 1 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.285708
+: Esc [ ? 25 l
+|.|
+: Esc [ 51 ; 63 H
+|4,2           All|
+: Esc [ 4 ; 2 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.272485
+: Esc [ ? 25 l
+: Esc [ 5 ; 1 H
+: Esc [ K
+: Esc [ 51 ; 63 H
+|5,1           All|
+: Esc [ 5 ; 1 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.311999
+: Esc [ ? 25 l
+|.|
+: Esc [ 51 ; 63 H
+|5,2           All|
+: Esc [ 5 ; 2 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 1.104231
+: Esc [ 51 ; 1 H
+: Esc [ K
+: Esc [ 5 ; 1 H
+: Esc [ ? 25 l
+: Esc [ 51 ; 53 H
+|^[        |
+: Esc [ 5 ; 1 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.489227
+: Esc [ ? 25 l
+: Esc [ 51 ; 53 H
+|          |
+: Esc [ 5 ; 2 H
+: Esc [ 51 ; 63 H
+|5,1           All|
+: Esc [ 5 ; 1 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+: Esc [ ? 25 l
+: Esc [ 51 ; 53 H
+|:         |
+: Esc [ 5 ; 1 H
+: Esc [ 51 ; 53 H
+: Esc [ K
+: Esc [ 51 ; 1 H
+|:|
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.568857
+|w|
+: Esc [ ? 25 l
+. CR
+|:w|
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.080579
+|q|
+: Esc [ ? 25 l
+. CR
+|:wq|
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.262587
+. CR
+: Esc [ ? 25 l
+: Esc [ 1 m
+: Esc [ 37 m
+: Esc [ 41 m
+|E32: No file name|
+: Esc [ m
+: Esc [ 35 C
+|          |
+: Esc [ 5 ; 1 H
+: Esc [ 51 ; 63 H
+|5,1           All|
+: Esc [ 5 ; 1 H
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 1.313758
+: Esc [ ? 25 l
+: Esc [ 51 ; 53 H
+|:         |
+: Esc [ 5 ; 1 H
+: Esc [ 51 ; 1 H
+: Esc [ K
+: Esc [ 51 ; 1 H
+|:|
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.218780
+|q|
+: Esc [ ? 25 l
+. CR
+|:q|
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.173811
+|a|
+: Esc [ ? 25 l
+. CR
+|:qa|
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.305110
+|!|
+: Esc [ ? 25 l
+. CR
+|:qa!|
+: Esc [ 34 h
+: Esc [ ? 25 h
+@ 0.355676
+. CR
+@ 0.028234
+: Esc [ ? 25 l
+: Esc [ ? 1002 l
+: Esc [ 51 ; 1 H
+: Esc [ K
+: Esc [ 51 ; 1 H
+: Esc [ ? 1 l
+: Esc >
+: Esc [ 34 h
+: Esc [ ? 25 h
+: Esc [ ? 1049 l
+@ 0.137864
+: Esc [ 1 m
+: Esc [ 34 m
+|micah-laptop|
+: Esc [ 1 m
+: Esc [ 34 m
+|$ |
+: Esc [ m
+@ 0.000000
+|exit|
+. CR LF LF
+|Script done on Sun 27 Jul 2008 01:24:44 AM PDT|.

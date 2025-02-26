@@ -1,0 +1,12 @@
+# Date 09-Apr-2009
+# Map file for HV system
+#  BB: E
+#   As viewed from target side
+#
+# hv's host:port list (1 hvframe)
+hatsv5:2003
+
+10101 10100
+10103 10102
+
+

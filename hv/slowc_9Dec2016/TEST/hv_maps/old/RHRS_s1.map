@@ -1,0 +1,12 @@
+# Date 28-Feb-2012
+# Map file for RHRS S1 HV system
+#
+# hv's host:port list (1 hvframe)
+hatsv3:2005
+
+10900 10906
+10901 10907
+10902 10908
+10903 10909
+10904 10910
+10905 10911

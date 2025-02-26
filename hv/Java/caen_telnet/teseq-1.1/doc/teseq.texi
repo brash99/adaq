@@ -1,0 +1,1553 @@
+\input texinfo   @c -*-texinfo-*-
+@c %**start of header
+@setfilename teseq.info
+@include version.texi
+@settitle GNU Teseq @value{VERSION} Manual
+@paragraphindent asis
+
+@macro six
+@c
+@cindex standards
+@cindex Ecma-6
+@cindex ISO 646
+Ecma-6@tie{}/ ISO@tie{}646
+@end macro
+
+@macro thirtyfive
+@c
+@cindex standards
+@cindex Ecma-35
+@cindex ISO/IEC@tie{}2022
+Ecma-35@tie{}/ ISO/IEC@tie{}2022
+@end macro
+
+@macro fortyeight
+@c
+@cindex standards
+@cindex Ecma-48
+@cindex ISO/IEC@tie{}6429
+Ecma-48@tie{}/ ISO/IEC@tie{}6429
+@end macro
+
+@ifinfo
+@macro mjcth{content}
+\content\@tie{}@tie{}|
+@end macro
+@end ifinfo
+@ifnotinfo
+@macro mjcth{content}
+@strong{\content\}
+@end macro
+@end ifnotinfo
+
+@defcodeindex op
+@syncodeindex op cp
+@c %**end of header
+
+@dircategory Miscellaneous
+@direntry
+* teseq: (teseq).               Terminal control sequence analyzer.
+* reseq: (teseq)Reseq.          Reverse-translate output from teseq.
+@end direntry
+
+@copying
+This manual is for GNU Teseq, version @value{VERSION}.
+
+Copyright @copyright{} 2008, 2013 Micah Cowan <@email{micah@@cowan.name}>
+
+@quotation
+Permission is granted to copy, distribute and/or modify this document
+under the terms of the GNU Free Documentation License, Version 1.2
+or any later version published by the Free Software Foundation;
+with no Invariant Sections, no Front-Cover Texts, and no Back-Cover
+Texts.  A copy of the license is included in the section entitled
+``GNU Free Documentation License''.
+@end quotation
+@end copying
+
+@titlepage
+@title GNU Teseq @value{VERSION} Manual
+@author by Micah Cowan <@email{micah@@cowan.name}>
+
+@c  The following two commands
+@c  Start the copyright page.
+@page
+@vskip 0pt plus 1filll
+@insertcopying
+
+@end titlepage
+
+@c So the toc is printed at the start.
+@contents
+
+@ifnottex
+@node Top, Overview, (dir), (dir)
+@top Teseq
+
+This manual is for GNU Teseq, version @value{VERSION}.
+
+@noindent
+Copyright @copyright{} 2008, 2013 Micah Cowan @email{micah@@cowan.name}
+@end ifnottex
+
+@menu
+* Overview::                    What does Teseq do? (with example)
+* Invoking Teseq::              How to run Teseq, with options 'n' stuff.
+* Output Format::               How Teseq's output looks.
+* Color Mode::                  Customized color output.
+
+* Reseq::                       Reversing Teseq's output.
+
+* Standards::                   The official word on control functions.
+* Future Enhancements::         Future features under consideration.
+* Contact and Info::            Where to ask questions and find answers.
+
+* Copying::                     Copying and sharing this manual.
+* Index::                       Index of concepts.
+@end menu
+
+@node Overview, Invoking Teseq, Top, Top
+@chapter Overview
+@cindex control character
+@cindex control sequence
+@cindex terminal
+@cindex terminal emulator
+
+GNU Teseq (the author pronounces it: "tea" + "seek") is a tool for
+analyzing files that contain control characters and terminal control
+sequences, by printing these control sequences and their meanings in
+readable English. It is intended to be useful for debugging terminal
+emulators, and programs that make heavy use of advanced terminal
+features such as cursor movement, coloring, and other effects.
+
+It is primarily targeted at individuals who possess a basic
+understanding of terminal control sequences, especially
+@cindex @sc{csi}
+@cindex Control Sequence Introducer
+@acronym{@sc{csi}} sequences; however, by default Teseq will try to
+identify and describe the sequences that it encounters, and the
+behavior they might produce in a terminal.
+
+GNU Teseq is @uref{http://www.gnu.org/philosophy/free-sw.html, free
+software}. @xref{Copying}, for copying conditions.
+
+@unnumberedsec A Quick Example
+@cindex examples
+@cindex terminal
+@cindex Hello, world!
+
+You can't beat a short example to demonstrate what a program does, so
+here goes. Suppose you've got a program that writes the following
+output to a terminal.
+
+@example
+@strong{Hi} @r{there, world}
+@end example
+
+@noindent
+A simple text string, using a boldface font to render the first word.
+
+Suppose that, after a moment or two, the program then replaced the
+final word ``world'' with the word ``earth''.
+
+In order to achieve this effect, the program would have to send
+special controls to the terminal to ask it to start writing in bold
+text, and then to revert back to normal text for the rest. To replace
+the final word, it might have to issue a series of backspaces before
+issuing the replacement word. All of this will be handled
+transparently by the terminal, and you wouldn't see any of the special
+c
+aracters the program sent to the terminal---unless perhaps you
+convinced the program to write to a text file as if it were writing to
+a terminal, or ran the program under a terminal capture utility such
+as the
+@cindex @command{script}
+@command{script} command.
+
+You may be able to produce this effect yourself with the following
+shell command.
+
+@example
+$ printf '\033[1mHi\033[m there, world'; sleep 1; \
+    printf '\b\b\b\b\bearth\n'
+@end example
+
+@noindent
+If you were to examine the output from such a command with a text
+editor, it might look something like this.
+
+@example
+^[[1mHi^[[m there, world^H^H^H^H^Hearth
+@end example
+
+@noindent
+Not very readable, is it? That's where Teseq comes in! When you run
+that gibberish through the @command{teseq} command with the default
+settings, you'll get the following output.
+
+@example
+: Esc [ 1 m
+& SGR: SELECT GRAPHIC RENDITION
+" Set bold text.
+|Hi|
+: Esc [ 0 m
+& SGR: SELECT GRAPHIC RENDITION
+" Clear graphic rendition to defaults.
+| there, world|
+. BS/^H BS/^H BS/^H BS/^H BS/^H
+|earth|.
+@end example
+
+@cindex line prefix
+@cindex prefix, line
+@noindent
+Note that the special control sequences that tell the terminal to start
+and stop writing in boldface text are separated out on their own lines
+(prefixed with a colon @samp{:}), and followed by an identification
+(prefixed with an ampersand @samp{&}) and a description of what it
+does (prefixed with a quote character @samp{"}).
+
+The actual text appears in lines bracketed by pipe @samp{|}
+characters.
+
+The series of single-character backspace controls appear on a line
+prefixed with a period @samp{.}, identified by its identifying acronym
+(@sc{bs} for @sc{backspace}), and its control-key representation
+(Control-H).
+
+The final word, ``earth'', is followed by a period just
+after the closing pipe symbol; this indicates a following linefeed (or
+``newline'') character.
+
+@cindex @command{reseq}
+The @command{reseq} command may be used to reverse the procedure,
+accepting the above input and printing out the original set of escape
+sequences that produced it. @xref{Reseq}.
+
+@node Invoking Teseq, Output Format, Overview, Top
+@chapter Invoking Teseq
+@cindex invoking
+@cindex options
+@cindex usage
+@cindex help
+
+The format for running the @code{teseq} program is:
+
+@example
+teseq @var{options} [@var{input-file} [@var{output-file}]]
+teseq -h | --help
+teseq -V | --version
+@end example
+
+@noindent
+If @var{input-file} or @var{output-file} is unspecified, or specified
+as @samp{-}, standard input/output is used. Output is written to
+standard output by default, but see the @option{-o} option.
+
+@table @option
+@item -h
+@itemx --help
+@opindex --help
+@opindex -h
+Print usage information on standard output and exit successfully.
+
+@item -V
+@itemx --version
+@opindex --version
+@opindex -V
+Print the version number and licensing information for @command{teseq} on
+standard output and then exit successfully.
+
+@item -C
+@opindex -C
+@cpindex control character
+For control characters from the C0 set of @fortyeight{}, don't write
+the control-key representation, only the identifying acronym. For
+example, write the carriage-return/line-feed combination as
+@example
+. CR LF
+@end example
+@noindent
+rather than
+@example
+. CR/^M LF/^J
+@end example
+
+
+@item -D
+@opindex -D
+@cpindex description line
+Don't print description lines (those beginning with @samp{"}).
+
+@item -E
+@opindex -E
+@cpindex escape-sequence line
+Don't print escape-sequence lines (beginning with
+@samp{:}). @strong{Warning:} this results in loss of information, and in
+particular means that running the output through the
+@cindex @command{reseq}
+@command{reseq} command won't reproduce the input.
+
+Still, this option can be useful (in combination with @option{-L}) for
+those that don't care about the exact sequence of characters, or what
+their function is called, but just what their effects in the terminal
+are (those that Teseq understands). The output produced will describe
+what happened, but not how.
+
+@item -L
+@opindex -L
+@cpindex label line
+Don't print identifying labels (lines beginning with @samp{&}) for
+escape sequences.
+
+@item --color[=@var{when}]
+@itemx --colour[=@var{when}]
+@opindex --color
+@opindex --colour
+Colorize the output. WHEN defaults to 'always' or can be 'never' or
+'auto'.
+
+@item -I
+@itemx --no-interactive
+@opindex -I
+@opindex --no-interactive
+Don't put the terminal into non-canonical or no-echo mode, and don't
+try to ensure output lines are finished when a signal is received (see
+below).
+
+@item -b
+@itemx --buffered
+@opindex --buffered
+@opindex -b
+Force @command{teseq} to use buffered I/O (see below).
+
+@item -t @var{timings}
+@itemx --timings @var{timings}
+@opindex -t
+@opindex --timings
+Read timing information from @var{timings} and emit
+@cindex delay line
+delay lines. This file must be formatted as if generated by
+@cindex @command{script}
+@samp{script -t} (for the @command{script} command from
+util-linux).
+
+@item -x
+@opindex -x
+No effect. Accepted for backwards compatibility.
+@end table
+
+@noindent
+@cpindex text line
+@cpindex control-character line
+Note that there are no options for suppressing text lines (@samp{|}) or
+control-character lines (@samp{.}), as there are for description or
+escape-sequence lines.
+
+The @option{-L}, @option{-D} and @option{-E} options also have
+mnemonic equivalents of
+@opindex -&
+@option{-&},
+@opindex -"
+@option{-"} and
+@opindex -:
+@option{-:}
+respectively, corresponding to the
+@cindex line prefix
+@cindex prefix, line
+character prefixes for the lines they suppress; and @option{-C} has an
+@opindex -^
+@option{-^} equivalent, for the @samp{^X}-style control
+representations it suppresses. However, while they may be more practical to remember, they
+will be less practical to type, since both @option{-&} and @option{-"}
+are apt to be interpreted as special by the shell, and must be quoted
+with a backslash (@code{-\&} and @code{-\"})
+in order to pass them to the @command{teseq} command.
+
+@unnumberedsec Interactive Mode
+@cindex non-canonical mode
+@cindex @command{teseq}, interactive mode
+
+When @command{teseq} is started with a terminal as its input, it sets
+the terminal to non-canonical mode. That way, you can see real-time
+translation of input, as you type. If both input and output are
+terminals, then @command{teseq} will also turn local echo off, so that
+the characters you type will not interfere with the output you
+see. You can try it out by simply running @command{teseq} without any
+arguments. @strong{Note}, this means that the control for indicating
+``end-of-file'' (usually @samp{C-d}) will not be processed specially,
+but will be passed through to @command{teseq} like any other
+character. Use the interrupt character (usually @samp{C-c}) instead,
+or specify @option{--no-interactive} to disable this behavior.
+
+When run in this way, characters typed as input are immediately
+translated and written out. The exception is that when an @sc{escape}
+character is encountered, @command{teseq} must wait for the next few
+characters before writing anything, so it can decide whether to start
+an escape line or a control-character line.
+
+When @command{teseq} has a terminal as its output, it is careful to
+ensure that it finishes output lines when it is stopped by a
+signal. If it was in the middle of writing a text line, it will write
+the closing pipe character @samp{|}, followed by a newline. If it was
+in the middle of trying to determine whether it's in a valid escape
+sequence or just an escape character followed by other characters, it
+will assume the latter case, and translate all the characters it has
+seen so far.
+
+To force @command{teseq} to behave as if it's not connected to a terminal (that is, to refrain from
+@opindex --no-interactive
+@opindex -I
+ensuring lines are finished, or setting non-canonical/no-echo mode),
+use the @option{--no-interactive} (@option{-I}) option.
+
+The @command{teseq} program does not take care to finish lines when
+the output is not a terminal.
+
+Whether or not @command{teseq} is connected to a terminal, it uses
+unbuffered I/O by default, unless the input is an ordinary file. This is
+so that each character may be processed as soon as it's seen. However,
+this can result in much longer processing time overall. To force
+@command{teseq} to buffer its input and output, use the
+@opindex --buffered
+@opindex -b
+@option{--buffered} (@option{-b}) option.
+
+@node Output Format, Color Mode, Invoking Teseq, Top
+@chapter Output Format
+
+Teseq produces output that is primarily intended to be read by humans
+(from input that is usually not). For this reason, Teseq output
+follows the following principles:
+
+@itemize
+@item
+Displays for different sorts of characters and sequences are displayed
+on distinct lines, and are easily distinguished by
+@cindex line prefix
+@cindex prefix, line
+the initial character.
+@item
+Every input character should be unambiguously visible to the user in
+the output (except, of course, when the user explicitly asks not to
+see them, as with the @option{-E} option). In particular, trailing
+space should be visible.
+@item
+Line lengths are limited to a maximum of 78 characters, so as to fit
+comfortably on most terminal displays.
+@item
+The output makes clear distinction between line breaks that occur due
+to line limits or intermixed character types, and those that actually
+occurred in the input.
+@end itemize
+
+@noindent
+@xref{Overview}, for an output example.
+
+@menu
+* Text Lines::                  
+* Control-Character Lines::     
+* Escape-Sequence Lines::       
+* Label Lines::                 
+* Description Lines::           
+* Delay Lines and Halt Lines::  
+@end menu
+
+@node Text Lines, Control-Character Lines, Output Format, Output Format
+@section Text Lines
+
+@opindex |
+Lines of plain text input, are output between a pair of pipe characters
+@samp{|}, with a final period to indicate the linefeed character.
+Input:
+
+@example
+Hello there
+@end example
+
+@noindent
+Output:
+
+@example
+|Hello there|.
+@end example
+
+@noindent
+Trailing whitespace is thus made plainly visible to the reader.
+
+@example
+|Trailing space:    |.
+@end example
+
+@noindent
+A blank line is represented as empty content between the pipes.
+
+@example
+||.
+@end example
+
+@noindent
+If the input line is too long to display as one line of output, it
+will be displayed as follows, with dash characters, @samp{-}, to
+mark continuity at the beginnings and ends of the lines (outside the
+pipe characters).
+
+@example
+|This input line |-
+-|was too long to|-
+-| fit|.
+@end example
+
+You might wonder whether pipe characters themselves might have to be
+escaped, so as to avoid confusion with the surrounding pipes. After
+all, in a C string literal, denoted by double-quotes, @samp{"}, one
+must escape literal double-quote characters by preceding them with a
+backslash (and must then also escape literal backslashes): @code{"She
+said \"no\""}. However, no such escaping mechanism is needed in Teseq.
+Input:
+
+@example
+A line with a pipe | in it, and a line with just a pipe
+|
+@end example
+
+@noindent
+Output:
+
+@example
+|A line with a pipe | in it, and a line with just a pipe|.
+|||.
+@end example
+
+@noindent
+No special treatment whatsoever!
+
+The reason Teseq can get away with this is that the pipe character only
+has its special ``mark the enclosed as normal text'' meaning, when it
+is the first and the last character on a line of output (aside from a
+possible prefacing dash to indicate a wrapped line, or a trailing dash
+or period).
+
+A lot of the output lines you've seen so far have all ended with a
+period, denoting the linefeed character. However, this isn't always
+the case. For instance, if the input line contains a control
+character, Teseq will close the text line (with just a pipe, no
+period), print a control-character line with the control characters,
+and then finish up the rest of the text line. The following sample
+output represents a single line which contains a delete character and
+a null character:
+
+@example
+|Fee fi|
+. DEL/^?
+|fo|
+. NUL/^@@
+|fum|.
+@end example
+
+@noindent
+And here's a line that's terminated with a carriage-return/line-feed
+combination, rather than just a linefeed.
+
+@example
+|The promised line|
+. CR/^M LF/^J
+@end example
+
+@noindent
+The linefeed character is special: when it's preceded by control
+characters or escape sequence, it's printed as a control character;
+when it's preceded by text characters (or by nothing at all), it's
+printed as that final dot thing. This behavior is designed to make a
+newline look like the end of a line or a blank line when it should,
+and to look like a control character when it should.
+
+And of course, if the final line in the file is missing a newline, the
+dot won't appear there either.
+
+Currently, the only characters included in text lines, are those from
+the printable range of characters from US
+@cindex standards
+@cindex ASCII
+ASCII (@six{})---and sometimes linefeed, represented by the special
+final-dot notation. This means that if the terminal was using a
+character set that high-value code points, all high-valued bytes will
+be represented in hexadecimal on control-character lines, and not
+displayed on a text line. Future versions of Teseq may provide options
+allowing for these characters to be represented properly in text
+lines, but for now, the output format is ASCII characters only.
+@xref{Future Enhancements}.
+
+Note that even characters falling in the normal range of ASCII
+printable characters may not necessarily be represented correctly: for
+instance, if escape codes are present in the input that would switch
+the terminal to a different national variant of @six{}, then the real
+terminal might display (say, for ISO-646ES)
+@ifnotinfo
+@samp{@~{N}}
+@end ifnotinfo
+@ifinfo
+the LATIN CAPITAL LETTER N WITH TILDE
+@end ifinfo
+instead of
+@samp{[}; but the output from Teseq will not change based on this (even
+though it will recognize and identify the control sequences that
+invoke that character set for use).
+
+@node Control-Character Lines, Escape-Sequence Lines, Text Lines, Output Format
+@section Control-Character Lines
+@cindex control character
+@cindex control-character line
+
+Control-character lines are used to display characters whose code
+values fall outside the range of printable characters from US
+@cindex standards
+@cindex ASCII
+ASCII
+(@six{}). That
+is, those characters whose code values fall below below 32 decimal
+(those from the C0 set of control characters from
+@fortyeight{}); and those whose values are at or above 127 decimal
+(the ``delete'' character, and character byte values with the high bit
+set).
+
+@opindex .
+Control-character lines begin with an initial dot, @samp{.}, followed by the
+control characters or high-value bytes being represented.
+
+@example
+. BEL/^G NUL/^@ CR/^M LF/^J DEL/^? xA0 xFF
+@end example
+
+@noindent
+Control characters (whose numeric codes fall below decimal 32, plus
+the delete character at decimal 127) are represented by a mnemonic
+acronym identifying the character's function. Unless the
+@opindex -C
+@option{-C} was given, this acronym is followed by a slash, and the
+control-key combination that would produce the corresponding character
+(control characters are usually much more recognizable from one or the
+other of their name or their control-character representation, than
+they are by their hexadecimal code value). The ``control-key
+combination'' representation consists of a ``hat'' or ``circumflex
+accent'' character, followed by a character with a value in the range
+of 63 through 95 decimal.
+
+@cindex delete character
+Note that the delete character, designated as
+@samp{DEL/^?}, is a special case, in that one can not generally
+reproduce that key by holding down the control key and typing a
+question mark; it is simply used as an identification of the
+key.
+
+Other values (high-value bytes) are represented by the lowercase
+letter @samp{x} followed by the two-digit hexadecimal code value for
+the character.
+
+For reference, here's a table of the control characters (plus
+@sc{del}). It is based on the information from Table 1 of
+@fortyeight{} (the control-key representation has been added).
+
+@cindex control characters table
+@cindex table of control characters
+@multitable @columnfractions .10 .10 .20 .10 .10 .20
+@headitem Hex @tab Key @tab Name
+@tab      Hex @tab Key @tab Name
+@c
+@item x00 @tab ^@@ @tab NUL
+@tab  x10 @tab ^P @tab DLE
+@c
+@item x01 @tab ^A @tab SOH
+@tab  x11 @tab ^Q @tab DC1
+@c
+@item x02 @tab ^B @tab STX
+@tab  x12 @tab ^R @tab DC2
+@c
+@item x03 @tab ^C @tab ETX
+@tab  x13 @tab ^S @tab DC3
+@c
+@item x04 @tab ^D @tab EOT
+@tab  x14 @tab ^T @tab DC4
+@c
+@item x05 @tab ^E @tab ENQ
+@tab  x15 @tab ^U @tab NAK
+@c
+@item x06 @tab ^F @tab ACK
+@tab  x16 @tab ^V @tab SYN
+@c
+@item x07 @tab ^G @tab BEL
+@tab  x17 @tab ^W @tab ETB
+@c
+@item x08 @tab ^H @tab BS
+@tab  x18 @tab ^X @tab CAN
+@c
+@item x09 @tab ^I @tab TAB
+@tab  x19 @tab ^Y @tab EM
+@c
+@item x0A @tab ^J @tab LF
+@tab  x1A @tab ^Z @tab SUB
+@c
+@item x0B @tab ^K @tab VT
+@tab  x1B @tab ^[ @tab ESC
+@c
+@item x0C @tab ^L @tab FF
+@tab  x1C @tab ^\ @tab IS4
+@c
+@item x0D @tab ^M @tab CR
+@tab  x1D @tab ^] @tab IS3
+@c
+@item x0E @tab ^N @tab SO
+@tab  x1E @tab ^^ @tab IS2
+@c
+@item x0F @tab ^O @tab SI
+@tab  x1F @tab ^_ @tab IS1
+@c
+@item x7F @tab ^? @tab DEL
+@tab @tab @tab
+@end multitable
+
+@node Escape-Sequence Lines, Label Lines, Control-Character Lines, Output Format
+@section Escape-Sequence Lines
+@cindex escape-sequence lines
+
+Escape-sequence lines, which begin with the colon, @samp{:}, don't add
+any new semantics---any characters in an escape-sequence line could be
+represented on control-character and text lines (and, with just a
+one-character change in the escape sequence, would be). But they
+serve to set escape sequences apart from normal control-character or
+text lines, making it easier to see on one line all the characters
+that contribute to a single control function, rather than splitting
+them between control-character and text lines.
+Here's an example with some intermixed escape-sequence and text lines
+(without the usual label and description lines, which are described in
+later sections):
+
+@example
+|Well |
+: Esc [ 3 ; 31 m
+|Daniel|
+: Esc [ 23 ; 39 m
+| didn't do it...|.
+@end example
+
+@noindent
+The two escape-sequence lines represent, respectively, controls that
+set text rendering to use italics in the color red, and to set normal
+font rendering in the default color (the actual interpretation of
+these controls may vary by application).
+
+Note that the escape-sequence lines include control characters (well,
+character, namely @samp{Esc}) intermixed with normal text
+characters. So the above could have been written like:
+
+@example
+|Well |
+. ESC
+|[3;31mDaniel|
+. ESC
+|[23;39m didn't do it...|.
+@end example
+
+@noindent
+But this loses the separation between characters that, yes, happen to
+be text characters, but really just contribute to some terminal
+control function invocation, and characters that are, really and
+truly, text.
+
+@example
+: Esc [ 3 ; 31 m
+@end example
+
+@noindent
+Some things to note. First, the escape key is noted as @samp{Esc}, and
+not @samp{ESC} as it would be in a control-character line. Don't ask
+me why; maybe I just felt it was one more thing to dilineate between
+escape-sequence lines and control-character lines.
+
+Also, each character is separated from its neighbors by a single
+space, except that strings of digits are lumped all together.
+
+Each character is represented by itself (including colon, as long as
+it's not at the start of the line), except the escape character, and
+the space character (represented as @samp{Spc}). Control characters
+and high-value bytes are not currently represented on escape-sequence
+lines (they are not part of any escape sequences Teseq recognizes), but
+if they are in the future (say, as part of non-standardized escape
+sequences), they will most likely be represented as @samp{xXX}
+hexadecimal strings (as high-value bytes are represented in
+control-character lines.
+
+If an escape sequence requires more than one output line, the
+continuing lines will also begin with a colon, followed by two spaces
+(instead of one). Lines will not be split in the middle of a number.
+
+@example
+: Esc [ 1 ; 2 ; 3 ; 4
+:  ; 5 ; 6 ; 7 m
+@end example
+
+@menu
+* Escape Sequence Recognition::  
+@end menu
+
+@node Escape Sequence Recognition,  , Escape-Sequence Lines, Escape-Sequence Lines
+@unnumberedsubsec Recognizing Escape Sequences
+@cindex escape sequence, defined
+
+Okay, great, so escape-sequence lines help distinguish
+control-characters and text characters that make up an escape sequence
+from those that don't. But what exactly makes up an escape sequence,
+anyway?
+
+The @thirtyfive{} standard defines an escape sequence to be a sequence
+of characters beginning with @sc{esc}, with a
+@cindex final byte
+@cindex escape sequence, final byte
+final byte in the range
+@code{x30}--@code{x7E}, and any number (including zero) of
+@cindex intermediate byte
+@cindex escape sequence, intermediate byte
+intermediate bytes in the range @code{x20}-@code{x2F}.
+@ifinfo
+The following table
+@end ifinfo
+@ifnotinfo
+@ref{ascii}
+@end ifnotinfo
+has been provided as a reference for finding which characters match
+which codes.
+
+@float Table,ascii
+@cindex table of printable ASCII characters
+@multitable {@mjcth{xFF}} {Spc} {Spc} {Spc} {Spc} {Spc} {Spc}
+@headitem @tab x2X @tab x3X @tab x4X @tab x5X
+@tab x6X @tab x7X
+@c
+@item @mjcth{xX0} @tab @sc{spc} @tab 0 @tab @@ @tab P
+@tab ` @tab p
+@c
+@item @mjcth{xX1} @tab ! @tab 1 @tab A @tab Q @tab a @tab q
+@c
+@item @mjcth{xX2} @tab " @tab 2 @tab B @tab R @tab b @tab r
+@c
+@item @mjcth{xX3} @tab # @tab 3 @tab C @tab S @tab c @tab s
+@c
+@item @mjcth{xX4} @tab $ @tab 4 @tab D @tab T @tab d @tab t
+@c
+@item @mjcth{xX5} @tab % @tab 5 @tab E @tab U @tab e @tab u
+@c
+@item @mjcth{xX6} @tab & @tab 6 @tab F @tab V @tab f @tab v
+@c
+@item @mjcth{xX7} @tab ' @tab 7 @tab G @tab W @tab g @tab w
+@c
+@item @mjcth{xX8} @tab ( @tab 8 @tab H @tab X @tab h @tab x
+@c
+@item @mjcth{xX9} @tab ) @tab 9 @tab I @tab Y @tab i @tab y
+@c
+@item @mjcth{xXA} @tab * @tab : @tab J @tab Z @tab j @tab z
+@c
+@item @mjcth{xXB} @tab + @tab ; @tab K @tab [ @tab k @tab @{
+@c
+@item @mjcth{xXC} @tab , @tab < @tab L @tab \ @tab l @tab |
+@c
+@item @mjcth{xXD} @tab - @tab = @tab M @tab ] @tab m @tab @}
+@c
+@item @mjcth{xXE} @tab . @tab > @tab N @tab ^ @tab n @tab ~
+@c
+@item @mjcth{xXF} @tab / @tab ? @tab O @tab _ @tab o @tab @sc{del}
+@end multitable
+@end float
+
+@noindent
+So, for instance, the following is a valid escape sequence.
+
+@example
+: Esc $ ( C
+@end example
+
+@noindent
+@samp{$} and @samp{(} have code values @code{x24} and @code{x28}, and
+so are valid intermediate bytes; @samp{C} has the value @code{x43},
+and so terminates the escape sequence.
+
+You may have noticed that a lot of the examples of escape sequences in
+this document don't actually follow this format. For instance, 
+
+@example
+: Esc [ 3 ; 31 m
+@end example
+
+@noindent
+According to the definition we just gave, @samp{[} should be the final
+byte of an escape sequence. So why does Teseq keep going until it
+reaches the @samp{m}?
+
+The answer is that the escape sequence @emph{does} end with the
+@samp{[}; but the combination @samp{Esc [} invokes a control named
+@code{CONTROL SEQUENCE INTRODUCER}
+@cindex @sc{csi}
+(@sc{csi}). The @sc{csi} control
+marks the beginning of a different kind of sequence, called a
+@cindex control sequence
+``control sequence''. Control sequences are described by the
+@fortyeight{} standard, which considers it to be a distinct concept
+from escape sequences; however, Teseq treats both types of sequences as
+``escape sequences''.
+
+A control sequence starts with the two-character @sc{csi} escape
+sequence @samp{Esc [}, followed by an optional sequence of
+@cindex parameter byte
+parameter bytes in the range @code{x30}--@code{x3F}, an optional
+sequence of
+@cindex intermediate byte
+intermediate bytes in the range @code{x20}--@code{x2F} (the same range
+as intermediate bytes in a regular escape sequence), and a
+@cindex final byte
+final byte in the range @code{x40}--@code{x7e}. The set of standard
+control sequence functions are defined in @fortyeight{}.
+
+When used in accordance with the standard, the parameter bytes are
+used to provide a semicolon-separated list of numeric parameters to
+the control function being invoked. These affect the details of the
+control function's behavior; but not which control function is being
+invoked:
+
+@example
+: Esc [ 1 m
+& SGR: SELECT GRAPHIC RENDITION
+" Set bold text.
+: Esc [ 0 m
+& SGR: SELECT GRAPHIC RENDITION
+" Clear graphic rendition to defaults.
+@end example
+
+@noindent
+Both sequences end with the same sequence of intermediate bytes (none)
+and final byte; both invoke the @sc{sgr} control function. But the
+first one indicates that following text should be rendered boldface,
+while the second indicates that text rendering should be restored to
+its default settings.
+
+Intermediate bytes, however, together with the final byte, @emph{do}
+affect the meaning of the function invoked. Currently, @fortyeight{}
+only defines functions for either no intermediate bytes, or a single
+space character (@code{x20}) as the intermediate byte.
+
+@example
+: Esc [ A
+& CUU: CURSOR UP
+: Esc [ Spc A
+& SR: SCROLL RIGHT
+@end example
+
+@noindent
+@fortyeight{} describes an alternate representation for @sc{csi}; the
+8-bit byte value @code{x9B}. Teseq does not currently treat that value
+specially, nor any of the other high-value bytes from the C1 set of
+control functions. This is because whether or not those bytes indicate
+control functions is dependent upon what character encoding is in
+use. Future versions of Teseq may support an option to interpret these
+forms as well, at which time control sequences using the single-byte
+@sc{csi} control will probably be rendered like:
+
+@example
+: CSI [ 1 m
+@end example
+
+@noindent
+@fortyeight{} also describes another kind of sequence called
+@cindex control string
+``control strings''. These are not interpreted by Teseq; the
+control characters involved (for example, @samp{SOS/^X} and
+@samp{ST/^\}) will be printed on control-character lines, and any text
+characters will be displayed on text lines.
+
+Future versions of Teseq will probably not depart from this display
+behavior; however, support for some common interpretations for control
+strings may be added, in which case a label line and/or description
+line might follow the control string, describing its usual
+interpretation.
+
+@node Label Lines, Description Lines, Escape-Sequence Lines, Output Format
+@section Label Lines
+@cindex label line
+
+@opindex &
+Label lines begin with the ampersand, @samp{&}:
+
+@example
+& SGR: SELECT GRAPHIC RENDITION
+@end example
+
+@noindent
+Label lines always describe a control function, and are always
+preceded by the escape sequence that invokes that function (unless the
+@opindex -E
+@option{-E} option was given, suppressing output for escape-sequence
+lines).
+
+The format of a label line's content is always @var{acronym}:
+@var{name}; both of these are defined for each control function
+by @fortyeight{}. In some cases, they may also name private functions
+defined by popular terminals and terminal emulators.
+
+Label lines currently are never wrapped; however, future
+versions of Teseq may wrap label lines. At that time, continuation
+label lines will probably consist of an extra space after the
+ampersand (similar to how escape-sequence lines are wrapped). Lines
+will never be split in the middle of a word.
+
+Future versions of Teseq may use label lines to describe things besides
+escape sequences; for instance, control characters or control strings,
+or other strings that may be interpreted specially by some devices or
+applications.
+
+@node Description Lines, Delay Lines and Halt Lines, Label Lines, Output Format
+@section Description Lines
+@cindex description line
+
+@opindex "
+Description lines begin with the double-quote, @samp{"}:
+
+@example
+" Move the cursor up 2 lines.
+@end example
+
+@noindent
+Sequences of description lines are generally preceded by a label line
+(unless the
+@opindex -L
+@option{-L} option was supplied), and describe the same
+control function labeled by that line. More than one description line
+may be used to describe a function, whereas only one label line is
+ever used for a control function.
+
+It is important to understand that the descriptions provided are only
+approximations and guesses, and suffer from various limitations. The
+behavior of many control functions are dependent on terminal state
+that Teseq does not track. Teseq chooses a common default setting for
+applicable terminal modes, and issues a description based on that. For
+instance, the @sc{insert line} function is described as follows:
+
+@example
+: Esc [ 2 L
+& IL: INSERT LINE
+" Shift lines after the cursor to make room for 2 new lines.
+@end example
+
+@noindent
+However, depending on the current setting of the
+@sc{line editing mode}, the actual behavior might be to shift the
+lines @emph{before} the cursor, rather than the ones after. Future
+versions of Teseq may track enough terminal state to improve the
+accuracy of these descriptions (@pxref{Future Enhancements}), but they
+would still need to guess at the initial state of the terminal, for
+any modes that had not been explicitly set or reset.
+
+Descriptions are also often inaccurate. For instance, the description
+for @sc{insert line} should really read ``shift the current line and
+the lines after the cursor@dots{}''. In addition, no mention is made of
+the fact that the extent of the shifted part is dependent on previous
+invocations of @sc{select editing extent}. A conscious decision has
+been made to value brevity over accuracy.
+
+Also, the descriptions are based (loosely) on the semantics defined by
+@fortyeight{}. There is no guarantee that this corresponds to the
+semantics defined for the actual terminal on which these functions
+were invoked. The terminal may have different behavior, or may not
+even accept the function. The descriptions are intended as a rough aid in
+remembering what a given function does; to really understand the
+actual semantics of a function, you should read the terminal device's
+documentation, and/or @fortyeight{}.
+
+Future versions of Teseq may use description lines to describe things
+besides escape sequences; for instance, control characters or control
+strings, or other strings that may be interpreted specially by some
+devices or applications.
+
+Some description lines may appear without a preceding label line (even
+when @option{-L} was not specified), in the event that no standard
+designation for the function is known.
+
+@node Delay Lines and Halt Lines,  , Description Lines, Output Format
+@section Delay Lines and Halt Lines
+@cindex delay line
+@cindex halt line
+@opindex @@
+
+A delay line begins with an ``at'' sign @samp{@@}, and contains a
+single numeric value; a number of seconds to pause before continuing
+on to process further lines. The
+@cindex @command{reseq}
+@command{reseq} program will obey these instructions only if it is
+given the @option{--replay} option.
+
+@example
+@@ 3.0051
+@end example
+
+@noindent
+Delay lines are only issued by @command{teseq} when it has been given
+the @option{-t} option, which uses a timing file from
+@cindex @command{script}
+@samp{script -t} to determine where to insert delays. Aside from that,
+delay lines can be useful for manual insertion into Teseq
+output, to introduce a delay at a particular point when using
+@opindex --replay (reseq)
+@samp{reseq --replay}, which can aid in giving the user time to more
+easily observe terminal behavior.
+
+If a line begins with three ``at'' signs together @samp{@@@@@@}, and
+@command{reseq} is invoked with both @samp{--replay} @emph{and}
+@opindex --halts (reseq)
+@samp{--halts}, then @command{reseq} will pause at this location
+until the user presses a key to indicate continuation. The remainder
+of the line will be ignored, so can be used for comments.
+
+Such a line will never be output by @command{teseq}; it must be
+inserted by the user. Since @command{reseq} does not give any
+indication to the user that it is awaiting input (as opposed to simply
+waiting on a length delay line), it is highly advisable to insert this
+``halt'' line only after a spot in the recorded terminal script that
+already provides such an indication.
+
+The halt line can be useful for creating animated demonstrations of
+program usage, and similar sorts of presentation-oriented scripts.
+
+@node Color Mode, Reseq, Output Format, Top
+@chapter Color Mode
+@opindex --color
+@opindex --colour
+@cindex color
+@cindex colour
+@cindex TESEQ_COLORS
+Teseq can provide color formatting to its output. This feature is
+disabled by default, but can be activated via @option{--color=auto}
+or @option{--color=always}.
+If @samp{auto} is used, then color will be added to the output only if
+the output is to a terminal; otherwise not.
+If @samp{always} is specified, then color formatting codes will be
+provided for the output unconditionally. Note that such output may not
+be fed to @command{reseq}, which will not be able to handle these codes.
+
+The default colors used are suitable for use against a dark/black
+background, but may be less suitable for use on terminals with
+light-colored backgrounds.
+The colors used may be altered by setting the environment variable
+@samp{TESEQ_COLORS}.
+It consists of comma-separated key=value pairs, where the key is usually
+the prefix character of the line to be colored, and the value consists
+of parameter values for the terminal SGR control.
+Any prefixes not specified in @samp{TESEQ_COLORS} retain their default
+values.
+
+In the case of text lines, in which literal text is bracketed by pipe
+characters (@samp{|}), color may be specified separately for the inner
+text, and for the bracketing pipes, including the @samp{|-} and
+@samp{-|} around formatting (non-literal) line breaks, and any final
+@samp{.} signifying a literal line break.
+The inner text is specified by the key @samp{|>}, while the decorations
+are specified by the key @samp{|}.
+Currently, no default color settings are made for the decorations; only
+the inner text.
+
+Here is an example setting for TESEQ_COLORS:
+
+@example
+TESEQ_COLORS='|>=36;7,|=1,.=31,:=33,&=35,"=32,@=34'
+@end example
+
+This sets the literal text content of text lines to a cyan foreground,
+and then standout (reverse) mode, so that the result is a cyan
+background with a foreground of whatever the usual background would be
+(i.e., if the background is normally black, then the foreground will be
+black). The color of the text line decorations is not changed, but the
+decorations are displayed in bold. Control lines (@samp{.}) are set to
+red, escape-sequence lines (@samp{:}) are set to amber, label lines
+(@samp{&}) to violet, descriptions (@samp{"}) to green, and delay lines
+(@samp{@@}) to blue.
+
+Note that halt lines (lines consisting of exactly @samp{@@@@@@}), though
+recognized by reseq, are never emitted by teseq, and thus have no means
+of specification in @samp{TESEQ_COLORS}.
+
+@node Reseq, Standards, Color Mode, Top
+@chapter The Reseq Command
+@cindex @command{reseq}
+@cindex Reversing the output of @command{teseq}
+@cindex @command{teseq}, reversing the output
+
+Synopsis:
+
+@example
+reseq [-t|--timings=@var{timings}] @var{input} @var{output}
+reseq --replay [-d @var{divisor}] @var{input} [@var{output}]
+reseq -h | --help
+reseq -V | --version
+@end example
+
+The @var{input} and @var{output} arguments are mandatory, but may be
+specified as @samp{-} for standard input or output. Reseq doesn't let
+output default to standard output because, since it generates raw
+terminal codes, it is uncommon (and potentially unsafe) to send this
+directly to the terminal. The exception is when the @option{--replay}
+argument has been specified, which is only useful when output is going
+to the terminal; in that event, the @var{output} argument is optional.
+
+@table @option
+@item -h
+@itemx --help
+@opindex --help (reseq)
+@opindex -h (reseq)
+Print usage information on standard output and exit successfully.
+
+@item -V
+@itemx --version
+@opindex --version (reseq)
+@opindex -V (reseq)
+Print the version number and licensing information of @code{hello} on
+standard output and then exit successfully.
+
+@item --replay
+@opindex --replay (reseq)
+Honor delay lines in the input, pausing the specified amount of time
+before continuing to process the next line. This is useful for
+producing behavior equivalent to that of the
+@cindex @command{scriptreplay}
+@command{scriptreplay} command (from
+@uref{http://userweb.kernel.org/~kzak/util-linux-ng/, util-linux}),
+but using a Teseq output file as input, rather than a raw typescript
+file.
+
+@item --halts
+@opindex --halts (reseq)
+Only takes effect if @samp{--replay} is also specified. In addition to
+honoring delay lines, also honors user-inserted ``halt'' lines (those
+beginning with @samp{@@@@@@}) in the input. These lines cause
+@command{reseq} to halt processing until the user presses a key.
+
+This halting action is not accompanied by any sort of indication that
+@command{reseq} is awaiting user action; it is up to the user to
+ensure that the input script to @command{reseq} has included some sort
+of appropriate indication.
+
+When @samp{--halts} is in effect, @command{reseq} will turn off
+terminal echoing (so the user's keypress to continue the script is not
+shown), and switches the terminal over to unbuffered I/O, so that
+keypresses can be read as soon as they are typed.
+
+@item -t @var{timings}
+@itemx --timings @var{timings}
+@opindex -t (reseq)
+@opindex --timings (reseq)
+Produce timing information from delay lines, in the format generated
+by
+@cindex @command{script}
+@code{script -t}. This can be used to regenerate @command{script}
+typescript and timing files that were fed as the input to
+@code{teseq -t timings}. Note that the result will differ slightly
+from the output from @code{script -t}, in that the first delay will be
+zeroed out (@command{teseq} always throws out the first delay value,
+whose value from script is an arbitrary value between 0 and 1), and
+the last delay line will include all the remaining characters
+(@command{script}'s timings don't count the final timestamp line).
+@end table
+
+@noindent
+The @command{reseq} command essentially does the reverse of
+@command{teseq}. If you feed it the output from @command{teseq}, it
+will generate the corresponding escape sequences---that is, it will
+generate the same content that was fed to @command{teseq} to produce
+that output. The shell command
+
+@example
+$ teseq foo | reseq - -
+@end example
+
+@noindent
+is roughly equivalent to
+
+@example
+$ cat foo
+@end example
+
+@noindent
+The @command{reseq} command is written in
+@cindex Perl
+Perl, unlike @command{teseq}
+which is compiled from C-language sources, and so requires a Perl
+interpreter to be present in order to function.
+
+Of the various types of lines output by the @command{teseq} command,
+@command{reseq} only understands four;
+@cpindex text line
+text lines:
+
+@example
+|Hello, there|.
+|Here are|-
+-|some wrapped|-
+-|lines|.
+@end example
+
+@noindent
+@cpindex control-character line
+control-character lines:
+
+@example
+. CR/^M LF/^J
+. CR LF
+@end example
+
+@noindent
+@cpindex escape-sequence line
+escape-sequence lines:
+
+@example
+: Esc [ 31 ; 3 m
+@end example
+
+@noindent
+And, of course,
+@cpindex delay line
+delay lines:
+
+@example
+@@ 3.14159
+@end example
+
+@menu
+* Reserved Line Prefixes::      
+@end menu
+
+@node Reserved Line Prefixes,  , Reseq, Reseq
+@unnumberedsec Reserved Line Prefixes
+@cindex reserved line prefixes
+@cindex line prefix, reserved
+@cindex line prefix
+@cindex prefix, line
+
+It's important for @command{reseq} to be able to process its input
+correctly, even if that output came from a different version of
+@command{teseq} than @command{reseq} is familiar with. So, it's
+important that @command{reseq} should refuse to continue processing
+input if it encounters a line that it doesn't recognize, but which
+might contain important semantic information that effects the output
+@command{reseq} should produce.
+
+At the same time, it'd be a shame for @command{reseq} to refuse to
+process a line it doesn't understand, if that line contains
+non-critical information. For example, consider delay lines (beginning
+with @samp{@@}). The delay line holds semantic information, to be sure;
+but not information that would affect @command{reseq}'s normal
+operation (it only has meaning when one of the
+@opindex -t (reseq)
+@opindex --timings (reseq)
+@option{--timings} or
+@opindex --replay (reseq)
+@option{--replay} options has been specified). So, if an older version
+of @command{reseq} had existed that did not recognize them, it would
+have been a shame if its introduction in the newer release had caused
+the older version to refuse to process it.
+
+To address both of these concerns, @command{reseq} has taken the
+approach of reserving certain prefixes for use as ``semantically
+significant'' line prefixes, and others for use in lines that
+@command{reseq} can safely ignore. A line that begins with any of the
+following characters, will cause @command{reseq} to halt processing
+and exit with an error.
+
+@example
+!$+/=[\^@{~
+@end example
+
+@noindent
+The idea is that these prefixes are reserved for future use in lines
+that @command{reseq} must understand in order to produce correct
+results.
+
+This leaves all remaining characters free for use in specifying future
+@command{teseq} output lines that do not affect processing for older
+@command{reseq}s. Note that they are still reserved for
+@command{teseq}, and are not intended for users to insert commentary
+or such. However, @command{teseq} will never use a line beginning with
+the space character; and @command{reseq} will always ignore such
+lines, so the space character may be used to indicate user comments.
+
+@node Standards, Future Enhancements, Reseq, Top
+@chapter Standards
+
+The most authoritative source of information on control functions,
+their representations in bytes, and their intended meaning, is the
+@fortyeight{} standard. Also related is the @thirtyfive{} standard,
+which describes control functions for switching the character
+encoding, and defines the possible forms of escape sequence (note
+that, in Teseq, 
+@cindex escape sequence
+``escape sequence'' refers to both the Ecma-48 concept of
+@cindex control sequence
+``control sequences'', and the official Ecma-35 meaning of ``escape
+sequence''. These standards are available, ``free of charge and
+copyright'', at:
+
+@example
+@uref{http://www.ecma-international.org/}.
+@end example
+
+@noindent
+Teseq also recognizes some additional sequences that were not defined by
+international standard, but are in fairly wide use.
+In such cases, if descriptions are enabled, the description text for
+these sequences will be prefixed by a tag in parentheses that identifies
+where this functionality is found. For instance, @code{(DEC)} for
+sequences used in DEC equipment such as the VT100, or @code{(Xterm)} for
+squences supported by xterm.
+Sources of information that were used for identifying and
+describing these sequences, include:
+
+@example
+@uref{http://invisible-island.net/xterm/ctlseqs/ctlseqs.html}
+@uref{http://www.vt100.net/}.
+@end example
+
+@node Future Enhancements, Contact and Info, Standards, Top
+@chapter Future Enhancements
+
+Here are some potential additions that may appear in future versions of
+Teseq.
+
+@menu
+* Localized Messages::          
+* Stateful Processing::         
+* Terminal Databases::          
+@end menu
+
+@node Localized Messages, Stateful Processing, Future Enhancements, Future Enhancements
+@section Localized Messages
+
+It is expected that a near release of Teseq will include support for
+native-language translations of control label names and descriptions. Note
+that the acronym portions of label lines will never be translated:
+they represent official designations for their respective controls.
+
+An important requirement of such translations is that they must not
+interfere with processing of the document; if they use a shift-based
+encoding, they will shift to the translation encoding
+only after the line prefix, which must be a plain ASCII character, and
+shift back to normal ASCII prior to the end of the line. Bytes with
+values corresponding to the ASCII control characters @sc{nul},
+@sc{cr}, or @sc{lf} (hexadecimal @samp{x00}, @samp{x0D},
+and @samp{0x0A}) will not appear, except when they represent their
+ASCII functions (in no case will @sc{nul}s be present in the
+document).
+
+These requirements rule out the use of wide-character encodings
+such as UCS-2 or UTF-16, which could not be intermixed with ascii
+characters and which have character representations that would enclude
+byte values corresponding to the forbidden characters noted above, but
+should be compatible with UTF-8, ISO 2022-based encodings such as the
+ISO 8859 series, ISO 2022-JP, or EUC-JP and other encodings that meet
+these requirements such as GBK, Big5, or Shift JIS.
+
+@node Stateful Processing, Terminal Databases, Localized Messages, Future Enhancements
+@section Stateful Processing
+
+Future versions of Teseq may support options to remember state
+information about the terminal. For instance if Teseq has seen the
+invocation of @sc{select graphic rendition} to set underlined text,
+Teseq might render any further text that
+appears in
+@cindex text line
+with underlining. In addition, the meaning of some standardized
+commands defined by @fortyeight{} depend on the current setting of
+various terminal modes, and Teseq currently makes assumptions about
+those modes. A state-remembering Teseq might remember the last time a
+mode was set, and no longer need to make assumptions.
+
+If Teseq is given information about the size of the target terminal,
+it could also provide information about the cursor's present location
+after every cursor-moving command.
+
+Currently, all output from @command{teseq} is in US
+@cindex standards
+@cindex ASCII
+ASCII; but future versions of Teseq might support output in other
+encodings. If that happens, Teseq might also add support for the
+handling of @thirtyfive{} character code-switching sequences, such
+that the characters given in
+@cindex text line
+text lines would reflect the actual characters as they would actually
+appear in the terminal device, depending on the current encoding
+state.
+
+Note that features which alter the bytes found between the pipe
+characters of a text line, would most likely break reverse-translation
+with
+@cindex @command{reseq}
+@command{reseq}, as it would be much harder to tell what the original
+byte values had been.
+
+@node Terminal Databases,  , Stateful Processing, Future Enhancements
+@section Terminal Database Awareness
+
+Future versions of Teseq may allow the user to specify the name of the
+terminal for which the input was intended, which Teseq will then use
+to detect when a feature from that terminal's entry in the terminal
+database (for example, the
+@cindex terminfo
+terminfo database) has been invoked.
+
+Since features from terminal database entries often involve multiple
+@fortyeight{} controls, Teseq would probably need to indicate out-of-band
+``start'' and ``end'' markers for the feature. For instance, if the
+definition for the @samp{clear} feature for the specified terminal
+is @samp{\E[H\E[J}, then an input string of @samp{\E[m\E[H\E[J\E(B}
+might result in output like:
+
+@example
+: Esc [ m
+# start: clear
+: Esc [ H
+: Esc [ J
+# end: clear
+: Esc ( B
+@end example
+
+@noindent
+(Label and description lines have been removed from this example.)
+
+No commitment has been made to any particular output format for this
+feature; the above is intended purely as an example of one possible
+approach.
+
+@node Contact and Info, Copying, Future Enhancements, Top
+@chapter Contact and Information
+
+If you have any questions, comments, suggestions, or bug reports,
+please take advantage of the mailing list at
+@email{bug-teseq@@gnu.org}. To subscribe, send an empty email with the
+Subject ``subscribe'' to @email{bug-teseq-request@@gnu.org}; or use
+the web interface at
+@uref{http://lists.gnu.org/mailman/listinfo/bug-teseq}.
+
+The official website for GNU Teseq is at
+@uref{http://www.gnu.org/software/teseq/}.  For the latest updates and
+other information, please check that site (or better yet,
+stay appraised by subscribing to the mailing list.
+
+GNU Teseq uses Savannah to manage bug-tracking, and to host the
+development source repository in Mercurial:
+@uref{https://savannah.gnu.org/projects/teseq/}.
+
+There is also an IRC channel (@t{#teseq}), hosted on irc.freenode.net.
+
+@node Copying, Index, Contact and Info, Top
+@appendix Copying
+@include fdl.texi
+
+@node Index,  , Copying, Top
+@unnumbered Index
+
+@printindex cp
+
+@bye

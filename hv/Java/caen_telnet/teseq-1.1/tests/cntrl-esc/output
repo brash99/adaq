@@ -1,0 +1,33 @@
+|Script started on Tue 24 Jun 2008 09:21:38 PM PDT|
+. CR/^M LF/^J
+: Esc ]
+& OSC: OPERATING SYSTEM COMMAND
+|0;micah@micah-laptop: ~|
+. BEL/^G DEL/^?
+: Esc [ 1 m
+& SGR: SELECT GRAPHIC RENDITION
+" Set bold text.
+: Esc [ 34 m
+& SGR: SELECT GRAPHIC RENDITION
+" Set foreground color blue.
+|micah-laptop|
+: Esc [ 1 m
+& SGR: SELECT GRAPHIC RENDITION
+" Set bold text.
+: Esc [ 34 m
+& SGR: SELECT GRAPHIC RENDITION
+" Set foreground color blue.
+|$ |
+: Esc [ m
+& SGR: SELECT GRAPHIC RENDITION
+" Clear graphic rendition to defaults.
+: Esc ( B
+& GZD4: G0-DESIGNATE 94-SET
+" Designate 94-character set B (US-ASCII) to G0.
+|screen -xR 15295.pts-5.micah-laptop|
+. CR/^M LF/^J
+: Esc [ ? 1049 h
+& SM: SET MODE (private params)
+" (Xterm) Save the cursor position and use the alternate screen buffer,
+"  clearing it first.
+. CR/^M LF/^J

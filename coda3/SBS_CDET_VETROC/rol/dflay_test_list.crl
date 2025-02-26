@@ -1,0 +1,137 @@
+#  Test readout list for CODA 3
+#  - Author: David Abbott, JLab 2013
+#
+#  Modified by: D Flay for testing purposes (Aug 2020) 
+
+#_______________________________________________________________________________
+# define globals
+
+readout list FLAY 
+maximum 40960,100
+polling
+test readout
+
+int blklevel = 1;
+int maxdummywords = 10;
+
+#  Type 0xff10 is RAW trigger No timestamps
+#  Type 0xff11 is RAW trigger with timestamps (64 bits)
+int trigBankType = 0xff11;
+
+#_______________________________________________________________________________
+# rocDownload
+begin download
+
+  log inform "[rocDownload]: User Download Executed"
+
+end download
+#_______________________________________________________________________________
+# rocPrestart
+begin prestart
+
+  variable jj
+
+  log inform "[rocPrestart]: Entering User Prestart"
+
+  init trig source TEST
+  link sync trig source TEST 1 to usrtrig and usrtrig_done
+  event type 1 then read TEST 1
+
+  log inform "[rocPrestart]: Setting prescale = 10 000 (~300 Hz rate)"
+# Prescale of 10000 gives about 300 Hz
+  TESTflag = 0;
+  TEST_prescale = 10000;
+
+  log inform "[rocPrestart]: User Prestart Executed"
+
+end prestart
+#_______________________________________________________________________________
+# rocEnd
+begin end
+
+  TESTflag = 0;
+
+  log inform "[rocEnd]: User End Executed"
+
+end end
+#_______________________________________________________________________________
+# rocPause
+begin pause
+
+  TESTflag = 0;
+
+  log inform "[rocPause]: User Pause Executed"
+
+end pause
+#_______________________________________________________________________________
+# rocGo
+begin go
+  
+  log inform "[rocGo]: Entering User Go"
+  
+  TESTflag = 1;
+
+end go
+#_______________________________________________________________________________
+# rocTrigger
+begin trigger usrtrig
+ 
+  variable ii, evtnum
+
+  evtnum = *(rol->nevents);
+
+# Open ROC raw bank;
+ CEOPEN(ROCID,BT_BANK,blklevel);
+
+#Create Dummy trigger Bank
+%%
+CBOPEN(trigBankType,BT_SEG,blklevel);
+for(ii=0;ii<blklevel;ii++) {
+   if(trigBankType == 0xff11) {
+     *rol->dabufp++ = (EVTYPE<<24)|(0x01<<16)|(3);
+   }else{
+     *rol->dabufp++ = (EVTYPE<<24)|(0x01<<16)|(1);
+   }
+   *rol->dabufp++ = (blklevel*(evtnum-1) + (ii+1));
+   if(trigBankType == 0xff11) {
+      *rol->dabufp++ = 0x12345678;
+      *rol->dabufp++ = 0;
+   }
+}
+CBCLOSE;
+%%
+
+#Create ROC data Bank with dummy data
+CBOPEN(1,BT_UI4,blklevel);
+  output hex da000011
+%%
+  for(ii=0;ii<maxdummywords;ii++) {
+     *rol->dabufp++ = ii;
+  }
+%%
+  output hex da0000ff
+CBCLOSE;
+
+CECLOSE;
+   
+  log inform "[rocTrigger]: Opened new ROC raw bank and creating data..."
+
+end trigger
+#_______________________________________________________________________________
+# rocDone or rocEnd
+begin done usrtrig
+
+end done
+#_______________________________________________________________________________
+# rocDone or rocEnd
+begin done
+
+end done
+#_______________________________________________________________________________
+# rocReset
+begin __reset
+%%
+/* This is a test */
+%%
+end __reset
+

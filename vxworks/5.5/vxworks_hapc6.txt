@@ -1,0 +1,24 @@
+
+  Here is the vxWorks boot script on June 1, 2007
+  for test cage
+
+boot device          : geisc0 
+processor number     : 0 
+host name            : adaql1 
+file name            : /adaqfs/home/adev/hapc6/vx6100_v3.1 
+inet on ethernet (e) : 129.57.164.100:ffffff00 
+inet on backplane (b): 
+host inet (h)        : 129.57.164.53 
+gateway inet (g)     : 129.57.164.1 
+user (u)             : adev 
+ftp password (pw) (blank = use rsh): 
+flags (f)            : 0x20 
+target name (tn)     : happex1 
+startup script (s)   : /adaqfs/home/adev/hapc6/vme_daq1.boot 
+other (o)            : 
+
+
+
+Note, to use happex1 VME on adaql1 / apar, change to:
+
+startup script (s)   : /adaqfs/halla/apar/vxworks/happex1.boot

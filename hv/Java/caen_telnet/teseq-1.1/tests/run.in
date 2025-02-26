@@ -1,0 +1,173 @@
+#!/bin/sh
+# @configure_input@
+
+# Copying and distribution of this file, with or without modification,
+# are permitted in any medium without royalty provided the copyright
+# notice and this notice are preserved.
+
+set -e
+
+srcdir=@abs_srcdir@
+builddir=@abs_builddir@
+
+unset TESEQ_COLORS
+
+get_vars()
+{
+	teseq_options=''
+	input=input
+	output=output
+	expected=expected
+	invocation=''
+	diffcmd=''
+	r_output=r-output
+	r_invocation=''
+	r_diffcmd=''
+	run_reseq=true
+	if [ -f "$testin/vars" ]
+	then
+		. "$testin/vars"
+	fi
+	invocation=${invocation:-'"$TESEQ" $teseq_options \
+	                          "$testin/$input" "$testout/$output"'}
+	diffcmd=${diffcmd:-'diff -u "$testin/$expected" "$testout/$output"'}
+	r_invocation=${r_invocation:-'"$RESEQ" -- "$testin/$r_input" \
+	                              "$testout/$r_output"'}
+	r_diffcmd=${r_diffcmd:-'cmp -- "$testin/$r_expected" \
+	                        "$testout/$r_output"'}
+	r_input="${r_input:-$expected}"
+	r_expected="${r_expected:-$input}"
+}
+
+if [ "$#" -ge 1 -a X"${1}" = X"-r" ]
+then
+	echo
+	echo "RUNNING RESEQ TESTS"
+	echo
+	# Test reseq
+	run_test()
+	(
+		test="$1"
+		testin="$srcdir/tests/$test"
+		testout="$builddir/tests/$test"
+		mkdir -p "$testout"
+		cd "$testout"
+		rm -f r-output
+		get_vars
+		if ! $run_reseq
+		then
+			echo '  (skipped)'
+			return 0
+		fi
+		eval "$r_invocation"
+		result="$?"
+		if [ "$result" -ne 0 ]
+		then
+			return "$result"
+		fi
+		eval "$r_diffcmd"
+		return $?
+	)
+else
+	echo
+	echo "RUNNING TESEQ TESTS"
+	echo
+	# Test teseq
+	run_test()
+	(
+		test="$1"
+		testin="$srcdir/tests/$test"
+		testout="$builddir/tests/$test"
+		mkdir -p "$testout"
+		cd "$testout"
+		rm -f output
+		get_vars
+		eval "$invocation"
+		result="$?"
+		if [ "$result" -ne 0 ]
+		then
+			return "$result"
+		fi
+		eval "$diffcmd"
+		return $?
+	)
+fi
+
+########################################
+
+: ${TESEQ=${builddir}/teseq}
+: ${RESEQ=${builddir}/reseq}
+: ${TESEQ_TESTS='
+	empty
+	cmdline-in-out
+	cmdline--
+	basic-text
+	wrap
+	prompt
+	prompt-descript
+	prompt-descript-only
+	function-labels
+	esc-seq-versus-not
+	T.416
+	params
+	iso-2022
+	cntrl-esc
+	high-val
+	hardstatus
+	hardstatus-color
+	controls
+        csi-interm
+        csi-desc
+        modes
+        single-functions
+        extensions
+        sgr
+        timing
+        timing-header-only
+        timing-no-eol
+        limits
+'}
+
+nt=0
+np=0
+nf=0
+ft=''
+for test in $TESEQ_TESTS
+do
+	echo $test
+	if run_test $test
+        then
+		np=$((np+1))
+	else
+		nf=$((nf+1))
+		echo
+		echo FAILED: $test
+		echo
+		ft="$ft $test"
+	fi
+	nt=$((nt+1))
+done
+
+set +e
+echo
+echo "Ran $nt total tests"
+if [ $nf -eq 0 ]
+then
+	tput setaf 2 2>/dev/null
+	tput bold 2>/dev/null
+	echo PASSED
+	tput sgr0 2>/dev/null
+else
+	tput setaf 1 2>/dev/null
+	tput bold 2>/dev/null
+	echo FAILED
+	tput sgr0 2>/dev/null
+fi
+echo "Passed: $np"
+echo "Failed: $nf"
+echo
+echo "$ft"
+
+exit $nf
+
+# vim:sw=8 sts=8 ts=8 noet

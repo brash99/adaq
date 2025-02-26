@@ -1,0 +1,4 @@
+cat "$testin"/input > ./-o
+input='-o'
+r_diffcmd='cmp -- -o "$testout"/r-output'
+invocation='"$TESEQ" -- -o > "$testout"/output'

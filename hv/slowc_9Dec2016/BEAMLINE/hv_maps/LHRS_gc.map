@@ -1,0 +1,11 @@
+# Date 18-Nov-2013
+# Map file for LHRS Gas Cerenkov HV system
+#
+# hv's host:port list (1 hvframe)
+intelha3:2001
+
+10200 10205
+10201 10206
+10202 10207
+10203 10208
+10204 10209

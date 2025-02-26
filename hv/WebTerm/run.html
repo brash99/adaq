@@ -1,0 +1,75 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>WebTerm: Working Example</title>
+    <link rev=made title="Dianne Hackborn"
+      href="mailto:hackbod@cs.orst.edu">
+  </head>
+  <body>
+
+      <h2 align=center>WebTerm Terminal Emulator and Telnet Client</h2>
+      <h1 align=center>Working Example</h1>
+
+      <hr>
+      <p>Click on the "Connect" button to open a telnet session
+	to the web server.
+	This will be useful only if you have a login on that machine.
+	Most browsers will not allow connections
+	to hosts other than the web server from which you have
+	downloaded the applet.</p>
+
+      <!--
+      <p align=center>
+      <div align=center>
+	<table align=center border=3>
+	  <tr>
+	    <td valign=center>
+	      Macro Buttons (press when connected):
+	    </td>
+	    <td valign=center>
+	      <applet codebase="bin" code="RegistryButton.class"
+		height=30 width=60 align=middle>
+		<param name="register" value="terminal">
+		  <param name="label" value="ls -l">
+		    <param name="command" value="send">
+		      <param name="text" value="ls -l\r\n">
+	      </applet>
+	    </td>
+	    <td valign=center>
+	      <applet codebase="bin" code="RegistryButton.class"
+		height=30 width=60 align=middle>
+		<param name="register" value="terminal">
+		  <param name="label" value="echo">
+		    <param name="command" value="send">
+		      <param name="text" value="echo 'This is a test.'\r\n">
+	      </applet>
+	    </td>
+	  </tr>
+	</table>
+      </div>
+      </p>
+      -->
+
+      <!-- Netscape stinks... we really need to specify that the applet
+      should be sized to fit an 80x24 terminal, but there's no way to do
+      this. -->
+
+      <p align=center>
+      <applet codebase="bin" code=WebTerm.class width="60%" height="60%">
+
+	<h2 align=center>Sorry, your Web browser does not support Java
+	  applets.</h2>
+
+	<param name="register" value="terminal">
+	  <!-- <param name="fontsize" value="10"> -->
+      </applet>
+      </p>
+
+<hr>
+<a href="../">Back to WebTerm home page</a>.<br>
+<a href="/">Back to NACSE home page</a>.
+<address>
+Comments and questions to
+&lt;<a href="mailto:nacse-questions@nacse.org">nacse-questions@nacse.org</a>&gt;
+</address>
+</body> </html>

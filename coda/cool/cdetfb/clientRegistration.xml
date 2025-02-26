@@ -1,0 +1,32 @@
+<registration>
+   <client>
+      <name>ROC14</name>
+      <hostname>sbsvme14.jlab.org</hostname>
+      <containerhost>sbs2.jlab.org</containerhost>
+      <portnumber>45800</portnumber>
+   </client>
+   <client>
+      <name>ROC6</name>
+      <hostname>sbsvme7.jlab.org</hostname>
+      <containerhost>sbs2.jlab.org</containerhost>
+      <portnumber>45800</portnumber>
+   </client>
+   <client>
+      <name>ROC15</name>
+      <hostname>sbsvme15.jlab.org</hostname>
+      <containerhost>sbs2.jlab.org</containerhost>
+      <portnumber>45800</portnumber>
+   </client>
+   <client>
+      <name>ER1</name>
+      <hostname>sbs2.jlab.org</hostname>
+      <containerhost>sbs2.jlab.org</containerhost>
+      <portnumber>45801</portnumber>
+   </client>
+   <client>
+      <name>EB1</name>
+      <hostname>sbs2.jlab.org</hostname>
+      <containerhost>sbs2.jlab.org</containerhost>
+      <portnumber>45800</portnumber>
+   </client>
+</registration>

@@ -1,0 +1,23 @@
+<rdf:RDF
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:cool="http://AFECSHOMEDB/schema/cool#"
+>
+
+<rdf:Description rdf:about="http://COOLHOME/Control/cdet_scint/cdet_scint#cdet_scint">
+
+   <cool:include rdf:resource="http://COOLHOME/Control/cdet_scint/Components/ROC7.rdf"/>
+   <cool:hasComponent rdf:resource="http://COOLHOME/Control/cdet_scint/Components/ROC7#ROC7"/>
+
+
+   <cool:include rdf:resource="http://COOLHOME/Control/cdet_scint/Components/ER1.rdf"/>
+   <cool:hasComponent rdf:resource="http://COOLHOME/Control/cdet_scint/Components/ER1#ER1"/>
+
+
+   <cool:include rdf:resource="http://COOLHOME/Control/cdet_scint/Components/EB1.rdf"/>
+   <cool:hasComponent rdf:resource="http://COOLHOME/Control/cdet_scint/Components/EB1#EB1"/>
+
+   <cool:include rdf:resource="http://COOLHOME/Control/cdet_scint/Options/cdet_scint_option.rdf"/>
+   <cool:hasOption rdf:resource="http://COOLHOME/Control/cdet_scint/Options/cdet_scint_option#cdet_scint_option"/>
+
+</rdf:Description>
+</rdf:RDF>

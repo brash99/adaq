@@ -1,0 +1,6 @@
+*.class
+*.html
+*.log
+*.jar
+*~
+*/hv_log/hvstatus.log

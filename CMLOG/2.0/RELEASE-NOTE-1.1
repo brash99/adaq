@@ -1,0 +1,100 @@
+This is CMLOG version 1.1 (Beta version). CMLOG is a distributed
+message logging system that allows applications to log messages
+to centralized database files, and has a Motif browser to view
+either current logging data in real time or historical data in the
+database.
+
+1. What's new in this version?
+
+	Cmlog client library and daemon have been ported to ni 68000
+	board (Ron MacKenzie at SLAC) and to PC 486 board (Peregrine M. McGehee
+	from LEDA project at LANL) running vxworks. The client library 
+	can also be compiled into a thread safe library on solaris 
+	(DAQ group at Jefferson Lab). The database can now reside in 
+	multiple directories. A unix utility called cmlogMsg that can log
+	arbitrary messages into cmlog system. Finally a updated documentation. 
+
+2. Install:
+	Currently CMLOG has been compiled and tested on Solaris, HP_UX (9.0.x),
+	HP_UX 10.10, HP_UX 10.20 (aCC) and Linux (2.0.2x) plus vxWorks(5.2(3))
+	. If you are trying to compile CMLOG on a different machine, check and
+	modify Makefile.config and Makefile. 
+
+	Unpack the cmlog.tar.gz file. The directory structure looks like
+
+	CMLOG 
+		--C++
+			--SACE-4.0  (Simple C++ Network Library)
+			--motif     (Simple Motif C++ Wrapper  )
+		--Admin             (cmlogAdmin)
+		--Browser           (Browser APIs)
+		--CDEV              (CDEV interface for client)
+		--CDEV_Q            (CDEV interface for browser)
+		--Client            (Logging client APIs      )
+		--ClientD           (Loggin Client Daemon     )
+		--Common          
+		--Docs              (cmlog.tex)
+		--Examples          (Simple logging examples )
+ 		--Network          
+		--Script            (Script to start client daemon on unix)
+		--Server            (cmlogServer )
+		--Thread            (Thread library + vxworks Semaphore   )
+		--Util              (Some old stuff, ignore)
+		--Xui               (Motif browser)
+		--bin               (All Executables)
+		--data              (cdevData + etc)
+		--database          (B+ tree database management)
+		--include           (Header files for client/browser)
+		--lib               (Libraries)
+
+	setenv WRAPPER_ROOT CMLOG/C++/SACE-4.0 before you do anything.
+
+	Edit file /Common/cmlogConfig.h to reflect your environment. Type
+	gmake to see what OS system the CMLOG runs on. Then type gmake machine
+	to build the whold system. On solaris (Sparc 5) it takes 20 minutes
+	to build. After a successful build, all executables are in the
+	CMLOG/bin/solaris(machine type), all libraries are in the
+	CMLOG/lib/solaris(machine type).
+
+	If you want to compile cmlog client on solaris into a thread safe
+	library, please edit Makefile in the CMLOG/Client directory to add
+	CMLOG_USE_THREAD.
+
+3. To run CMLOG:
+
+	There are two files in CMLOG directory. One is cmlog.config which
+	is server configuration file. Another is cmlogrc which is configuration
+	file for motif browser cmlog. The browser reads its configuration
+	file pointer by CMLOG_CONFIG or $(HOME)/.cmlogrc.
+
+	a) Create a database directories specified in either cmlogConfig.h
+	   or by the configuration file. Then start server by cmlogServer 
+	   (or cmlogServer configfile). The server will writes to files
+	   in the directories specified. One may specify secondary database
+	   directories in the server configuration file or cmlogConfig.h
+	   file. The syntax for secondary directories in the configuration 
+	   file is:
+
+	   cmlogSecondaryDatabase:    directoryPath0[:directoryPath1]
+	   cmlogSecondaryCxtDatabase: cxtdirPath0[:cxtdirPath1]
+
+	   The above paths must fullpath. They can not be the same as
+	   the primary (cxt)database path.
+	   
+
+	b) Put cmlog_activate and cmlogClientD in your path. Applications
+	   on unix that want to log messages need these two in the path.
+
+	c) The motif browser 'cmlog' is very easy to use.
+
+	d) on vxworks, load cmlogClientD first, libcmlog.a second.
+
+	e) check document in the Docs directory (latex file).
+	
+
+4. Suggestions and Bug reporting:
+
+	send e-mail to chen@cebaf.gov or cdev@cebaf.gov. If you have ported
+	CMLOG on a new OS, please let us know so that we can add your
+	Makefile for future releases.
+

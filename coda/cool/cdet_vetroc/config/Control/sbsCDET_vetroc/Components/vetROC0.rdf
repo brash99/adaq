@@ -1,0 +1,31 @@
+<rdf:RDF
+xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#"
+xmlns:cool="http://AFECSHOMEDB/schema/cool#"
+>
+
+<rdf:Description rdf:about="http://COOLHOME/Control/sbsCDET_vetroc/Components/vetROC0#vetROC0">
+
+   <cool:hasName>vetROC0</cool:hasName>
+   <cool:hasID>2</cool:hasID>
+   <cool:hasType>ROC</cool:hasType>
+   <cool:hasCode>{/home/adaq/coda3/SBS_CDET_VETROC/rol/dflay_test_list.so undefined} </cool:hasCode>
+   <cool:hasPriority>1210</cool:hasPriority>
+   <cool:isCodaComponent>true</cool:isCodaComponent>
+
+   <cool:include rdf:resource="http://COOLHOME/Control/sbsCDET_vetroc/Options/vetROC0_option.rdf"/>
+   <cool:hasOption rdf:resource="http://COOLHOME/Control/sbsCDET_vetroc/Options/vetROC0_option#vetROC0_option"/>
+
+
+
+   <cool:include rdf:resource="http://COOLHOME/Control/sbsCDET_vetroc/Links/vetROC0_PEB0.rdf"/>
+   <cool:usesLink rdf:resource="http://COOLHOME/Control/sbsCDET_vetroc/Links/vetROC0_PEB0#vetROC0_PEB0"/>
+
+
+
+   <cool:XCo>0.0</cool:XCo>
+   <cool:YCo>0.0</cool:YCo>
+   <cool:WCo>80.0</cool:WCo>
+   <cool:HCo>80.0</cool:HCo>
+
+</rdf:Description>
+</rdf:RDF>

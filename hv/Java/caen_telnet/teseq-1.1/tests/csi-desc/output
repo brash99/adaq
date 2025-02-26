@@ -1,0 +1,304 @@
+: Esc [ @
+& ICH: INSERT CHARACTER
+" Shift characters after the cursor to make room for 1 new character.
+: Esc [ 23 @
+& ICH: INSERT CHARACTER
+" Shift characters after the cursor to make room for 23 new characters.
+: Esc [ 1 ; 2 @
+& ICH: INSERT CHARACTER
+. LF/^J
+: Esc [ A
+& CUU: CURSOR UP
+" Move the cursor up 1 line.
+: Esc [ 1 A
+& CUU: CURSOR UP
+" Move the cursor up 1 line.
+: Esc [ 2 A
+& CUU: CURSOR UP
+" Move the cursor up 2 lines.
+: Esc [ B
+& CUD: CURSOR DOWN
+" Move the cursor down 1 line.
+: Esc [ 2 B
+& CUD: CURSOR DOWN
+" Move the cursor down 2 lines.
+: Esc [ C
+& CUF: CURSOR RIGHT
+" Move the cursor right 1 character.
+: Esc [ 2 C
+& CUF: CURSOR RIGHT
+" Move the cursor right 2 characters.
+: Esc [ D
+& CUB: CURSOR LEFT
+" Move the cursor left 1 character.
+: Esc [ 2 D
+& CUB: CURSOR LEFT
+" Move the cursor left 2 characters.
+. LF/^J
+: Esc [ E
+& CNL: CURSOR NEXT LINE
+" Move the cursor to the first column, 1 line down.
+: Esc [ 2 E
+& CNL: CURSOR NEXT LINE
+" Move the cursor to the first column, 2 lines down.
+: Esc [ F
+& CPL: CURSOR PRECEDING LINE
+" Move the cursor to the first column, 1 line up.
+: Esc [ 2 F
+& CPL: CURSOR PRECEDING LINE
+" Move the cursor to the first column, 2 lines up.
+. LF/^J
+: Esc [ G
+& CHA: CURSOR CHARACTER ABSOLUTE
+" Move the cursor to column 1.
+: Esc [ 5 G
+& CHA: CURSOR CHARACTER ABSOLUTE
+" Move the cursor to column 5.
+. LF/^J
+: Esc [ H
+& CUP: CURSOR POSITION
+" Move the cursor to line 1, column 1.
+: Esc [ 5 ; H
+& CUP: CURSOR POSITION
+" Move the cursor to line 5, column 1.
+: Esc [ 5 H
+& CUP: CURSOR POSITION
+" Move the cursor to line 5, column 1.
+: Esc [ ; 5 H
+& CUP: CURSOR POSITION
+" Move the cursor to line 1, column 5.
+. LF/^J
+: Esc [ I
+& CHT: CURSOR FORWARD TABULATION
+" Move the cursor forward 1 tab stop.
+: Esc [ 3 I
+& CHT: CURSOR FORWARD TABULATION
+" Move the cursor forward 3 tab stops.
+. LF/^J
+: Esc [ J
+& ED: ERASE IN PAGE
+" Clear from the cursor to the end of the screen.
+: Esc [ 0 J
+& ED: ERASE IN PAGE
+" Clear from the cursor to the end of the screen.
+: Esc [ 1 J
+& ED: ERASE IN PAGE
+" Clear from the beginning of the screen to the cursor.
+: Esc [ 2 J
+& ED: ERASE IN PAGE
+" Clear the screen.
+: Esc [ 3 J
+& ED: ERASE IN PAGE
+. LF/^J
+: Esc [ K
+& EL: ERASE IN LINE
+" Clear from the cursor to the end of the line.
+: Esc [ 1 K
+& EL: ERASE IN LINE
+" Clear from the beginning of the line to the cursor.
+: Esc [ 2 K
+& EL: ERASE IN LINE
+" Clear the line.
+. LF/^J
+: Esc [ L
+& IL: INSERT LINE
+" Shift lines after the cursor to make room for 1 new line.
+: Esc [ 23 L
+& IL: INSERT LINE
+" Shift lines after the cursor to make room for 23 new lines.
+. LF/^J
+: Esc [ M
+& DL: DELETE LINE
+" Delete 1 line, shifting the following lines up.
+: Esc [ 3 M
+& DL: DELETE LINE
+" Delete 3 lines, shifting the following lines up.
+. LF/^J
+: Esc [ N
+& EF: ERASE IN FIELD
+" Clear from the cursor to the next tab stop.
+: Esc [ 1 N
+& EF: ERASE IN FIELD
+" Clear from the previous tab stop to the cursor.
+: Esc [ 2 N
+& EF: ERASE IN FIELD
+" Clear from the previous tab stop to the next tab stop.
+. LF/^J
+: Esc [ P
+& DCH: DELETE CHARACTER
+" Delete 1 character, shifting the following characters left.
+: Esc [ 1 P
+& DCH: DELETE CHARACTER
+" Delete 1 character, shifting the following characters left.
+: Esc [ 42 P
+& DCH: DELETE CHARACTER
+" Delete 42 characters, shifting the following characters left.
+. LF/^J
+: Esc [ R
+& CPR: ACTIVE POSITION REPORT
+" Report that the cursor is located at line 1, column 1
+: Esc [ 2 ; 4 R
+& CPR: ACTIVE POSITION REPORT
+" Report that the cursor is located at line 2, column 4
+. LF/^J
+: Esc [ S
+& SU: SCROLL UP
+" Scroll up by 1 line
+: Esc [ 3 S
+& SU: SCROLL UP
+" Scroll up by 3 lines
+: Esc [ T
+& SD: SCROLL DOWN
+" Scroll down by 1 line
+: Esc [ 4 T
+& SD: SCROLL DOWN
+" Scroll down by 4 lines
+: Esc [ Spc @
+& SL: SCROLL LEFT
+" Scroll left by 1 column
+: Esc [ 15 Spc @
+& SL: SCROLL LEFT
+" Scroll left by 15 columns
+: Esc [ Spc A
+& SR: SCROLL RIGHT
+" Scroll right by 1 column
+: Esc [ 14 Spc A
+& SR: SCROLL RIGHT
+" Scroll right by 14 columns
+. LF/^J
+: Esc [ W
+& CTC: CURSOR TABULATION CONTROL
+" Set a horizontal tab stop at the cursor position.
+: Esc [ ; 2 ; 4 ; 5 ; W
+& CTC: CURSOR TABULATION CONTROL
+" Set a horizontal tab stop at the cursor position.
+" Clear the horizontal tab stop at the cursor position.
+" Clear all horizontal tab stops in the current line.
+" Clear all horizontal tab stops.
+" Set a horizontal tab stop at the cursor position.
+: Esc [ 1 ; 3 ; 6 W
+& CTC: CURSOR TABULATION CONTROL
+" Set a vertical tab stop at the current line.
+" Clear the vertical tab stop at the current line.
+" Clear all vertical tab stops.
+. LF/^J
+: Esc [ X
+& ECH: ERASE CHARACTER
+" Erase 1 character, starting at the cursor.
+: Esc [ 10 X
+& ECH: ERASE CHARACTER
+" Erase 10 characters, starting at the cursor.
+. LF/^J
+: Esc [ Y
+& CVT: CURSOR LINE TABULATION
+" Move the cursor forward 1 vertical tab stop.
+: Esc [ 3 Y
+& CVT: CURSOR LINE TABULATION
+" Move the cursor forward 3 vertical tab stops.
+. LF/^J
+: Esc [ Z
+& CBT: CURSOR BACKWARD TABULATION
+" Move the cursor back 1 tab stop.
+: Esc [ 3 Z
+& CBT: CURSOR BACKWARD TABULATION
+" Move the cursor back 3 tab stops.
+. LF/^J
+: Esc [ `
+& HPA: CHARACTER POSITION ABSOLUTE
+" Move the cursor to column 1.
+: Esc [ 5 `
+& HPA: CHARACTER POSITION ABSOLUTE
+" Move the cursor to column 5.
+. LF/^J
+: Esc [ c
+& DA: DEVICE ATTRIBUTES
+" Request terminal identification.
+. LF/^J
+: Esc [ d
+& VPA: LINE POSITION ABSOLUTE
+" Move the cursor to line 1.
+: Esc [ 5 d
+& VPA: LINE POSITION ABSOLUTE
+" Move the cursor to line 5.
+. LF/^J
+: Esc [ f
+& HVP: CHARACTER AND LINE POSITION
+" Move the cursor to line 1, column 1.
+: Esc [ 2 ; 2 f
+& HVP: CHARACTER AND LINE POSITION
+" Move the cursor to line 2, column 2.
+. LF/^J
+: Esc [ g
+& TBC: TABULATION CLEAR
+" Clear the horizontal tab stop at the cursor position.
+: Esc [ 1 g
+& TBC: TABULATION CLEAR
+" Clear the vertical tab stop at the current line.
+: Esc [ 2 g
+& TBC: TABULATION CLEAR
+" Clear all horizontal tab stops in the current line.
+: Esc [ 3 g
+& TBC: TABULATION CLEAR
+" Clear all horizontal tab stops.
+: Esc [ 4 g
+& TBC: TABULATION CLEAR
+" Clear all vertical tab stops.
+: Esc [ 5 g
+& TBC: TABULATION CLEAR
+" Clear all tab stops.
+: Esc [ 6 g
+& TBC: TABULATION CLEAR
+: Esc [ 1 ; 1 g
+& TBC: TABULATION CLEAR
+. LF/^J
+: Esc [ i
+& MC: MEDIA COPY
+" Initiate transfer to a primary auxiliary device.
+: Esc [ 1 i
+& MC: MEDIA COPY
+" Initiate transfer from a primary auxiliary device.
+: Esc [ 2 i
+& MC: MEDIA COPY
+" Initiate transfer to a secondary auxiliary device.
+: Esc [ 3 i
+& MC: MEDIA COPY
+" Initiate transfer from a secondary auxiliary device.
+: Esc [ 4 i
+& MC: MEDIA COPY
+" Stop relay to a primary auxiliary device.
+: Esc [ 5 i
+& MC: MEDIA COPY
+" Start relay to a primary auxiliary device.
+: Esc [ 6 i
+& MC: MEDIA COPY
+" Stop relay to a secondary auxiliary device.
+: Esc [ 7 i
+& MC: MEDIA COPY
+" Start relay to a secondary auxiliary device.
+: Esc [ 8 i
+& MC: MEDIA COPY
+. LF/^J
+: Esc [ n
+& DSR: DEVICE STATUS REPORT
+" Device reports ready.
+: Esc [ 1 n
+& DSR: DEVICE STATUS REPORT
+" Device reports ready, send DSR request later.
+: Esc [ 2 n
+& DSR: DEVICE STATUS REPORT
+" Device reports ready, will send DSR later.
+: Esc [ 3 n
+& DSR: DEVICE STATUS REPORT
+" Device reports error, send DSR request later.
+: Esc [ 4 n
+& DSR: DEVICE STATUS REPORT
+" Device reports error, will send DSR later.
+: Esc [ 5 n
+& DSR: DEVICE STATUS REPORT
+" DSR requested.
+: Esc [ 6 n
+& DSR: DEVICE STATUS REPORT
+" Request cursor position report.
+: Esc [ 7 n
+& DSR: DEVICE STATUS REPORT
+. LF/^J

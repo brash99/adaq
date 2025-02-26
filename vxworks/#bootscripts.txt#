@@ -1,0 +1,235 @@
+================================================
+RR3-Boot parameters (07/27/2015 Dasuni Adikaram)
+================================================
+
+1. BOTTOM crate 
+
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : sbs1
+file name            : /site/coda/kern/5.5/vx2400_v2
+inet on ethernet (e) : 129.57.37.26:fffffe00
+host inet (h)        : 129.57.36.67
+user (u)             : adaq
+ftp password (pw)    : cebaF111
+flags (f)            : 0x20 
+target name (tn)     : sbsvme4
+startup script (s)   : /home/adaq/vxworks/sbsvme4.boot
+
+(Initially)
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : clon10
+file name            : $CODA/VXWORKS_ppc/bin/vx2400
+inet on ethernet (e) : 129.57.167.138:ffffff00
+host inet (h)        : 129.57.167.14
+user (u)             : clasrun
+flags (f)            : 0x20 
+target name (tn)     : tdcpcal4
+startup script (s)   : $CODA/VXWORKS_ppc/bootscripts/boot_vmeroc4
+
+2. MIDDLE crate
+
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : sbs1
+file name            : /site/coda/kern/5.5/vx2400_v2
+inet on ethernet (e) : 129.57.37.27:fffffe00
+host inet (h)        : 129.57.36.67
+user (u)             : adaq
+ftp password (pw)    : cebaF111
+flags (f)            : 0x20 
+target name (tn)     : sbsvme5
+startup script (s)   : /home/adaq/vxworks/sbsvme5.boot
+
+
+(initially)
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : clon10
+file name            : $CODA/VXWORKS_ppc/bin/vx2400
+inet on ethernet (e) : 129.57.167.126:ffffff00
+host inet (h)        : 129.57.167.14
+user (u)             : clasrun
+flags (f)            : 0x20 
+target name (tn)     : tdcftof1
+startup script (s)   : $CODA/VXWORKS_ppc/bootscripts/boot_vmeroc1
+
+3. TOP crate
+
+
+(initially)
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : clon10
+file name            : $CODA/VXWORKS_ppc/bin/vx2400
+inet on ethernet (e) : 129.57.167.128:ffffff00
+host inet (h)        : 129.57.167.14
+user (u)             : clasrun
+flags (f)            : 0x20 
+target name (tn)     : tdcftof3
+startup script (s)   : $CODA/VXWORKS_ppc/bootscripts/boot_vmeroc3
+
+
+================================================
+RR3-Boot parameters (06/03/2015 Dasuni Adikaram)
+================================================
+
+1. TOP crate
+
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : sbs1
+file name            : /site/coda/kern/5.5/vx2306_v4
+inet on ethernet (e) : 129.57.36.50:fffffe00
+host inet (h)        : 129.57.36.67
+gateway inet (g)     : 129.57.36.1
+user (u)             : adaq
+ftp password (pw)    : cebaF111
+flags (f)            : 0x20 
+target name (tn)     : sbsfbdaq3a
+startup script (s)   : /home/adaq/vxworks/sbsfbdaq3a.boot
+
+II. MIDDLE crate
+
+boot device          : fei
+unit number          : 0 
+processor number     : 0 
+host name            : sbs1
+file name            : /site/coda/kern/5.5/vx5100_v2
+inet on ethernet (e) : 129.57.37.6:fffffe00
+host inet (h)        : 129.57.36.67
+gateway inet (g)     : 129.57.36.1
+user (u)             : adaq
+ftp password (pw)    : cebaF111
+flags (f)            : 0x20 
+target name (tn)     : sbsfbdaq1b
+startup script (s)   : /home/adaq/vxworks/sbsfbdaq1b.boot
+
+III. BOTTOM crate
+
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : sbs1
+file name            : /site/coda/kern/5.5/vx2306_v4
+inet on ethernet (e) : 129.57.36.64:fffffe00
+host inet (h)        : 129.57.36.67
+gateway inet (g)     : 129.57.36.1
+user (u)             : adaq
+ftp password (pw)    : cebaF111
+flags (f)            : 0x20 
+target name (tn)     : sbsfbdaq2a
+startup script (s)   : /home/adaq/vxworks/sbsfbdaq2a.boot
+
+=============================================================
+These are the boot parameters we used we were working on RR-2
+=============================================================
+I. This is for the TOP crate
+
+boot device          : dc0 
+processor number     : 0 
+host name            : sbs1 
+file name            : /site/coda/kern/5.5/vx2306_v4 
+inet on ethernet (e) : 129.57.37.6:fffffe00 
+inet on backplane (b): 
+host inet (h)        : 129.57.36.67 
+gateway inet (g)     : 129.57.36.1 
+user (u)             : adaq 
+ftp password (pw) (blank = use rsh): cebaF111 
+flags (f)            : 0x20 
+target name (tn)     : sbsfbdaq1b 
+startup script (s)   : /home/adaq/vxworks/sbsfbdaq1b.boot 
+other (o)            : 
+
+
+---------------------------------------
+
+Earlier attempted boot parameters
+
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : sbs1
+file name            : /home/adaq/vxworks/vx2306_v4
+inet on ethernet (e) : 129.57.37.6:fffffe00
+host inet (h)        : 129.57.74.150
+gateway inet (g)     : 129.57.72.1
+user (u)             : adaq
+flags (f)            : 0x20 
+target name (tn)     : sbsfbdaq1b
+startup script (s)   : /home/adaq/vxworks/sbsfbdaq1b.boot
+
+Error
+
+This error, which occured at first, is due to the fact
+that neither FTP nor RSH works if the host and client
+are on different subnets (note, 74 vs 37).  This was 
+fixed by putting sbs1 on the same subnet.
+
+Attached TCP/IP interface to dc0.
+Attaching network interface lo0... done.
+Loading... 
+Error loading file: errno = 0x41.
+
+
+-------------------------------------
+
+
+II. This is for the MIDDLE crate
+
+boot device          : fei0 
+processor number     : 0 
+host name            : sbs1 
+file name            : /site/coda/kern/5.5/vx5100_v2 
+inet on ethernet (e) : 129.57.37.3:fffffe00 
+inet on backplane (b): 
+host inet (h)        : 129.57.36.67
+gateway inet (g)     : 129.57.36.1 
+user (u)             : adaq 
+ftp password (pw) (blank = use rsh):cebaF111
+flags (f)            : 0x20 
+target name (tn)     : sbsfbdaq1a 
+startup script (s)   : /home/adaq/vxworks/sbsfbdaq1a.boot 
+other (o)            : 
+
+
+What was there, from yer122 boot
+
+boot device          : fei0 
+processor number     : 0 
+host name            : yer122 
+file name            : /home/vx/kern/5.5/vx5100_v2 
+inet on ethernet (e) : 129.57.37.3:fffffe00 
+inet on backplane (b): 
+host inet (h)        : 129.57.36.45 
+gateway inet (g)     : 129.57.36.1 
+user (u)             : vx 
+ftp password (pw) (blank = use rsh): cebaF111
+flags (f)            : 0x20 
+target name (tn)     : sbsfbdaq1a 
+startup script (s)   : /home/vx/sbsfbdaq1a.boot 
+other (o)            : 
+
+
+III. This is for the BOTTOM crate
+
+boot device          : dc
+unit number          : 0 
+processor number     : 0 
+host name            : sbs1
+file name            : /site/coda/kern/5.5/vx2306_v4
+inet on ethernet (e) : 129.57.36.64:fffffe00
+host inet (h)        : 129.57.36.67
+gateway inet (g)     : 129.57.36.1
+user (u)             : adaq
+ftp password (pw)    : cebaF111
+flags (f)            : 0x20 
+target name (tn)     : sbsfbdaq2a
+startup script (s)   : /home/adaq/vxworks/sbsfbdaq2a.boot

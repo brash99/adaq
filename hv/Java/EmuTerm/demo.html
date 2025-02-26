@@ -1,0 +1,51 @@
+<!DOCTYPE HTML PUBLIC "-//IETF//DTD HTML//EN">
+<html>
+  <head>
+    <title>WebTerm: A VT100 Terminal Emulator</title>
+    <link rev=made title="Dianne Hackborn"
+      href="mailto:hackbod@cs.orst.edu">
+  </head>
+  <body>
+
+      <h1 align=center>WebTerm</h1>
+      <h2 align=center>A VT100 Terminal Emulator and Telnet Client</h2>
+
+      <!-- This page will only work when retrieved from the
+      quartz.cs.orst.edu web server! -->
+
+      <p><em>This demo connects with Oregon State's Kerr Library on-line
+	  catalog. To use it, simply click the "connect" button.</em></p>
+
+      <!-- Netscape stinks... we really need to specify that the applet
+      should be sized to fit an 80x24 terminal, but there's no way to do
+      this. -->
+
+      <applet codebase="bin" code=WebTerm.class width="150%" height="75%">
+
+	<h2 align=center>Sorry, your Web browser does not support Java
+	  applets.</h2>
+
+	<!-- Automatic login to the on-line catalog. -->
+
+	<!-- First, login to the guest account. -->
+	<param name="prompt1" value="login: ">
+	  <param name="reply1" value="oasis\r\n">
+
+	    <!-- Tell oasis the terminal type we would like. -->
+	    <param name="prompt2" value="to your terminal type : ">
+	      <param name="reply2" value="1\r\n">
+		<!-- This is the last prompt, to we need to stop looking
+		from prompts when we get it -->
+		<param name="endprompts2" value="true">
+
+      </applet>
+
+      <hr>
+      <p>Please send questions or comments to
+	&lt;<a href="mailto:nacse-questions@nacse.org">nacse-questions@nacse.org</a>&gt;
+      </p>
+
+<!-- hhmts start -->
+<p class="signature">Last modified: Wed Jul 10 03:31:01 PDT 1996</p>
+<!-- hhmts end -->
+</body> </html>

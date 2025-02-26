@@ -1,0 +1,5 @@
+#HVFrame Hosts List
+# Apr 25, 2014
+num.frames=1
+name.frames=hatsv5\:2003\:telnet 
+server.port=5555

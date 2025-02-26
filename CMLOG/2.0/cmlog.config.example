@@ -1,0 +1,39 @@
+# Example CMLOG Config file for cmlogServer
+# Change cmlogServerPort number for each host 
+# cmlogServer is running on
+
+# cmlogServer UDP port number
+cmlogServerPort            8102
+
+# Maximum number of client connections
+cmlogMaxClntConnections    64
+
+#
+# Maximum number of browser connections
+cmlogMaxBrowserConnections 16
+
+# Server directory: the server will run in this directory
+# all logging files and process id file + core file will be here
+cmlogDefaultDirectory      /tmp
+
+#
+# Server logging file. if defined, all debugging message will be
+# stored in this file in the directory specified above
+cmlogLogFile               cmlogServer.log
+
+#
+# cmlog database file name which must be in the fullpath format
+# do not edit the format, only change path
+cmlogDatabaseName         /scratch/abbottd/CMLOG/file/cmlog_%s
+#
+# cmlog client context database name
+cmlogCxtDatabaseName      /scratch/abbottd/CMLOG/file/cmlogcxt_%s
+
+#
+# cmlog tag table filename
+cmlogTagTableName         /scratch/abbottd/CMLOG/file/cmlogTagTable
+
+# cmlog timer interval to change database file name (in minutes)
+cmlogDbaseChangeInterval  1440
+#
+

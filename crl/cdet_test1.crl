@@ -1,0 +1,504 @@
+# 
+#  User readout list using a TI (pipeline) in MASTER mode
+#   With an SFI in a Fastbus crate... readout of an Lecroy 1881 ADC.
+#
+#    Bryan Moffit, TJNAF 2014
+#
+
+readout list GEN_USER
+#maximum 512 event and each event can have 4096 bytes (so memory = 4096x512)
+maximum 4096,512
+sfi readout
+
+const WC_MASK = hex ffffff
+const SFI_ADDR  = hex e00000
+#const IRQ_SOURCE_MASK = 0x10
+const IRQ_SOURCE_MASK = 0x02
+
+const NTDC = 6
+const TDCSLOT1 = 11
+const TDCSLOT2 = 12
+const TDCSLOT3 = 13
+const TDCSLOT4 = 14
+const TDCSLOT5 = 15
+const TDCSLOT6 = 16
+
+# number of modules in total NADC + NTDC
+const NMOD = 6
+
+include "sfi.h"
+
+variable scan_mask
+
+include "GEN_source.h"
+include "tiLib.h"
+
+# A24 Address for TI Module (e.g. Slot number = 2)
+const TRIG_ADDR = 0x080000
+# TRIG_MODE=0 for interrupt mode (External input)
+const TRIG_MODE = 0
+
+const SFI_ADDR  = hex e00000
+
+const BLOCKLEVEL=1
+const BUFFERLEVEL=1
+
+# (1) Use internal pulser as the trigger, otherwise use TSINPUTS
+const USE_PULSER=0
+
+# Decision on whether (1) or not (0) to readout TI
+const READOUT_TI=1
+
+
+int tdcslots[NTDC];
+int modslots[NMOD];
+int nhitmod[NMOD];
+int csr0[NMOD];
+ 
+//static int pedsup;
+static int buffered;
+static int phelicity;
+
+
+extern int bigendian_out;
+int blockLevel=1;
+extern int tiA32Base;
+
+############################################################
+# DOWNLOAD
+############################################################
+begin download
+
+variable adc_id
+variable res, laddr, jj, kk, ll
+
+
+
+# When sending to a Linux Host set bigendian_out = 0
+bigendian_out = 0;
+
+# Setup SFI pointers to Enable triggers, and establish
+# DMA address offsets
+%%
+  res = (unsigned long) sysBusToLocalAdrs(0x39,SFI_ADDR,&laddr);
+  if (res != 0) {
+     printf("Error Initializing SFI res=%d \n",res);
+  } else {
+     printf("Calling InitSFI() routine with laddr=0x%x.\n",laddr);
+     InitSFI(laddr);
+  }
+%%
+
+# Setup TI
+%%
+{
+  /* measured longest fiber length */
+  tiSetFiberLatencyOffset_preInit(0x40); 
+
+  /* Set crate ID */
+  tiSetCrateID_preInit(0x1); /* ROC 1 */
+
+  /* TI Setup */
+  tiInit(TRIG_ADDR,TRIG_MODE,0);
+  tiDisableBusError();
+
+  if(READOUT_TI==0) /* Disable data readout */
+    {
+      tiDisableDataReadout();
+
+      /* Disable A32... where that data would have been stored on the TI */
+      tiDisableA32();
+    }
+  
+  /* Override library default busy source */
+  tiSetBusySource(TI_BUSY_LOOPBACK,1);
+
+  if(USE_PULSER==1)
+    tiSetTriggerSource(TI_TRIGGER_PULSER);
+  else
+    tiSetTriggerSource(TI_TRIGGER_TSINPUTS);
+
+
+  /* Set needed TS input bits */
+  tiEnableTSInput( TI_TSINPUT_1 | TI_TSINPUT_2 );
+
+  /* Load the trigger table
+   *  - 0:
+   *    - TS#1,2,3,4,5 generates Trigger1 (physics trigger),
+   *    - TS#6 generates Trigger2 (playback trigger),
+   *    - No SyncEvent;
+   */
+  tiLoadTriggerTable(0);
+
+  tiSetTriggerHoldoff(1,10,0);
+  tiSetTriggerHoldoff(2,10,0);
+
+  tiSetBlockBufferLevel(BUFFERLEVEL);
+
+
+  tiStatus(0);
+}
+%%
+
+%%
+/* setup the arrays containing the slotnumbers */ 
+  ll=0;
+  if (NTDC>0) {
+    kk=0;
+    for(jj=TDCSLOT1;jj<=TDCSLOT6;jj++) {
+       tdcslots[kk]=jj;
+       modslots[ll]=jj;
+       csr0[ll]=0x400;
+       kk++;
+       ll++;
+    }
+  }
+%%
+
+%%
+  init_strings();
+ /* buffered=getflag(BUFFERED);*/
+  buffered=0;	
+  phelicity=0;
+//pedsuppression=0;
+
+/* calculate the scan_mask */
+  scan_mask = 0;
+
+
+  for (jj=0; jj<NMOD; jj++)
+     scan_mask |= (1<<modslots[jj]);
+  printf ("Crate Scan mask = %x\n",scan_mask);
+%%
+
+
+%%
+{
+  /* Perform these at the end of DOWNLOAD */
+  tiDisableVXSSignals();
+  tiClockReset();
+  taskDelay(2);
+  tiTrigLinkReset();
+}
+
+
+ 
+%%
+
+  log inform "User Download Executed"
+
+end download
+    
+############################################################
+# PRESTART
+############################################################
+begin prestart
+
+ 
+  variable jj, adc_id, kk, slot_num, csr_0, pedsuppress
+#adc_id=0
+
+  log inform "Entering User Prestart"
+
+  init trig source GEN
+  link async trig source GEN 1 to titrig and titrig_done
+  event type 1 then read GEN 1
+
+%%
+{ 
+ /* Turn VXS signals on, beginning of prestart */
+  tiEnableVXSSignals();
+
+  /* Set number of events per block (broadcasted to all connected TI Slaves)*/
+  tiSetBlockLevel(BLOCKLEVEL);
+  printf("rocPrestart: Block Level set to %d\n",BLOCKLEVEL);
+}
+%%
+# For Interrupt driven triggers
+  sfiTrigSource = IRQ_SOURCE_MASK;
+
+
+# (dont) Use sparcification. Enable gate from front panel.
+# Set FCW to minimum value 2.05 us.
+
+# 1881 Configuration
+  reset crate 0
+
+# Fast Clear/Reset 1881
+  write hex 40000000 into geographic control TDCSLOT1
+  write hex 40000000 into geographic control TDCSLOT2
+  write hex 40000000 into geographic control TDCSLOT3
+  write hex 40000000 into geographic control TDCSLOT4
+  write hex 40000000 into geographic control TDCSLOT5
+  write hex 40000000 into geographic control TDCSLOT6
+
+  sfi_error_decode(0);
+
+
+# want to read from front panel of tdcs so if bit 1 is
+# set to 1 and front panel
+# is  disabled. note: common stop tr6 is the source,
+# common start tr3 is the source
+  
+  geographic control TDCSLOT6
+     write hex 00000904
+  secondary address 1
+     write hex 00000041
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+    
+  geographic control TDCSLOT5
+     write hex 00001904
+  secondary address 1
+     write hex 00000041
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+  geographic control TDCSLOT4
+     write hex 00001904
+  secondary address 1
+     write hex 00000041
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+  geographic control TDCSLOT3
+     write hex 00001904
+  secondary address 1
+     write hex 00000041
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+  geographic control TDCSLOT2
+     write hex 00001904
+  secondary address 1
+     write hex 00000041
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+  geographic control TDCSLOT1
+     write hex 00001104
+  secondary address 1
+     write hex 00000041
+  secondary address 7
+     write 2
+  release
+  sfi_error_decode(0);
+
+%%
+{
+  /* Send a SyncReset, at the end of prestart */
+  tiSyncReset(1);
+  taskDelay(2);
+}
+%%
+
+  log inform "User Prestart Executed"
+
+end prestart
+
+############################################################
+# END
+############################################################
+begin end
+
+%%
+
+
+{
+  CDODISABLE(GEN,1,0);
+
+  if(USE_PULSER==1)
+    tiSoftTrig(1,0,0x1123,1);
+
+  tiStatus(0);
+  printf("Interrupt Count: %8d \n",tiGetIntCount());
+}
+%%
+
+  log inform "User End Executed"
+
+end end
+
+############################################################
+# PAUSE
+############################################################
+begin pause
+
+  CDODISABLE(GEN,1,0);
+
+
+  log inform "User Pause Executed"
+
+end pause
+
+############################################################
+# GO
+############################################################
+begin go
+  
+  log inform "Entering User Go"
+  
+%%
+{
+  /* Get the current Block Level */
+  blockLevel = tiGetCurrentBlockLevel();
+  printf("rocGo: Block Level set to %d\n",blockLevel);
+}
+%%
+
+
+%%
+{
+
+
+  CDOENABLE(GEN,1,0);
+
+  if(USE_PULSER==1)
+    tiSoftTrig(1,3000,0x1123,1);
+
+  tiStatus(0);
+}
+%%
+
+  log inform "User Go Executed"
+
+end go
+
+############################################################
+# TRIGGER
+############################################################
+begin trigger titrig
+  variable dCnt,ev_type,ii,datascan,res, jj,fbres
+
+# Enable SFI Sequencer
+  *sfi.sequencerEnable = 0;
+
+  rol->dabufp = (long *) 0;
+
+%%
+{
+  /* Readout TI to get Event Type */
+  ev_type=1; /* Default event type (for example) */
+  if(READOUT_TI==1)
+    {
+      dCnt = tiReadBlock(tiData,50,0);
+      if(dCnt<=0)
+	{
+	  logMsg("No data or error.  dCnt = %d\n",dCnt);
+	}
+      else
+	{
+	  ev_type=(tiData[2]&(0x0F000000))>>24; /* Conform to CODA 2.x event type limit */
+	}
+    }
+  
+}
+
+%%
+
+# Open up the event of type ev_type = 1
+open event type 1 of BT_BANK
+
+%%
+{
+  if(READOUT_TI==1)
+    {
+      /* Open a CODA Bank of 4byte unsigned integers, type=4 (for example) */
+      CBOPEN(4,BT_UI4,0);
+      if(dCnt<=0)
+	{
+	  logMsg("No data or error.  dCnt = %d\n",dCnt);
+	}
+      else
+	{
+	   *rol->dabufp++ =  0xddddcccc;
+	   for(ii=0; ii<dCnt; ii++)
+	     *rol->dabufp++ = tiData[ii];
+	    numLocal =  tiGetReadoutEvents();
+	    *rol->dabufp++ =  numLocal;
+	}
+
+	
+      CBCLOSE;
+    }
+
+ }
+
+%%
+
+# Fastbus 1881 readout
+
+%%
+  /* Broadcast scan for data */
+  ii=0;
+  datascan = 0;
+  while ((ii<50) && ((datascan&scan_mask) != scan_mask)) {
+    fb_frcm_1(9,0,&datascan,1,0,1,0,0,0);
+    ii++;
+  }
+%%
+
+open bank 7 of BT_UI4
+ 
+  if ii is less than 50 then
+
+# Load next event for all ADCs via a Broadcast
+  fb_fwcm_1(0x15,0,0x400,1,0,1,0,0,0);
+
+# Block Read the Data - Should get all Boards if Multiblock is setup
+    output hex da000011
+    block read 520 from geo data TDCSLOT6
+    output hex da000022
+
+# Check if Boards have any more data - 
+%%
+  datascan = 0;
+  fbres = fb_frcm_1(9,0,&datascan,1,0,1,0,0,0);
+  if (fbres) logMsg("fbres = 0x%x\n",fbres,0,0,0,0,0);
+  if ((datascan != 0) && (datascan&~scan_mask)) {
+     logMsg("Error: More data available after readout datascan = 0x%08x fbres = 0x%x\n",datascan,fbres,0,0,0,0);
+  }
+%%
+  else
+    output datascan
+    output ii
+    output hex da0000ff
+
+  endif
+
+  close bank
+
+ close event
+
+end trigger
+
+begin done titrig
+
+end done
+############################################################
+# DONE (TRIGGER ACKNOWLEDGE)
+############################################################
+begin done
+  CDOACK(GEN,1,0);
+
+# Acknowledge B42 Interrupt
+
+end done
+
+begin status
+
+end status
+
+
+%%
+

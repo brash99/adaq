@@ -1,0 +1,11 @@
+# Date 28-Feb-2012
+# Map file for RHRS Gas Cerenkov HV system
+#
+# hv's host:port list (1 hvframe)
+hatsv3:2005
+
+11400 11405
+11401 11406
+11402 11407
+11403 11408
+11404 11409

@@ -1,0 +1,12 @@
+# Date 28-Feb-2012
+# Map file for LHRS S1 HV system
+#
+# hv's host:port list (1 hvframe)
+hatsv4:2006
+
+10100 10106
+10101 10107
+10102 10108
+10103 10109
+10104 10110
+10105 10111

@@ -1,0 +1,31 @@
+
+  Very simple FASTBUS decoder example for SBS test stand
+     R. Michaels   Oct 24, 2014
+
+  This file:  README
+
+  Main code is  
+
+       Fastbus_main1.C
+
+  Support code is all the other *.C and *.h files
+
+  To compile type "make"
+
+  To run, you'll need a link to an existing data file.  
+
+         ln -s ~/scratch/happexsp/happexsp_6742.dat.0 run.dat
+
+  Then run the executible
+
+         ./fbana 10000
+
+         The argument here (10000) is the number of events.
+         If you leave that out, there is a default.
+
+  The output is a root file with some histograms.  
+
+         sbs.root
+
+  If you turn on the "debug" flag in the main code, it will
+  produce a bunch of output.
